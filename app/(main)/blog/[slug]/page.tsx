@@ -89,7 +89,38 @@ export default async function BlogDetailPage({
       </div>
 
       <article className="prose prose-neutral mt-8 max-w-none prose-headings:tracking-tight prose-a:underline-offset-4">
-        <PortableText value={post.body} />
+        <PortableText
+          value={post.body}
+          components={{
+            block: {
+              h2: ({ children }) => (
+                <h2 className="mt-10 text-2xl font-bold tracking-tight text-neutral-900">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="mt-8 text-xl font-semibold text-neutral-900">
+                  {children}
+                </h3>
+              ),
+              normal: ({ children }) => (
+                <p className="leading-relaxed text-neutral-800">{children}</p>
+              ),
+            },
+            list: {
+              bullet: ({ children }) => (
+                <ul className="mb-5 list-disc pl-6">{children}</ul>
+              ),
+              number: ({ children }) => (
+                <ol className="mb-5 list-decimal pl-6">{children}</ol>
+              ),
+            },
+            listItem: {
+              bullet: ({ children }) => <li className="mb-2">{children}</li>,
+              number: ({ children }) => <li className="mb-2">{children}</li>,
+            },
+          }}
+        />
       </article>
 
       {post.tags?.length ? (
