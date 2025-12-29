@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
+import { urlFor } from "@/sanity/lib/image";
 
 type Post = {
   _id: string;
@@ -92,6 +93,27 @@ export default async function BlogDetailPage({
         <PortableText
           value={post.body}
           components={{
+            types: {
+              image: ({ value }) => {
+                if (!value?.asset) return null;
+                const src = urlFor(value)
+                  .width(1200)
+                  .fit("max")
+                  .auto("format")
+                  .url();
+
+                if (!src) return null;
+
+                return (
+                  <img
+                    src={src}
+                    alt={value.alt || ""}
+                    className="my-6 w-full rounded-lg object-cover"
+                    loading="lazy"
+                  />
+                );
+              },
+            },
             block: {
               h2: ({ children }) => (
                 <h2 className="mt-10 text-2xl font-bold tracking-tight text-neutral-900">
