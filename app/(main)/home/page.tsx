@@ -5,7 +5,34 @@ import {
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
 import { formatDate } from "@/utils/date";
+import { defaultOgImage, siteName } from "@/utils/seo";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description:
+    "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+  alternates: {
+    canonical: "/home",
+  },
+  openGraph: {
+    title: "Home",
+    description:
+      "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+    url: "/home",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Home",
+    description:
+      "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+    images: [defaultOgImage],
+  },
+};
 
 export default async function Home() {
   const latest = await client.fetch(latestBlogsQuery);

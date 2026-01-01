@@ -1,4 +1,31 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "About",
+    description:
+      "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+    url: "/about",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About",
+    description:
+      "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+    images: [defaultOgImage],
+  },
+};
 
 export default function AboutPage() {
   return (

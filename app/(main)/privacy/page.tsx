@@ -1,3 +1,31 @@
+import type { Metadata } from "next";
+import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Read the AnimeSparks privacy policy and understand how data is handled.",
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy",
+    description:
+      "Read the AnimeSparks privacy policy and understand how data is handled.",
+    url: "/privacy",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy",
+    description:
+      "Read the AnimeSparks privacy policy and understand how data is handled.",
+    images: [defaultOgImage],
+  },
+};
+
 export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-white">

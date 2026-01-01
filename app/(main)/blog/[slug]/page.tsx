@@ -7,6 +7,9 @@ import { urlFor } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
 
 type Post = {
   _id: string;
@@ -23,17 +26,61 @@ type Post = {
   faq?: { question?: string; answer?: string }[];
 };
 
-const getBaseUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return siteUrl.replace(/\/$/, "");
-};
-
 const getDescription = (excerpt?: string) => {
   if (!excerpt) return undefined;
   const trimmed = excerpt.replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
 };
+
+const getPost = cache(async (slug: string) =>
+  client.fetch<Post | null>(blogBySlugQuery, { slug })
+);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (!slug) return {};
+
+  const post = await getPost(slug);
+  if (!post?._id) {
+    return { title: "Post Not Found" };
+  }
+
+  const baseUrl = getBaseUrl();
+  const canonical = `${baseUrl}/blog/${post.slug}`;
+  const description =
+    getDescription(post.excerpt) || `Read ${post.title} on ${siteName}.`;
+
+  const ogImage =
+    post.mainImage?.asset?.url || new URL(defaultOgImage, baseUrl).toString();
+
+  return {
+    title: post.title,
+    description,
+    alternates: {
+      canonical,
+    },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title: post.title,
+      description,
+      url: canonical,
+      type: "article",
+      siteName,
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function BlogDetailPage({
   params,
@@ -42,7 +89,7 @@ export default async function BlogDetailPage({
 }) {
   const { slug } = await params;
 
-  const post: Post | null = await client.fetch(blogBySlugQuery, { slug });
+  const post = await getPost(slug);
 
   if (!post?._id) return notFound();
 
@@ -83,7 +130,7 @@ export default async function BlogDetailPage({
       <BreadcrumbsJsonLd
         items={[
           { name: "Home", item: `${baseUrl}/home` },
-          { name: "Blogs", item: `${baseUrl}/blogs` },
+          { name: "Blog", item: `${baseUrl}/blog` },
           { name: post.title, item: canonicalUrl },
         ]}
       />

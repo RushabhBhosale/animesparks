@@ -6,6 +6,9 @@ import {
   categoryBySlugQuery,
 } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { defaultOgImage, siteName } from "@/utils/seo";
 
 type Category = {
   _id: string;
@@ -22,6 +25,53 @@ type CategoryPost = {
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
+const getCategory = cache(async (slug: string) =>
+  client.fetch<Category | null>(categoryBySlugQuery, { slug })
+);
+
+const getDescription = (category: Category) =>
+  category.description?.trim() ||
+  `Posts in ${category.title} on ${siteName}.`;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  if (!slug) return {};
+
+  const category = await getCategory(slug);
+  if (!category?._id) {
+    return { title: "Category Not Found" };
+  }
+
+  const description = getDescription(category);
+  const canonical = `/categories/${category.slug || slug}`;
+
+  return {
+    title: category.title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title: category.title,
+      description,
+      url: canonical,
+      type: "website",
+      siteName,
+      images: [{ url: defaultOgImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: category.title,
+      description,
+      images: [defaultOgImage],
+    },
+  };
+}
+
 export default async function CategoryDetailPage({
   params,
 }: {
@@ -31,9 +81,7 @@ export default async function CategoryDetailPage({
 
   if (!slug) return notFound();
 
-  const category: Category | null = await client.fetch(categoryBySlugQuery, {
-    slug,
-  });
+  const category = await getCategory(slug);
 
   if (!category?._id) return notFound();
 

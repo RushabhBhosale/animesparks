@@ -2,6 +2,30 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesQuery, sitemapPageBlogsQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import type { Metadata } from "next";
+import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "Sitemap",
+  description: "Browse the AnimeSparks site index and published posts.",
+  alternates: {
+    canonical: "/sitemap",
+  },
+  openGraph: {
+    title: "Sitemap",
+    description: "Browse the AnimeSparks site index and published posts.",
+    url: "/sitemap",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sitemap",
+    description: "Browse the AnimeSparks site index and published posts.",
+    images: [defaultOgImage],
+  },
+};
 
 type Category = {
   _id: string;

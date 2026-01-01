@@ -1,6 +1,33 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesWithCountsQuery } from "@/sanity/blogQueries";
+import type { Metadata } from "next";
+import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "Categories",
+  description:
+    "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+  alternates: {
+    canonical: "/categories",
+  },
+  openGraph: {
+    title: "Categories",
+    description:
+      "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+    url: "/categories",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Categories",
+    description:
+      "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+    images: [defaultOgImage],
+  },
+};
 
 type Category = {
   _id: string;

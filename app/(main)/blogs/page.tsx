@@ -2,6 +2,33 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import type { Metadata } from "next";
+import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "Blogs",
+  description:
+    "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+  alternates: {
+    canonical: "/blogs",
+  },
+  openGraph: {
+    title: "Blogs",
+    description:
+      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+    url: "/blogs",
+    type: "website",
+    siteName,
+    images: [{ url: defaultOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blogs",
+    description:
+      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+    images: [defaultOgImage],
+  },
+};
 
 export default async function AllBlogsPage() {
   const blogs = await client.fetch(blogsQuery);

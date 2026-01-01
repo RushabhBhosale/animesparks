@@ -129,11 +129,11 @@ export default function Header() {
             <Link
               className={clsx(
                 "inline-flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
-                isActive("/")
+                isActive("/home")
                   ? "bg-neutral-100 text-neutral-900"
                   : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
               )}
-              href="/"
+              href="/home"
             >
               <Home className="h-5 w-5" />
               <span>Home</span>

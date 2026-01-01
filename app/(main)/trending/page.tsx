@@ -2,6 +2,33 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { trendingBlogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import type { Metadata } from "next";
+import { siteName } from "@/utils/seo";
+
+export const metadata: Metadata = {
+  title: "Trending",
+  description:
+    "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+  alternates: {
+    canonical: "/trending",
+  },
+  openGraph: {
+    title: "Trending",
+    description:
+      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+    url: "/trending",
+    type: "website",
+    siteName,
+    images: [{ url: "/trending-poster.jpg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trending",
+    description:
+      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+    images: ["/trending-poster.jpg"],
+  },
+};
 
 export default async function TrendingPage() {
   const trending = await client.fetch(trendingBlogsQuery);

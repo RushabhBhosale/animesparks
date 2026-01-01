@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Left */}
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/"
+              href="/home"
               className="font-semibold text-neutral-900 hover:text-neutral-700"
             >
               AnimeSparks
