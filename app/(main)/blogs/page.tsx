@@ -44,42 +44,42 @@ export default async function AllBlogsPage() {
           <div className="lg:col-span-8">
             {/* Featured Top Post */}
             {featured && (
-              <Link
-                href={`/blog/${featured.slug}`}
-                className="group mb-10 block border-b border-gray-200 pb-10"
-              >
-                {featured.mainImage?.asset?.url && (
-                  <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
-                    <img
-                      src={featured.mainImage.asset.url}
-                      alt={featured.mainImage.alt || featured.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-block rounded-sm bg-red-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
-                        Featured
-                      </span>
+              <div className="group mb-10 border-b border-gray-200 pb-10">
+                <Link href={`/blog/${featured.slug}`} className="block">
+                  {featured.mainImage?.asset?.url && (
+                    <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
+                      <img
+                        src={featured.mainImage.asset.url}
+                        alt={featured.mainImage.alt || featured.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <span className="inline-block rounded-sm bg-red-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                          Featured
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </Link>
                 <div className="mt-5">
                   {featured.categories?.[0] && (
                     <Link
                       href={`/categories/${featured.categories[0].slug}`}
                       className="inline-block text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-700"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {featured.categories[0].title}
                     </Link>
                   )}
-                  <h2 className="mt-2 text-3xl font-black leading-tight text-gray-900 group-hover:text-red-600 transition-colors md:text-4xl">
-                    {featured.title}
-                  </h2>
+                  <Link href={`/blog/${featured.slug}`} className="block">
+                    <h2 className="mt-2 text-3xl font-black leading-tight text-gray-900 transition-colors group-hover:text-red-600 md:text-4xl">
+                      {featured.title}
+                    </h2>
+                  </Link>
                   <p className="mt-3 text-sm font-medium text-gray-500">
                     {formatDate(featured.publishedAt)}
                   </p>
                 </div>
-              </Link>
+              </div>
             )}
 
             {/* Filter Tabs */}

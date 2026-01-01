@@ -127,7 +127,7 @@ export default async function Home() {
 
             <div className="pt-4">
               <Link
-                href="/blog"
+                href="/blogs"
                 className="inline-flex items-center gap-2 rounded-sm bg-red-600 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-700"
               >
                 View All Articles
