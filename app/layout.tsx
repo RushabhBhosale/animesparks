@@ -60,6 +60,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta
+          name="google-site-verification"
+          content="tPu2ydEno2Cgozfk4C7IMvR9jnX8NgMyA2vFTRb7KdQ"
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-N73PGN515J"
           strategy="afterInteractive"
