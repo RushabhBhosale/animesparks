@@ -6,6 +6,7 @@ export function ArticleJsonLd({
   datePublished,
   dateModified,
   authorName,
+  authorUrl,
 }: {
   url: string;
   title: string;
@@ -14,7 +15,17 @@ export function ArticleJsonLd({
   datePublished?: string;
   dateModified?: string;
   authorName?: string;
+  authorUrl?: string;
 }) {
+  const author =
+    authorName || authorUrl
+      ? {
+          "@type": "Person",
+          name: authorName,
+          url: authorUrl,
+        }
+      : undefined;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -24,7 +35,7 @@ export function ArticleJsonLd({
     image: image ? [image] : undefined,
     datePublished,
     dateModified: dateModified || datePublished,
-    author: authorName ? { "@type": "Person", name: authorName } : undefined,
+    author,
     publisher: {
       "@type": "Organization",
       name: "AnimeSparks",

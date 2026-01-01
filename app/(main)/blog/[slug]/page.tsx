@@ -9,7 +9,13 @@ import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
 import type { Metadata } from "next";
 import { cache } from "react";
-import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
+import {
+  defaultOgImage,
+  getBaseUrl,
+  siteAuthorName,
+  siteAuthorUrl,
+  siteName,
+} from "@/utils/seo";
 
 type Post = {
   _id: string;
@@ -125,7 +131,8 @@ export default async function BlogDetailPage({
         image={post.mainImage?.asset?.url}
         datePublished={post.publishedAt}
         dateModified={post._updatedAt}
-        authorName={post.author?.name}
+        authorName={post.author?.name || siteAuthorName}
+        authorUrl={siteAuthorUrl}
       />
       <BreadcrumbsJsonLd
         items={[
