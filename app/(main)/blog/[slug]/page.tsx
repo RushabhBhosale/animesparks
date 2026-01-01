@@ -4,17 +4,35 @@ import { PortableText } from "@portabletext/react";
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
 import { urlFor } from "@/sanity/lib/image";
+import { ArticleJsonLd } from "@/components/seo/article-jsonld";
+import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
+import { FaqJsonLd } from "@/components/seo/faq-jsonld";
 
 type Post = {
   _id: string;
   title: string;
+  slug: string;
+  excerpt?: string;
   body: any;
   tags?: string[];
   publishedAt?: string;
+  _updatedAt?: string;
   mainImage?: { asset?: { url?: string }; alt?: string };
   categories?: { _id: string; title: string; slug: string }[];
   author?: { name?: string; slug?: string };
   faq?: { question?: string; answer?: string }[];
+};
+
+const getBaseUrl = () => {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  return siteUrl.replace(/\/$/, "");
+};
+
+const getDescription = (excerpt?: string) => {
+  if (!excerpt) return undefined;
+  const trimmed = excerpt.replace(/\s+/g, " ").trim();
+  if (!trimmed) return undefined;
+  return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
 };
 
 export default async function BlogDetailPage({
@@ -27,6 +45,17 @@ export default async function BlogDetailPage({
   const post: Post | null = await client.fetch(blogBySlugQuery, { slug });
 
   if (!post?._id) return notFound();
+
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
+  const description = getDescription(post.excerpt);
+  const faqItems =
+    post.faq
+      ?.map((item) => ({
+        question: item.question?.trim() || "",
+        answer: item.answer?.trim() || "",
+      }))
+      .filter((item) => item.question && item.answer) || [];
 
   const categoryIds = (post.categories || [])
     .map((c) => c?._id)
@@ -42,6 +71,23 @@ export default async function BlogDetailPage({
 
   return (
     <main className="min-h-screen bg-white">
+      <ArticleJsonLd
+        url={canonicalUrl}
+        title={post.title}
+        description={description}
+        image={post.mainImage?.asset?.url}
+        datePublished={post.publishedAt}
+        dateModified={post._updatedAt}
+        authorName={post.author?.name}
+      />
+      <BreadcrumbsJsonLd
+        items={[
+          { name: "Home", item: `${baseUrl}/home` },
+          { name: "Blogs", item: `${baseUrl}/blogs` },
+          { name: post.title, item: canonicalUrl },
+        ]}
+      />
+      {faqItems.length ? <FaqJsonLd items={faqItems} /> : null}
       {/* Featured Image Hero */}
       {post.mainImage?.asset?.url && (
         <div className="relative h-100 w-full overflow-hidden bg-black lg:h-125">

@@ -48,10 +48,13 @@ export const blogBySlugQuery = groq`
 ][0] {
   _id,
   title,
+  "slug": slug.current,
+  "excerpt": pt::text(body),
   body,
   tags,
   publishedAt,
   _createdAt,
+  _updatedAt,
   mainImage {
     asset->{
       _id,
