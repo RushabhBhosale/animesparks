@@ -42,17 +42,20 @@ export async function GET() {
     "/sitemap",
   ];
 
-  const staticEntries = staticRoutes.map((route) => ({
-    url: `${baseUrl}${route}`,
-  }));
+  const staticEntries: Array<{ url: string; lastModified?: string }> =
+    staticRoutes.map((route) => ({
+      url: `${baseUrl}${route}`,
+    }));
 
-  const postEntries = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: toLastMod(post._updatedAt),
-  }));
+  const postEntries: Array<{ url: string; lastModified?: string }> = posts.map(
+    (post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: toLastMod(post._updatedAt),
+    })
+  );
 
-  const urls = [...staticEntries, ...postEntries]
-    .map(({ url, lastModified }) => {
+  const urls = [...staticEntries, ...postEntries].map(
+    ({ url, lastModified }) => {
       const lastmodTag = lastModified
         ? `    <lastmod>${escapeXml(lastModified)}</lastmod>\n`
         : "";
@@ -64,12 +67,15 @@ export async function GET() {
       ]
         .filter(Boolean)
         .join("\n");
-    })
-    .join("\n");
+    }
+  );
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+  const urlsXml = urls.join("\n");
+
+  const xml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    `${urls}\n` +
+    `${urlsXml}\n` +
     `</urlset>\n`;
 
   return new Response(xml, {
