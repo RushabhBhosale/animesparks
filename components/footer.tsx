@@ -29,8 +29,8 @@ export default function Footer() {
 
           {/* Right */}
           <nav className="flex flex-wrap items-center gap-4">
-            <Link className="hover:text-neutral-900" href="/blog">
-              Blog
+            <Link className="hover:text-neutral-900" href="/blogs">
+              Blogs
             </Link>
             <Link className="hover:text-neutral-900" href="/categories">
               Categories

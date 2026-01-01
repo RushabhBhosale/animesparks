@@ -26,7 +26,7 @@ export default function Header() {
 
   const navLinks: NavItem[] = useMemo(
     () => [
-      { href: "/blog", label: "Blog" },
+      { href: "/blogs", label: "Blogs" },
       { href: "/categories", label: "Categories" },
       { href: "/trending", label: "Trending" },
       { href: "/about", label: "About" },
@@ -55,7 +55,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-gray-50 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
-            href="/"
+            href="/home"
             className="text-xl font-bold tracking-tight text-neutral-900 transition-colors hover:text-neutral-700"
           >
             AnimeSparks

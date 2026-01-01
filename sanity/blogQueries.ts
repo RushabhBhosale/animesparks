@@ -129,6 +129,34 @@ export const categoriesQuery = groq`
 `;
 
 /* ----------------------------------------
+   CATEGORIES WITH POST COUNTS
+---------------------------------------- */
+export const categoriesWithCountsQuery = groq`
+*[_type == "category"] | order(title asc) {
+  _id,
+  title,
+  "slug": slug.current,
+  "postCount": count(*[
+    _type == "post" &&
+    publishedAt <= now() &&
+    references(^._id)
+  ])
+}
+`;
+
+/* ----------------------------------------
+   CATEGORY BY SLUG
+---------------------------------------- */
+export const categoryBySlugQuery = groq`
+*[_type == "category" && slug.current == $slug][0] {
+  _id,
+  title,
+  "slug": slug.current,
+  description
+}
+`;
+
+/* ----------------------------------------
    BLOGS BY TAG
 ---------------------------------------- */
 export const blogsByTagQuery = groq`
@@ -160,6 +188,27 @@ export const latestBlogsQuery = groq`
 `;
 
 /* ----------------------------------------
+   Trending BLOGS (Sidebar / Footer)
+---------------------------------------- */
+export const trendingBlogsQuery = groq`
+*[
+  _type == "post" &&
+  defined(slug.current) &&
+  publishedAt <= now()
+]
+| order(publishedAt desc)[0...8] {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  mainImage {
+    asset-> { url },
+    alt
+  }
+}
+`;
+
+/* ----------------------------------------
    SITEMAP (Minimal fields)
 ---------------------------------------- */
 export const sitemapBlogsQuery = groq`
@@ -170,5 +219,41 @@ export const sitemapBlogsQuery = groq`
 ] {
   "slug": slug.current,
   _updatedAt
+}
+`;
+
+/* ----------------------------------------
+   SITEMAP PAGE (Published posts)
+---------------------------------------- */
+export const sitemapPageBlogsQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  defined(slug.current)
+]
+| order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt
+}
+`;
+
+/* ----------------------------------------
+   RSS (Published posts with excerpts)
+---------------------------------------- */
+export const rssBlogsQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  defined(slug.current)
+]
+| order(publishedAt desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  _updatedAt,
+  "excerpt": pt::text(body)
 }
 `;

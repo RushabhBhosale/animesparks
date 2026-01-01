@@ -1,4 +1,4 @@
-export default function AboutPage() {
+export default function PrivacyPage() {
   return (
     <main className="min-h-screen bg-white">
       <div className="relative overflow-hidden bg-linear-to-br from-red-600 via-red-700 to-red-900">
@@ -6,7 +6,7 @@ export default function AboutPage() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: 'url("/about-poster.jpg")',
+              backgroundImage: 'url("/anime-poster.jpg")',
             }}
           ></div>
         </div>
@@ -14,15 +14,14 @@ export default function AboutPage() {
           <div className="mb-4 flex items-center gap-3">
             <div className="h-2 w-2 rounded-full bg-white" />
             <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              About
+              Privacy
             </span>
           </div>
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            AnimeSparks
+            Privacy Policy
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/90">
-            Editorial analysis of dark shonen, character arcs, and storytelling
-            craft.
+            Clear, minimal data practices designed for readers first.
           </p>
         </div>
       </div>
@@ -31,33 +30,46 @@ export default function AboutPage() {
         <section className="space-y-8 text-base leading-relaxed text-gray-700">
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              What We Cover
+              Information We Collect
             </h2>
             <p className="mt-3">
-              We publish focused essays on narrative structure, character
-              psychology, and the creative choices that shape modern anime. The
-              lens is critical and editorial, not fan-service or trend chasing.
+              If you subscribe to updates, we store the email address you
+              provide. Our servers may also log basic technical data such as IP
+              address, user agent, and request timing for security and
+              performance.
             </p>
           </div>
 
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Editorial Standards
+              How We Use Data
             </h2>
             <p className="mt-3">
-              Every post aims for clarity, restraint, and strong sourcing. We
-              prioritize depth over volume and avoid broad pop-culture
-              digressions.
+              Data is used to deliver requested updates, maintain site
+              reliability, and understand broad readership trends. We do not
+              sell personal data.
             </p>
           </div>
 
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              How It's Built
+              Cookies & Analytics
             </h2>
             <p className="mt-3">
-              AnimeSparks is a server-rendered, SEO-first publication with a
-              minimal reading interface designed to keep the focus on writing.
+              We may use lightweight analytics to understand page usage. If
+              cookies are used, they are limited to essential functionality and
+              basic measurement.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+              Your Choices
+            </h2>
+            <p className="mt-3">
+              You can opt out of emails at any time using unsubscribe links.
+              You may also contact us to request removal of your email from our
+              records.
             </p>
           </div>
         </section>
