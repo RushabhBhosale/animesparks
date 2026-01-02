@@ -21,6 +21,7 @@ type Post = {
   _id: string;
   title: string;
   slug: string;
+  metaTitle?: string;
   metaDescription?: string;
   excerpt?: string;
   body: any;
@@ -59,6 +60,7 @@ export async function generateMetadata({
   }
 
   const baseUrl = getBaseUrl();
+  const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonical = `${baseUrl}/blog/${post.slug}`;
   const description =
     getDescription(post.metaDescription, post.excerpt) ||
@@ -68,14 +70,14 @@ export async function generateMetadata({
     post.mainImage?.asset?.url || new URL(defaultOgImage, baseUrl).toString();
 
   return {
-    title: post.title,
+    title: seoTitle,
     description,
     alternates: {
       canonical,
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: post.title,
+      title: seoTitle,
       description,
       url: canonical,
       type: "article",
@@ -84,7 +86,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
+      title: seoTitle,
       description,
       images: [ogImage],
     },
@@ -103,6 +105,7 @@ export default async function BlogDetailPage({
   if (!post?._id) return notFound();
 
   const baseUrl = getBaseUrl();
+  const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
   const description =
     getDescription(post.metaDescription, post.excerpt) ||
@@ -131,7 +134,7 @@ export default async function BlogDetailPage({
     <main className="min-h-screen bg-white">
       <ArticleJsonLd
         url={canonicalUrl}
-        title={post.title}
+        title={seoTitle}
         description={description}
         image={post.mainImage?.asset?.url}
         datePublished={post.publishedAt}

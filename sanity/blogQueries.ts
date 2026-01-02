@@ -49,6 +49,7 @@ export const blogBySlugQuery = groq`
   _id,
   title,
   "slug": slug.current,
+  metaTitle,
   metaDescription,
   "excerpt": pt::text(body),
   body,

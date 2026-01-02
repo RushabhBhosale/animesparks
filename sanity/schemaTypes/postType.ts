@@ -19,6 +19,14 @@ export const postType = defineType({
       },
     }),
     defineField({
+      name: "metaTitle",
+      title: "Meta title",
+      type: "string",
+      description: "SEO title shown in search results (50-60 characters).",
+      validation: (Rule) =>
+        Rule.max(60).warning("Aim for 60 characters or less."),
+    }),
+    defineField({
       name: "metaDescription",
       title: "Meta description",
       type: "text",
