@@ -21,6 +21,7 @@ type Post = {
   _id: string;
   title: string;
   slug: string;
+  metaDescription?: string;
   excerpt?: string;
   body: any;
   tags?: string[];
@@ -32,9 +33,10 @@ type Post = {
   faq?: { question?: string; answer?: string }[];
 };
 
-const getDescription = (excerpt?: string) => {
-  if (!excerpt) return undefined;
-  const trimmed = excerpt.replace(/\s+/g, " ").trim();
+const getDescription = (metaDescription?: string, excerpt?: string) => {
+  const source = metaDescription || excerpt;
+  if (!source) return undefined;
+  const trimmed = source.replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
 };
@@ -59,7 +61,8 @@ export async function generateMetadata({
   const baseUrl = getBaseUrl();
   const canonical = `${baseUrl}/blog/${post.slug}`;
   const description =
-    getDescription(post.excerpt) || `Read ${post.title} on ${siteName}.`;
+    getDescription(post.metaDescription, post.excerpt) ||
+    `Read ${post.title} on ${siteName}.`;
 
   const ogImage =
     post.mainImage?.asset?.url || new URL(defaultOgImage, baseUrl).toString();
@@ -101,7 +104,9 @@ export default async function BlogDetailPage({
 
   const baseUrl = getBaseUrl();
   const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
-  const description = getDescription(post.excerpt);
+  const description =
+    getDescription(post.metaDescription, post.excerpt) ||
+    `Read ${post.title} on ${siteName}.`;
   const faqItems =
     post.faq
       ?.map((item) => ({
