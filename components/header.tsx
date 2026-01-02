@@ -3,40 +3,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
-import {
-  Home,
-  BookOpen,
-  Layers,
-  TrendingUp,
-  Info,
-  Menu,
-  X,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 type NavItem = {
   href: string;
   label: string;
 };
 
+const navLinks: NavItem[] = [
+  { href: "/home", label: "Home" },
+  { href: "/blogs", label: "Blogs" },
+  { href: "/categories", label: "Categories" },
+  { href: "/trending", label: "Trending" },
+  { href: "/about", label: "About" },
+];
+
 export default function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks: NavItem[] = useMemo(
-    () => [
-      { href: "/blogs", label: "Blogs" },
-      { href: "/categories", label: "Categories" },
-      { href: "/trending", label: "Trending" },
-      { href: "/about", label: "About" },
-    ],
-    []
-  );
-
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   useEffect(() => {
@@ -52,13 +43,34 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-gray-50 backdrop-blur">
+      <header className="relative sticky top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/70 to-transparent"
+        />
+
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             href="/home"
-            className="text-xl font-bold tracking-tight no-underline! text-neutral-900 transition-colors hover:text-neutral-700"
+            className="group flex items-center gap-3 no-underline transition-colors hover:text-neutral-700"
+            aria-label="AnimeSparks home"
           >
-            AnimeSparks
+            <Image
+              src="/logo.png"
+              width={120}
+              height={36}
+              alt="AnimeSparks logo"
+              className="h-9 w-auto"
+              priority
+            />
+            <div className="hidden flex-col leading-none sm:flex">
+              <span className="text-sm font-black uppercase tracking-tight text-neutral-900">
+                AnimeSparks
+              </span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-500">
+                Anime Reviews
+              </span>
+            </div>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -67,11 +79,12 @@ export default function Header() {
                 key={href}
                 href={href}
                 className={clsx(
-                  "inline-flex no-underline! items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] no-underline transition-colors",
                   isActive(href)
-                    ? "bg-neutral-100 text-neutral-900"
+                    ? "bg-neutral-100 text-neutral-900 ring-1 ring-neutral-200"
                     : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                 )}
+                aria-current={isActive(href) ? "page" : undefined}
               >
                 <span>{label}</span>
               </Link>
@@ -126,30 +139,25 @@ export default function Header() {
 
         <nav className="flex h-[calc(100%-73px)] flex-col px-4 py-6">
           <div className="flex flex-col gap-2">
-            <Link
-              className={clsx(
-                "inline-flex no-underline! items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
-                isActive("/home")
-                  ? "bg-neutral-100 text-neutral-900"
-                  : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-              )}
-              href="/home"
-            >
-              <span>Home</span>
-            </Link>
-
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={clsx(
-                  "inline-flex no-underline! items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
+                  "inline-flex items-center gap-3 rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] no-underline transition-colors",
                   isActive(href)
                     ? "bg-neutral-100 text-neutral-900"
                     : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
                 )}
+                aria-current={isActive(href) ? "page" : undefined}
               >
                 <span>{label}</span>
+                {href === "/trending" && (
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 rounded-full bg-red-600"
+                  />
+                )}
               </Link>
             ))}
           </div>

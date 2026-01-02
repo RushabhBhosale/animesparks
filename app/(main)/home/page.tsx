@@ -42,8 +42,6 @@ export default async function Home() {
   const featured = latest?.[0] ?? null;
   const latestPosts = latest?.slice(1, 13) ?? [];
 
-  console.log("featured", featured);
-
   return (
     <main className="min-h-screen bg-white">
       {/* Featured Hero - Full Width */}
