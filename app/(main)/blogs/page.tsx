@@ -2,6 +2,7 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
@@ -118,6 +119,10 @@ export default async function AllBlogsPage({
             regularly.
           </p>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 pt-8 md:px-8">
+        <AdSlot variant="full" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
@@ -285,6 +290,8 @@ export default async function AllBlogsPage({
                 </svg>
               </button>
             </div>
+
+            <AdSlot variant="inline" className="mt-10" />
           </div>
 
           {/* Sidebar */}
@@ -325,6 +332,8 @@ export default async function AllBlogsPage({
                 </section>
               )}
 
+              <AdSlot variant="sidebar" />
+
               {/* Newsletter */}
               <section className="rounded-sm border-2 border-red-600 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-900">
@@ -353,15 +362,7 @@ export default async function AllBlogsPage({
                 </p>
               </section>
 
-              {/* Ad Space */}
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-sm font-semibold uppercase text-gray-400">
-                  Advertisement
-                </p>
-                <div className="mt-4 flex h-64 items-center justify-center rounded-sm bg-gray-200">
-                  <span className="text-gray-400">300x250</span>
-                </div>
-              </div>
+              <AdSlot variant="sidebar" />
 
               {/* Popular Tags */}
               {popularTags.length > 0 && (

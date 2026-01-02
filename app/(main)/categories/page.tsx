@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesWithCountsQuery } from "@/sanity/blogQueries";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
@@ -50,9 +51,11 @@ export default async function CategoriesPage() {
     return (
       <main className="min-h-screen bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+          <AdSlot variant="full" className="mb-10" />
           <p className="text-sm font-medium text-gray-600">
             No categories yet.
           </p>
+          <AdSlot variant="full" className="mt-10" />
         </div>
       </main>
     );
@@ -86,6 +89,8 @@ export default async function CategoriesPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <AdSlot variant="full" className="mb-10" />
+
         <section>
           <div className="mb-6 flex items-center gap-3">
             <div className="h-1 w-1 rounded-full bg-red-600" />
@@ -132,6 +137,8 @@ export default async function CategoriesPage() {
             ))}
           </div>
         </section>
+
+        <AdSlot variant="full" className="mt-10" />
       </div>
     </main>
   );

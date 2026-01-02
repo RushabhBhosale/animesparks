@@ -1,26 +1,14 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
-import {
-  blogsByCategoryQuery,
-  categoryBySlugQuery,
-} from "@/sanity/blogQueries";
+import { blogsByTagQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
-import { cache } from "react";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const revalidate = 60;
 
-type Category = {
-  _id: string;
-  title: string;
-  slug: string;
-  description?: string;
-};
-
-type CategoryPost = {
+type TagPost = {
   _id: string;
   title: string;
   slug: string;
@@ -28,38 +16,38 @@ type CategoryPost = {
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
-const getCategory = cache(async (slug: string) =>
-  client.fetch<Category | null>(categoryBySlugQuery, { slug })
-);
-
-const getDescription = (category: Category) =>
-  category.description?.trim() ||
-  `Posts in ${category.title} on ${siteName}.`;
+const decodeTag = (value: string) => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ tag: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  if (!slug) return {};
+  const { tag } = await params;
+  if (!tag) return {};
 
-  const category = await getCategory(slug);
-  if (!category?._id) {
-    return { title: "Category Not Found" };
-  }
-
-  const description = getDescription(category);
-  const canonical = `/categories/${category.slug || slug}`;
+  const decodedTag = decodeTag(tag).trim();
+  const safeTag = encodeURIComponent(decodedTag);
+  const title = decodedTag ? `#${decodedTag}` : "Tag";
+  const description = decodedTag
+    ? `Stories tagged ${decodedTag} on ${siteName}.`
+    : `Tagged stories on ${siteName}.`;
+  const canonical = `/tags/${safeTag}`;
 
   return {
-    title: category.title,
+    title,
     description,
     alternates: {
       canonical,
     },
     openGraph: {
-      title: category.title,
+      title,
       description,
       url: canonical,
       type: "website",
@@ -68,29 +56,23 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: category.title,
+      title,
       description,
       images: [defaultOgImage],
     },
   };
 }
 
-export default async function CategoryDetailPage({
+export default async function TagPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ tag: string }>;
 }) {
-  const { slug } = await params;
-
-  if (!slug) return notFound();
-
-  const category = await getCategory(slug);
-
-  if (!category?._id) return notFound();
-
-  const posts: CategoryPost[] = await client.fetch(blogsByCategoryQuery, {
-    slug,
-  });
+  const { tag } = await params;
+  const decodedTag = decodeTag(tag || "").trim();
+  const posts: TagPost[] = decodedTag
+    ? await client.fetch(blogsByTagQuery, { tag: decodedTag })
+    : [];
 
   return (
     <main className="min-h-screen bg-white">
@@ -107,14 +89,16 @@ export default async function CategoryDetailPage({
           <div className="mb-4 flex items-center gap-3">
             <div className="h-2 w-2 rounded-full bg-white" />
             <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              Category
+              Tag
             </span>
           </div>
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            {category.title}
+            {decodedTag ? `#${decodedTag}` : "Tagged Stories"}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/90">
-            {category.description || "Editorial analysis and focused coverage."}
+            {decodedTag
+              ? `Stories tagged with ${decodedTag}.`
+              : "Stories grouped by tag."}
           </p>
         </div>
       </div>
@@ -126,7 +110,7 @@ export default async function CategoryDetailPage({
           <div className="mb-6 flex items-center gap-3">
             <div className="h-1 w-1 rounded-full bg-red-600" />
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Posts
+              {decodedTag ? "Stories" : "Latest Stories"}
             </h2>
           </div>
 
@@ -148,9 +132,11 @@ export default async function CategoryDetailPage({
                     </div>
                   ) : null}
                   <div className="flex flex-1 flex-col justify-center">
-                    <span className="text-xs font-bold uppercase tracking-wider text-red-600">
-                      {category.title}
-                    </span>
+                    {decodedTag ? (
+                      <span className="text-xs font-bold uppercase tracking-wider text-red-600">
+                        {decodedTag}
+                      </span>
+                    ) : null}
                     <h3 className="mt-2 text-xl font-black leading-tight text-gray-900 transition-colors group-hover:text-red-600 sm:text-2xl">
                       {post.title}
                     </h3>
@@ -163,7 +149,7 @@ export default async function CategoryDetailPage({
             </div>
           ) : (
             <p className="text-sm font-medium text-gray-600">
-              No posts in this category yet.
+              No posts for this tag yet.
             </p>
           )}
         </section>

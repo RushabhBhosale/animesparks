@@ -43,10 +43,10 @@ export default function Header() {
 
   return (
     <>
-      <header className="relative sticky top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur supports-backdrop-filter:bg-white/80">
         <span
           aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/70 to-transparent"
+          className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-red-600/70 to-transparent"
         />
 
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -55,14 +55,6 @@ export default function Header() {
             className="group flex items-center gap-3 no-underline transition-colors hover:text-neutral-700"
             aria-label="AnimeSparks home"
           >
-            <Image
-              src="/logo.png"
-              width={120}
-              height={36}
-              alt="AnimeSparks logo"
-              className="h-9 w-auto"
-              priority
-            />
             <div className="hidden flex-col leading-none sm:flex">
               <span className="text-sm font-black uppercase tracking-tight text-neutral-900">
                 AnimeSparks

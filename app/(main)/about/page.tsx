@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
@@ -70,6 +71,8 @@ export default function AboutPage() {
             </p>
           </div>
 
+          <AdSlot variant="full" />
+
           <div className="grid gap-6 md:grid-cols-2">
             {[
               {
@@ -127,6 +130,8 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
+
+          <AdSlot variant="full" />
 
           <div className="rounded-sm border-2 border-red-600 bg-white p-6">
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const metadata: Metadata = {
@@ -79,6 +80,8 @@ export default function PrivacyPage() {
             </p>
           </div>
 
+          <AdSlot variant="full" />
+
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
               Cookies & Analytics
@@ -100,6 +103,8 @@ export default function PrivacyPage() {
               records.
             </p>
           </div>
+
+          <AdSlot variant="full" />
         </section>
       </div>
     </main>

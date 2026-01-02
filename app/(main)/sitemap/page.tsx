@@ -2,6 +2,7 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesQuery, sitemapPageBlogsQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
@@ -47,6 +48,7 @@ const coreLinks = [
   { label: "Blogs", href: "/blogs" },
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
+  { label: "Advertise", href: "/advertise" },
   { label: "About", href: "/about" },
   { label: "Privacy", href: "/privacy" },
 ];
@@ -118,6 +120,8 @@ export default async function SitemapPage() {
           </div>
         </section>
 
+        <AdSlot variant="full" className="mb-12" />
+
         {categories?.length ? (
           <section className="mb-12">
             <div className="mb-6 flex items-center gap-3">
@@ -139,6 +143,8 @@ export default async function SitemapPage() {
             </div>
           </section>
         ) : null}
+
+        <AdSlot variant="full" className="mb-12" />
 
         {posts?.length ? (
           <section>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { trendingBlogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { siteName } from "@/utils/seo";
 
@@ -68,6 +69,8 @@ export default async function TrendingPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <AdSlot variant="full" className="mb-10" />
+
         {/* Top Trending - Full Width Feature */}
         {topTrending && (
           <section className="mb-12 border-b-4 border-red-600 pb-10">
@@ -117,16 +120,6 @@ export default async function TrendingPage() {
                   </p>
                   <div className="mt-6 flex items-center gap-4 text-sm font-medium text-gray-500">
                     <span>{formatDate(topTrending.publishedAt)}</span>
-                    <span className="flex items-center gap-1">
-                      <svg
-                        className="h-4 w-4"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                      </svg>
-                      12.5K Views
-                    </span>
                   </div>
                 </div>
               </div>
@@ -200,6 +193,8 @@ export default async function TrendingPage() {
               </div>
             </section>
 
+            <AdSlot variant="inline" className="mb-12" />
+
             {/* More Trending */}
             {moreTrending.length > 0 && (
               <section>
@@ -265,7 +260,7 @@ export default async function TrendingPage() {
                     <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
                   </svg>
                   <h3 className="text-lg font-black uppercase text-gray-900">
-                    Trending Stats
+                    Trending Overview
                   </h3>
                 </div>
                 <div className="space-y-4">
@@ -275,22 +270,6 @@ export default async function TrendingPage() {
                     </span>
                     <span className="text-sm font-semibold text-gray-600">
                       Trending Articles
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-red-600">
-                      500K+
-                    </span>
-                    <span className="text-sm font-semibold text-gray-600">
-                      Total Views
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-red-600">
-                      24h
-                    </span>
-                    <span className="text-sm font-semibold text-gray-600">
-                      Updated
                     </span>
                   </div>
                 </div>
@@ -330,6 +309,8 @@ export default async function TrendingPage() {
                   </div>
                 </section>
               )}
+
+              <AdSlot variant="sidebar" />
 
               {/* Why Trending Box */}
               <section className="rounded-sm border border-gray-200 bg-white p-5">
@@ -412,15 +393,7 @@ export default async function TrendingPage() {
                 </form>
               </section>
 
-              {/* Ad Space */}
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-sm font-semibold uppercase text-gray-400">
-                  Advertisement
-                </p>
-                <div className="mt-4 flex h-64 items-center justify-center rounded-sm bg-gray-200">
-                  <span className="text-gray-400">300x250</span>
-                </div>
-              </div>
+              <AdSlot variant="sidebar" />
             </div>
           </aside>
         </div>

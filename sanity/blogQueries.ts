@@ -174,7 +174,13 @@ export const blogsByTagQuery = groq`
   _id,
   title,
   "slug": slug.current,
-  publishedAt
+  publishedAt,
+  mainImage {
+    asset->{
+      url
+    },
+    alt
+  }
 }
 `;
 
