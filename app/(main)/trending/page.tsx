@@ -83,7 +83,7 @@ export default async function TrendingPage() {
               </h2>
             </div>
             <Link href={`/blog/${topTrending.slug}`} className="group block">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
                 {topTrending.mainImage?.asset?.url && (
                   <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
                     <img
@@ -127,9 +127,9 @@ export default async function TrendingPage() {
           </section>
         )}
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-10">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-10 lg:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-8">
+          <div className="md:col-span-8 lg:col-span-8">
             {/* Hot Stories Grid */}
             <section className="mb-12">
               <div className="mb-6 flex items-center gap-3">
@@ -247,7 +247,7 @@ export default async function TrendingPage() {
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Trending Stats */}
               <section className="rounded-sm border-2 border-red-600 bg-linear-to-br from-red-50 to-white p-6">

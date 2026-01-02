@@ -217,9 +217,9 @@ export default async function BlogDetailPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 py-8 lg:grid-cols-12 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-12 md:gap-10 lg:gap-12">
           {/* Main Content */}
-          <article className="lg:col-span-8">
+          <article className="md:col-span-8 lg:col-span-8">
             {/* Category Tags */}
             <div className="mb-4 flex flex-wrap gap-2">
               {(post.categories || []).slice(0, 3).map((c) => (
@@ -450,7 +450,7 @@ export default async function BlogDetailPage({
           </article>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Related Posts */}
               {related?.length ? (

@@ -115,15 +115,15 @@ export default async function TagPage({
           </div>
 
           {posts.length ? (
-            <div className="space-y-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-1">
               {posts.map((post) => (
                 <Link
                   key={post._id}
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col gap-4 border-b border-gray-200 pb-8 sm:flex-row sm:items-center"
+                  className="group flex flex-col gap-4 border-b border-gray-200 pb-8 md:flex-row md:items-center"
                 >
                   {post.mainImage?.asset?.url ? (
-                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-32 sm:w-56">
+                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-sm bg-gray-200 md:h-32 md:w-56">
                       <img
                         src={post.mainImage.asset.url}
                         alt={post.mainImage.alt || post.title}

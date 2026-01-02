@@ -108,7 +108,7 @@ export default function AboutPage() {
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
               Anime I Love
             </h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2">
               {[
                 "Hunter x Hunter (2011) - peak character arcs and Nen brilliance",
                 "Kage no Jitsuryokusha ni Naritakute! - absurdity done right",

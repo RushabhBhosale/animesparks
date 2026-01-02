@@ -55,7 +55,7 @@ export default function AdvertisePage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
-        <section className="space-y-8 text-base leading-relaxed text-gray-700">
+        <section className="grid grid-cols-1 gap-8 text-base leading-relaxed text-gray-700 md:grid-cols-2 lg:grid-cols-1">
           <div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
               Pricing

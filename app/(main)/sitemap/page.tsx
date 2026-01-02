@@ -94,7 +94,7 @@ export default async function SitemapPage() {
               Main Pages
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {coreLinks.map((link) => (
               <Link
                 key={link.href}
@@ -130,7 +130,7 @@ export default async function SitemapPage() {
                 Categories
               </h2>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
               {categories.map((category) => (
                 <Link
                   key={category._id}
@@ -154,7 +154,7 @@ export default async function SitemapPage() {
                 Published Posts
               </h2>
             </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
               {posts.map((post) => (
                 <Link
                   key={post._id}

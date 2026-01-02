@@ -126,9 +126,9 @@ export default async function AllBlogsPage({
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-10 lg:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-8">
+          <div className="md:col-span-8 lg:col-span-8">
             {/* Featured Top Post */}
             {featured && (
               <div className="group mb-10 border-b border-gray-200 pb-10">
@@ -295,7 +295,7 @@ export default async function AllBlogsPage({
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Categories */}
               {categories.length > 0 && (

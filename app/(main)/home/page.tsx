@@ -120,9 +120,9 @@ export default async function Home() {
         <AdSlot variant="full" className="mb-8" />
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-8 lg:grid-cols-3 lg:gap-8">
           {/* Left Column - Mixed Layout */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 md:col-span-8 lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="h-1 w-1 bg-red-600 rounded-full" />
               <h2 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">
@@ -137,9 +137,9 @@ export default async function Home() {
                 href={`/blog/${post.slug}`}
                 className="group block border-b border-gray-200 pb-6"
               >
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                   {post.mainImage?.asset?.url && (
-                    <div className="relative h-48 sm:h-32 sm:w-48 lg:h-40 lg:w-64 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                    <div className="relative h-48 md:h-32 md:w-48 lg:h-40 lg:w-64 shrink-0 overflow-hidden rounded-sm bg-gray-200">
                       <img
                         src={post.mainImage.asset.url}
                         alt={post.mainImage.alt || post.title}
@@ -160,7 +160,7 @@ export default async function Home() {
             ))}
 
             {/* Next 6 posts - 2 column grid on mobile */}
-            <div className="grid grid-cols-2 gap-4 sm:gap-5 border-b border-gray-200 pb-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 border-b border-gray-200 pb-6">
               {latestPosts.slice(2, 8).map((post: any, idx: number) => (
                 <Link
                   key={idx}
@@ -189,7 +189,7 @@ export default async function Home() {
             <AdSlot variant="inline" className="py-4" />
 
             {/* Next 6 posts - Compact list */}
-            <div className="space-y-4 border-b border-gray-200 pb-6">
+            <div className="grid grid-cols-1 gap-4 border-b border-gray-200 pb-6 md:grid-cols-2 lg:grid-cols-1">
               {latestPosts.slice(8, 14).map((post: any, idx: number) => (
                 <Link
                   key={idx}
@@ -241,7 +241,7 @@ export default async function Home() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 md:col-span-4 lg:col-span-1">
             {/* Categories */}
             {categories.length > 0 && (
               <div className="rounded-sm border border-gray-200 p-4">
