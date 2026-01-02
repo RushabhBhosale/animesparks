@@ -42,6 +42,8 @@ export default async function Home() {
   const featured = latest?.[0] ?? null;
   const latestPosts = latest?.slice(1, 13) ?? [];
 
+  console.log("featured", featured);
+
   return (
     <main className="min-h-screen bg-white">
       {/* Featured Hero - Full Width */}
@@ -90,7 +92,7 @@ export default async function Home() {
                 <Link
                   key={idx}
                   href={`/blog/${post.slug}`}
-                  className="group relative"
+                  className="group relative no-underline!"
                 >
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-48 w-full overflow-hidden rounded-sm bg-gray-200">
@@ -155,7 +157,7 @@ export default async function Home() {
             <div className="pt-4">
               <Link
                 href="/blogs"
-                className="inline-flex items-center gap-2 rounded-sm bg-red-600 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-700"
+                className="inline-flex items-center gap-2 no-underline! rounded-sm bg-red-600 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white! transition-colors hover:bg-red-700"
               >
                 View All Articles
                 <svg

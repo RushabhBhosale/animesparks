@@ -56,7 +56,7 @@ export default function Header() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             href="/home"
-            className="text-xl font-bold tracking-tight text-neutral-900 transition-colors hover:text-neutral-700"
+            className="text-xl font-bold tracking-tight no-underline! text-neutral-900 transition-colors hover:text-neutral-700"
           >
             AnimeSparks
           </Link>
@@ -67,7 +67,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 className={clsx(
-                  "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "inline-flex no-underline! items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive(href)
                     ? "bg-neutral-100 text-neutral-900"
                     : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
@@ -128,14 +128,13 @@ export default function Header() {
           <div className="flex flex-col gap-2">
             <Link
               className={clsx(
-                "inline-flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
+                "inline-flex no-underline! items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
                 isActive("/home")
                   ? "bg-neutral-100 text-neutral-900"
                   : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
               )}
               href="/home"
             >
-              <Home className="h-5 w-5" />
               <span>Home</span>
             </Link>
 
@@ -144,7 +143,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 className={clsx(
-                  "inline-flex items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
+                  "inline-flex no-underline! items-center gap-3 rounded-md px-4 py-3 text-base font-medium transition-colors",
                   isActive(href)
                     ? "bg-neutral-100 text-neutral-900"
                     : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"

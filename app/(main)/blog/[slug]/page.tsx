@@ -260,7 +260,7 @@ export default async function BlogDetailPage({
             </div>
 
             {/* Article Body */}
-            <div className="prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-gray-900">
+            <div className="prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors hover:prose-a:text-red-700 hover:prose-a:decoration-red-500 hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
                 value={post.body}
                 components={{
@@ -321,18 +321,26 @@ export default async function BlogDetailPage({
                   },
                   list: {
                     bullet: ({ children }) => (
-                      <ul className="my-6 space-y-2 pl-6">{children}</ul>
+                      <ul className="my-6 list-disc list-outside space-y-2 pl-6">
+                        {children}
+                      </ul>
                     ),
                     number: ({ children }) => (
-                      <ol className="my-6 space-y-2 pl-6">{children}</ol>
+                      <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
+                        {children}
+                      </ol>
                     ),
                   },
                   listItem: {
                     bullet: ({ children }) => (
-                      <li className="text-lg text-gray-800">{children}</li>
+                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+                        {children}
+                      </li>
                     ),
                     number: ({ children }) => (
-                      <li className="text-lg text-gray-800">{children}</li>
+                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+                        {children}
+                      </li>
                     ),
                   },
                 }}

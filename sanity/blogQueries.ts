@@ -182,11 +182,18 @@ export const blogsByTagQuery = groq`
 export const latestBlogsQuery = groq`
 *[
   _type == "post" &&
-  publishedAt <= now()
+  publishedAt <= now() &&
+  defined(slug.current)
 ]
-| order(publishedAt desc)[0...5] {
+| order(publishedAt desc)[0...13] {
+  _id,
   title,
-  "slug": slug.current
+  "slug": slug.current,
+  publishedAt,
+  mainImage {
+    asset->{ url },
+    alt
+  }
 }
 `;
 
