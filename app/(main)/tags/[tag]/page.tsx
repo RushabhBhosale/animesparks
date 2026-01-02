@@ -71,7 +71,7 @@ export default async function TagPage({
   const { tag } = await params;
   const decodedTag = decodeTag(tag || "").trim();
   const posts: TagPost[] = decodedTag
-    ? await client.fetch(blogsByTagQuery, { tag: decodedTag })
+    ? await client.fetch(blogsByTagQuery, { tagValue: decodedTag })
     : [];
 
   return (

@@ -168,7 +168,7 @@ export const blogsByTagQuery = groq`
 *[
   _type == "post" &&
   publishedAt <= now() &&
-  $tag in tags
+  $tagValue in tags
 ]
 | order(publishedAt desc) {
   _id,
