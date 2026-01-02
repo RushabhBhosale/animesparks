@@ -30,12 +30,65 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AllBlogsPage() {
+export default async function AllBlogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string }>;
+}) {
+  const { sort } = (await searchParams) || {};
+  const activeSort =
+    sort === "popular" ? "popular" : sort === "recent" ? "recent" : "all";
+
   const blogs = await client.fetch(blogsQuery);
   const categories = await client.fetch(categoriesQuery);
 
-  const featured = blogs?.[0] ?? null;
-  const allPosts = blogs?.slice(1) ?? [];
+  const posts = blogs ?? [];
+  const tagCounts = posts.reduce((acc: Map<string, number>, post: any) => {
+    (post.tags || []).forEach((tag: string) => {
+      const cleaned = tag?.trim();
+      if (!cleaned) return;
+      acc.set(cleaned, (acc.get(cleaned) || 0) + 1);
+    });
+    return acc;
+  }, new Map<string, number>());
+
+  const getTime = (value?: string, fallback?: string) => {
+    const target = value || fallback;
+    return target ? new Date(target).getTime() : 0;
+  };
+
+  const popularityScore = (post: any) =>
+    (post.tags || []).reduce((score: number, tag: string) => {
+      const cleaned = tag?.trim();
+      if (!cleaned) return score;
+      return score + (tagCounts.get(cleaned) || 0);
+    }, 0);
+
+  const sortedPosts =
+    activeSort === "popular"
+      ? [...posts].sort((a, b) => {
+          const scoreDiff = popularityScore(b) - popularityScore(a);
+          if (scoreDiff !== 0) return scoreDiff;
+          return (
+            getTime(b.publishedAt, b._createdAt) -
+            getTime(a.publishedAt, a._createdAt)
+          );
+        })
+      : activeSort === "recent"
+        ? [...posts].sort(
+            (a, b) =>
+              getTime(b.publishedAt, b._createdAt) -
+              getTime(a.publishedAt, a._createdAt)
+          )
+        : posts;
+
+  const featured = sortedPosts[0] ?? null;
+  const allPosts = sortedPosts.slice(1);
+
+  const popularTags = Array.from(tagCounts.entries())
+    .sort((a: any, b: any) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 16)
+    .map(([tag]: any) => tag);
 
   return (
     <main className="min-h-screen bg-white">
@@ -111,15 +164,30 @@ export default async function AllBlogsPage() {
 
             {/* Filter Tabs */}
             <div className="mb-8 flex items-center gap-4 border-b border-gray-200 overflow-x-auto pb-0">
-              <button className="shrink-0 border-b-2 border-red-600 pb-3 text-sm font-bold uppercase tracking-wide text-red-600">
-                All Posts
-              </button>
-              <button className="shrink-0 pb-3 text-sm font-bold uppercase tracking-wide text-gray-500 hover:text-gray-900 transition-colors">
-                Most Recent
-              </button>
-              <button className="shrink-0 pb-3 text-sm font-bold uppercase tracking-wide text-gray-500 hover:text-gray-900 transition-colors">
-                Popular
-              </button>
+              {[
+                { label: "All Posts", value: "all" },
+                { label: "Most Recent", value: "recent" },
+                { label: "Popular", value: "popular" },
+              ].map((tab) => {
+                const isActive = activeSort === tab.value;
+                const href =
+                  tab.value === "all" ? "/blogs" : `/blogs?sort=${tab.value}`;
+                return (
+                  <Link
+                    key={tab.value}
+                    href={href}
+                    scroll={false}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`shrink-0 pb-3 text-sm font-bold uppercase tracking-wide transition-colors ${
+                      isActive
+                        ? "border-b-2 border-red-600 text-red-600"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    {tab.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* All Posts Grid */}
@@ -294,31 +362,24 @@ export default async function AllBlogsPage() {
               </div>
 
               {/* Popular Tags */}
-              <section className="rounded-sm border border-gray-200 bg-white p-5">
-                <h3 className="mb-4 text-lg font-black uppercase tracking-tight text-gray-900">
-                  Popular Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Gaming",
-                    "Movies",
-                    "TV Shows",
-                    "Comics",
-                    "Anime",
-                    "News",
-                    "Reviews",
-                    "Features",
-                  ].map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/tags/${tag.toLowerCase()}`}
-                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-600 transition-colors"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </div>
-              </section>
+              {popularTags.length > 0 && (
+                <section className="rounded-sm border border-gray-200 bg-white p-5">
+                  <h3 className="mb-4 text-lg font-black uppercase tracking-tight text-gray-900">
+                    Popular Tags
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {popularTags.map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/tags/${encodeURIComponent(tag)}`}
+                        className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-red-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      >
+                        #{tag}
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* Social Follow */}
               <section className="rounded-sm border border-gray-200 bg-white p-5">

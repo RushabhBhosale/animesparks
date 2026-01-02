@@ -122,13 +122,21 @@
   body {
     @apply bg-background text-foreground;
   }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover {
+    color: inherit;
+  }
 }
 
-a {
-  text-decoration: underline;
-  color:black;
-}
-
-a:hover {
-  color: red !important;
+.blogContent {
+  a {
+    color: inherit;
+    text-decoration: underline !important;
+  }
+  a:hover {
+    color: red !important;
+  }
 }
