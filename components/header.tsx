@@ -55,11 +55,11 @@ export default function Header() {
             className="group flex items-center gap-3 no-underline transition-colors hover:text-neutral-700"
             aria-label="AnimeSparks home"
           >
-            <div className="hidden flex-col leading-none sm:flex">
+            <div className="flex-col leading-none sm:flex">
               <span className="text-sm font-black uppercase tracking-tight text-neutral-900">
                 AnimeSparks
               </span>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-500">
+              <span className="hidden md:block text-[11px] font-semibold uppercase tracking-[0.24em] text-neutral-500">
                 Anime Reviews
               </span>
             </div>
