@@ -5,6 +5,8 @@ import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { siteName } from "@/utils/seo";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Trending",
   description:

@@ -17,6 +17,8 @@ import {
   siteName,
 } from "@/utils/seo";
 
+export const revalidate = 60;
+
 type Post = {
   _id: string;
   title: string;

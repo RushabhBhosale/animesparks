@@ -10,6 +10,8 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
+export const revalidate = 60;
+
 type Category = {
   _id: string;
   title: string;
