@@ -9,16 +9,16 @@ import { siteName } from "@/utils/seo";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Trending",
+  title: "Trending Anime Articles and Popular Reads",
   description:
-    "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+    "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
-    title: "Trending",
+    title: "Trending Anime Articles and Popular Reads",
     description:
-      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+      "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
     url: "/trending",
     type: "website",
     siteName,
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trending",
+    title: "Trending Anime Articles and Popular Reads",
     description:
-      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+      "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
     images: ["/trending-poster.jpg"],
   },
 };
@@ -60,7 +60,7 @@ export default async function TrendingPage() {
             </span>
           </div>
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            Trending Stories
+            Trending Blogs
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/90">
             The most popular articles everyone is talking about right now.
@@ -202,7 +202,7 @@ export default async function TrendingPage() {
                   <div className="flex items-center gap-3">
                     <div className="h-1 w-1 bg-red-600 rounded-full" />
                     <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-                      More Trending Stories
+                      More Trending Blogs
                     </h2>
                   </div>
                 </div>

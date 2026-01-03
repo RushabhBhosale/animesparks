@@ -65,6 +65,7 @@ export const blogBySlugQuery = groq`
     alt
   },
   categories[]->{
+    _id,
     title,
     "slug": slug.current
   },
@@ -93,9 +94,16 @@ export const relatedBlogsQuery = groq`
   count(categories[@._ref in $categoryIds]) > 0
 ]
 | order(publishedAt desc)[0...3] {
+  _id,
   title,
   "slug": slug.current,
-  publishedAt
+  publishedAt,
+  mainImage {
+    asset->{
+      url
+    },
+    alt
+  }
 }
 `;
 

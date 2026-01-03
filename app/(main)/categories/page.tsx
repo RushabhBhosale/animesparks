@@ -8,16 +8,16 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Categories",
+  title: "Anime Categories Reviews Lists and Genres",
   description:
-    "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+    "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
   alternates: {
     canonical: "/categories",
   },
   openGraph: {
-    title: "Categories",
+    title: "Anime Categories Reviews Lists and Genres",
     description:
-      "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+      "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
     url: "/categories",
     type: "website",
     siteName,
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Categories",
+    title: "Anime Categories Reviews Lists and Genres",
     description:
-      "Explore AnimeSparks categories for focused editorial coverage and analysis.",
+      "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
     images: [defaultOgImage],
   },
 };

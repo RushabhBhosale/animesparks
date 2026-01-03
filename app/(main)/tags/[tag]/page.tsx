@@ -34,10 +34,11 @@ export async function generateMetadata({
 
   const decodedTag = decodeTag(tag).trim();
   const safeTag = encodeURIComponent(decodedTag);
-  const title = decodedTag ? `#${decodedTag}` : "Tag";
+  const baseTitle = "Anime Topics and Tags on AnimeSparks";
+  const title = decodedTag ? `${baseTitle}: ${decodedTag}` : baseTitle;
   const description = decodedTag
-    ? `Stories tagged ${decodedTag} on ${siteName}.`
-    : `Tagged stories on ${siteName}.`;
+    ? `Browse anime articles by topic on ${siteName}, including ${decodedTag} reviews lists and editorials.`
+    : "Browse anime articles by topic including reviews seasonal anime sports anime and psychological series.";
   const canonical = `/tags/${safeTag}`;
 
   return {
@@ -93,12 +94,12 @@ export default async function TagPage({
             </span>
           </div>
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            {decodedTag ? `#${decodedTag}` : "Tagged Stories"}
+            {decodedTag ? `#${decodedTag}` : "Tagged Blogs"}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/90">
             {decodedTag
-              ? `Stories tagged with ${decodedTag}.`
-              : "Stories grouped by tag."}
+              ? `Blogs tagged with ${decodedTag}.`
+              : "Blogs grouped by tag."}
           </p>
         </div>
       </div>
@@ -110,7 +111,7 @@ export default async function TagPage({
           <div className="mb-6 flex items-center gap-3">
             <div className="h-1 w-1 rounded-full bg-red-600" />
             <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              {decodedTag ? "Stories" : "Latest Stories"}
+              {decodedTag ? "Blogs" : "Latest Blogs"}
             </h2>
           </div>
 

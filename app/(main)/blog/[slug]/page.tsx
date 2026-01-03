@@ -10,6 +10,7 @@ import { FaqJsonLd } from "@/components/seo/faq-jsonld";
 import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { cache } from "react";
+import { formatDate } from "@/utils/date";
 import {
   defaultOgImage,
   getBaseUrl,
@@ -206,7 +207,7 @@ export default async function BlogDetailPage({
               <>
                 <Link
                   href={`/categories/${post.categories[0].slug}`}
-                  className="font-semibold text-gray-600 hover:text-red-600 transition-colors"
+                  className="font-semibold text-gray-600 hover:text-red-600 transition-colors text-nowrap"
                 >
                   {post.categories[0].title}
                 </Link>
@@ -456,18 +457,36 @@ export default async function BlogDetailPage({
               {related?.length ? (
                 <section className="rounded-sm border border-gray-200 bg-white p-5">
                   <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900">
-                    Related Stories
+                    Related Blogs
                   </h3>
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     {related.map((p: any) => (
                       <Link
-                        key={p.slug}
+                        key={p._id || p.slug}
                         href={`/blog/${p.slug}`}
-                        className="group block border-b border-gray-100 pb-5 last:border-0 last:pb-0"
+                        className="group block border-b border-gray-100 pb-4 last:border-0 last:pb-0"
                       >
-                        <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 group-hover:text-red-600 transition-colors">
-                          {p.title}
-                        </h4>
+                        <div className="flex gap-3">
+                          {p.mainImage?.asset?.url && (
+                            <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                              <img
+                                src={p.mainImage.asset.url}
+                                alt={p.mainImage.alt || p.title}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 group-hover:text-red-600 transition-colors">
+                              {p.title}
+                            </h4>
+                            {p.publishedAt && (
+                              <p className="mt-1 text-xs text-gray-500">
+                                {formatDate(p.publishedAt)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </Link>
                     ))}
                   </div>

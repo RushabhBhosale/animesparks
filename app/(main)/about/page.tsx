@@ -4,16 +4,16 @@ import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About AnimeSparks A Personal Anime Editorial Blog",
   description:
-    "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+    "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
   alternates: {
     canonical: "/about",
   },
   openGraph: {
-    title: "About",
+    title: "About AnimeSparks A Personal Anime Editorial Blog",
     description:
-      "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+      "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
     url: "/about",
     type: "website",
     siteName,
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "About",
+    title: "About AnimeSparks A Personal Anime Editorial Blog",
     description:
-      "Daily Sparks is a personal anime blog by Rushabh Bhosale with reviews, lists, and character breakdowns.",
+      "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
     images: [defaultOgImage],
   },
 };

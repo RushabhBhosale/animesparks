@@ -13,16 +13,16 @@ import type { Metadata } from "next";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "AnimeSparks Anime Reviews Lists and Editorials",
   description:
-    "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+    "AnimeSparks is a personal anime editorial blog featuring honest reviews curated lists character breakdowns and thoughtful anime commentary.",
   alternates: {
     canonical: "/home",
   },
   openGraph: {
-    title: "Home",
+    title: "AnimeSparks Anime Reviews Lists and Editorials",
     description:
-      "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+      "AnimeSparks is a personal anime editorial blog featuring honest reviews curated lists character breakdowns and thoughtful anime commentary.",
     url: "/home",
     type: "website",
     siteName,
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Home",
+    title: "AnimeSparks Anime Reviews Lists and Editorials",
     description:
-      "AnimeSparks is a focused anime editorial blog with reviews, lists, and character analysis.",
+      "AnimeSparks is a personal anime editorial blog featuring honest reviews curated lists character breakdowns and thoughtful anime commentary.",
     images: [defaultOgImage],
   },
 };
@@ -80,7 +80,7 @@ export default async function Home() {
       )}
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Trending Stories - Grid Layout */}
+        {/* Trending Blogs - Grid Layout */}
         {trending.length > 0 && (
           <section className="mb-8 border-b border-gray-200 pb-6">
             <div className="flex items-center gap-2 mb-4">
@@ -126,7 +126,7 @@ export default async function Home() {
             <div className="flex items-center gap-2 mb-4">
               <div className="h-1 w-1 bg-red-600 rounded-full" />
               <h2 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">
-                Latest Stories
+                Latest Blogs
               </h2>
             </div>
 
@@ -270,11 +270,11 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* More Stories Sidebar */}
+            {/* More Blogs Sidebar */}
             {moreStories.length > 0 && (
               <div className="rounded-sm border border-gray-200 p-4">
                 <h3 className="mb-3 text-base sm:text-lg font-black uppercase tracking-tight text-gray-900">
-                  More Stories
+                  More Blogs
                 </h3>
                 <div className="space-y-4">
                   {moreStories.map((post: any) => (

@@ -9,16 +9,16 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Blogs",
+  title: "Anime Blog Reviews Lists and Anime News",
   description:
-    "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+    "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
   alternates: {
     canonical: "/blogs",
   },
   openGraph: {
-    title: "Blogs",
+    title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
     url: "/blogs",
     type: "website",
     siteName,
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blogs",
+    title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
     images: [defaultOgImage],
   },
 };
@@ -337,7 +337,7 @@ export default async function AllBlogsPage({
               {/* Newsletter */}
               <section className="rounded-sm border-2 border-red-600 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-900">
-                  Never Miss a Story
+                  Never Miss a Blog
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Subscribe to our newsletter for the latest updates and
