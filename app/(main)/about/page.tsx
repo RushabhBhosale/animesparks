@@ -50,58 +50,60 @@ export default function AboutPage() {
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
             AnimeSparks
           </h1>
+          <p className="mt-4 max-w-2xl text-white/90 text-lg">
+            A personal anime blog written by someone who actually watches anime.
+          </p>
         </div>
       </div>
 
+      {/* Content */}
       <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
         <section className="space-y-10 text-base leading-relaxed text-gray-700">
+          {/* Intro */}
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              What You Will Find Here
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+              Who Runs AnimeSparks?
             </h2>
             <p className="mt-4 text-lg">
-              I am Rushabh Bhosale, an anime nerd who has watched 250+ shows
-              (and counting). AnimeSparks is my personal blog for reviews,
-              rants, lists, and commentary - all focused on anime.
+              I’m <strong>Rushabh Bhosale</strong>, an anime fan who has watched
+              over <strong>250 anime series</strong> across genres, eras, and
+              formats — from long-running shounen to short psychological
+              thrillers and overlooked gems.
             </p>
             <p className="mt-3">
-              Just one guy writing about what he watches - from shounen icons
-              like Naruto and Bleach to hidden gems like Idaten Jump and
-              Sakura-sou.
+              AnimeSparks exists because I wanted a space to write honest,
+              experience-based thoughts about anime — not summaries, not trend
+              chasing, and not algorithm bait.
             </p>
           </div>
 
-          <AdSlot variant="full" />
+          {/* How I judge */}
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+              How I Judge Anime
+            </h2>
+            <p className="mt-4">
+              I don’t use numeric scores or rankings. I focus on storytelling,
+              character arcs, pacing, emotional impact, and whether a series
+              delivers on the promise it makes to the viewer.
+            </p>
+            <p className="mt-3">
+              If I drop a show, I say why. If I love something, I explain what
+              worked — without pretending everything is a masterpiece.
+            </p>
+          </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {[
-              {
-                title: "Anime Reviews",
-                body: "Honest, no-filter takes on series I have finished or dropped - including old-school, seasonal, and ongoing titles.",
-              },
-              {
-                title: "Watchlists and Rankings",
-                body: "What to watch next? I share recommendation lists, top 10s, genre picks, and mood-based suggestions.",
-              },
-              {
-                title: "Character Breakdowns",
-                body: "Deep dives into arcs, motivations, symbolism, and growth of iconic and underrated anime characters.",
-              },
-              {
-                title: "No Spoiler? No Problem",
-                body: "Each post is tagged clearly - spoiler-safe, spoiler-heavy, or first impressions.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-sm border border-gray-200 bg-white p-5"
-              >
-                <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm text-gray-600">{item.body}</p>
-              </div>
-            ))}
+          {/* What you’ll find */}
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+              What You’ll Find Here
+            </h2>
+            <ul className="mt-4 space-y-2 list-disc list-inside">
+              <li>Anime reviews based on shows I’ve personally watched</li>
+              <li>Recommendation lists and rankings by theme or mood</li>
+              <li>First-episode and first-impression analysis</li>
+              <li>Character breakdowns and story-focused essays</li>
+            </ul>
           </div>
 
           <div>
@@ -131,30 +133,35 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <AdSlot variant="full" />
-
-          <div className="rounded-sm border-2 border-red-600 bg-white p-6">
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Want to Connect?
+          {/* Trust */}
+          <div className="rounded-sm border border-gray-200 bg-gray-50 p-6">
+            <h2 className="text-xl font-black tracking-tight text-gray-900">
+              Why Trust AnimeSparks?
             </h2>
-            <p className="mt-3 text-sm text-gray-600">
-              Got a show suggestion or want to collaborate? Drop me a message. I
-              read all my emails myself.
+            <p className="mt-3 text-sm text-gray-700">
+              AnimeSparks is written entirely by one person. Every article is
+              based on shows I’ve watched myself — not summaries, AI scripts, or
+              copied opinions. The goal is simple: write for people who actually
+              watch anime.
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <a
-                href="mailto:hello@dailysparks.com"
-                className="inline-flex items-center justify-center rounded-sm bg-red-600 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-red-700"
-              >
-                Contact Me
-              </a>
-              <Link
-                href="/blogs"
-                className="inline-flex items-center justify-center rounded-sm border border-gray-300 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-gray-800 transition-colors hover:border-red-600 hover:text-red-600"
-              >
-                Read the Blog
-              </Link>
-            </div>
+          </div>
+
+          {/* Transparency */}
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+              Transparency
+            </h2>
+            <p className="mt-4">
+              All opinions on this site are personal and independent. Some pages
+              may display ads to support hosting and maintenance costs, but
+              content decisions are never influenced by sponsorships.
+            </p>
+          </div>
+
+          {/* Image credits */}
+          <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Image credits: TMDB (The Movie Database) and official promotional
+            materials. Images are used for editorial purposes only.
           </div>
         </section>
       </div>
