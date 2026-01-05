@@ -180,10 +180,12 @@ export default async function Home() {
                 >
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-32 sm:h-40 w-full overflow-hidden rounded-sm bg-gray-200">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 700, quality: 60 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 360px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
                   )}
@@ -209,10 +211,12 @@ export default async function Home() {
                 >
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-20 w-28 sm:h-24 sm:w-32 shrink-0 overflow-hidden rounded-sm bg-gray-200">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 500, quality: 60 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 35vw, 240px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
                   )}

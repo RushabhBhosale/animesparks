@@ -5,6 +5,8 @@ import { formatDate } from "@/utils/date";
 import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import { sanityImageUrl } from "@/sanity/lib/image";
+import Image from "next/image";
 
 export const revalidate = 60;
 
@@ -125,10 +127,12 @@ export default async function TagPage({
                 >
                   {post.mainImage?.asset?.url ? (
                     <div className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-sm bg-gray-200 md:h-32 md:w-56">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 700, quality: 60 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 90vw, 320px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                   ) : null}

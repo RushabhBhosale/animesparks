@@ -477,10 +477,12 @@ export default async function BlogDetailPage({
                         <div className="flex gap-3">
                           {p.mainImage?.asset?.url && (
                             <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
-                              <img
-                                src={p.mainImage.asset.url}
+                              <Image
+                                src={sanityImageUrl(p.mainImage, { width: 400, quality: 60 })}
                                 alt={p.mainImage.alt || p.title}
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                fill
+                                sizes="(max-width: 768px) 40vw, 160px"
+                                className="object-cover transition-transform duration-300 group-hover:scale-110"
                               />
                             </div>
                           )}
