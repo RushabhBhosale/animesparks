@@ -10,6 +10,7 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 export const revalidate = 60;
 
