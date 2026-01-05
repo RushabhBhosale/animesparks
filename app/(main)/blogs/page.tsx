@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
+import { sanityImageUrl } from "@/sanity/lib/image";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Blogs",
@@ -128,10 +130,12 @@ export default async function AllBlogsPage({
                 <Link href={`/blog/${featured.slug}`} className="block">
                   {featured.mainImage?.asset?.url && (
                     <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
-                      <img
-                        src={featured.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(featured.mainImage, { width: 1600 })}
                         alt={featured.mainImage.alt || featured.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 1200px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute top-4 left-4">
                         <span className="inline-block rounded-sm bg-red-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
@@ -205,10 +209,12 @@ export default async function AllBlogsPage({
                     >
                       {post.mainImage?.asset?.url && (
                         <div className="relative h-75 w-full overflow-hidden rounded-sm bg-gray-200">
-                          <img
-                            src={post.mainImage.asset.url}
+                          <Image
+                            src={sanityImageUrl(post.mainImage, { width: 1600 })}
                             alt={post.mainImage.alt || post.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 1200px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
                       )}
@@ -238,10 +244,12 @@ export default async function AllBlogsPage({
                     <div className="flex gap-5">
                       {post.mainImage?.asset?.url && (
                         <div className="relative h-32 w-48 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-40 sm:w-64">
-                          <img
-                            src={post.mainImage.asset.url}
+                          <Image
+                            src={sanityImageUrl(post.mainImage, { width: 800 })}
                             alt={post.mainImage.alt || post.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            fill
+                            sizes="(max-width: 768px) 92vw, 420px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
                       )}

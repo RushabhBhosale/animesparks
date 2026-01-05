@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
+import { sanityImageUrl } from "@/sanity/lib/image";
 import { trendingBlogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { siteName } from "@/utils/seo";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Trending",
@@ -81,10 +83,12 @@ export default async function TrendingPage() {
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {topTrending.mainImage?.asset?.url && (
                   <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
-                    <img
-                      src={topTrending.mainImage.asset.url}
+                    <Image
+                      src={sanityImageUrl(topTrending.mainImage, { width: 1600 })}
                       alt={topTrending.mainImage.alt || topTrending.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 1200px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                     <div className="absolute top-4 left-4">
@@ -159,10 +163,12 @@ export default async function TrendingPage() {
                   >
                     {post.mainImage?.asset?.url && (
                       <div className="relative h-56 w-full overflow-hidden bg-gray-200">
-                        <img
-                          src={post.mainImage.asset.url}
+                        <Image
+                          src={sanityImageUrl(post.mainImage, { width: 800 })}
                           alt={post.mainImage.alt || post.title}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          fill
+                          sizes="(max-width: 768px) 92vw, 420px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
                         />
                         <div className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm font-black text-white shadow-lg">
                           {index + 2}
@@ -216,21 +222,23 @@ export default async function TrendingPage() {
                       key={post._id}
                       href={`/blog/${post.slug}`}
                       className="group flex gap-5 border-b border-gray-200 pb-6"
-                    >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-xl font-black text-gray-400 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                        {index + 8}
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-gray-100 text-xl font-black text-gray-400 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                      {index + 8}
+                    </div>
+                    {post.mainImage?.asset?.url && (
+                      <div className="relative h-32 w-48 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-36 sm:w-56">
+                        <Image
+                          src={sanityImageUrl(post.mainImage, { width: 800 })}
+                          alt={post.mainImage.alt || post.title}
+                          fill
+                          sizes="(max-width: 768px) 92vw, 420px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
                       </div>
-                      {post.mainImage?.asset?.url && (
-                        <div className="relative h-32 w-48 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-36 sm:w-56">
-                          <img
-                            src={post.mainImage.asset.url}
-                            alt={post.mainImage.alt || post.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                          />
-                        </div>
-                      )}
-                      <div className="flex flex-col justify-center">
-                        {post.categories?.[0] && (
+                    )}
+                    <div className="flex flex-col justify-center">
+                      {post.categories?.[0] && (
                           <span className="text-xs font-bold uppercase tracking-wider text-red-600">
                             {post.categories[0].title}
                           </span>

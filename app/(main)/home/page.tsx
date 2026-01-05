@@ -4,8 +4,10 @@ import {
   trendingBlogsQuery,
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
+import { sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -50,10 +52,13 @@ export default async function Home() {
           <Link href={`/blog/${featured.slug}`} className="block group">
             {featured.mainImage?.asset?.url && (
               <div className="relative h-125 w-full overflow-hidden lg:h-150">
-                <img
-                  src={featured.mainImage.asset.url}
+                <Image
+                  src={sanityImageUrl(featured.mainImage, { width: 1600 })}
                   alt={featured.mainImage.alt || featured.title}
-                  className="h-full w-full object-cover opacity-80 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  priority
+                  className="object-cover opacity-80 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
               </div>
@@ -94,10 +99,12 @@ export default async function Home() {
                 >
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-48 w-full overflow-hidden rounded-sm bg-gray-200">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 800 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 92vw, 420px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                       <div className="absolute top-2 left-2 flex h-8 w-8 items-center justify-center rounded-sm bg-red-600 text-sm font-black text-white">
                         {idx + 1}
@@ -133,10 +140,12 @@ export default async function Home() {
                 <div className="flex gap-5">
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-32 w-48 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-40 sm:w-64">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 800 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 92vw, 420px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
                   )}
@@ -204,22 +213,24 @@ export default async function Home() {
               </h3>
               <div className="space-y-5">
                 {latestPosts.slice(6, 12).map((post: any) => (
-                  <Link
-                    key={post._id}
-                    href={`/blog/${post.slug}`}
-                    className="group block"
-                  >
-                    <div className="flex gap-3">
-                      {post.mainImage?.asset?.url && (
-                        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-sm bg-gray-200">
-                          <img
-                            src={post.mainImage.asset.url}
-                            alt={post.mainImage.alt || post.title}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                          />
-                        </div>
-                      )}
-                      <div>
+                <Link
+                  key={post._id}
+                  href={`/blog/${post.slug}`}
+                  className="group block"
+                >
+                  <div className="flex gap-3">
+                    {post.mainImage?.asset?.url && (
+                      <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                        <Image
+                          src={sanityImageUrl(post.mainImage, { width: 800 })}
+                          alt={post.mainImage.alt || post.title}
+                          fill
+                          sizes="(max-width: 768px) 92vw, 420px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                      </div>
+                    )}
+                    <div>
                         <h4 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2 group-hover:text-red-600 transition-colors">
                           {post.title}
                         </h4>

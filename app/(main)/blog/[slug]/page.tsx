@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
-import { urlFor } from "@/sanity/lib/image";
+import { sanityImageUrl } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
@@ -16,6 +16,7 @@ import {
   siteAuthorUrl,
   siteName,
 } from "@/utils/seo";
+import Image from "next/image";
 
 type Post = {
   _id: string;
@@ -66,8 +67,11 @@ export async function generateMetadata({
     getDescription(post.metaDescription, post.excerpt) ||
     `Read ${post.title} on ${siteName}.`;
 
-  const ogImage =
-    post.mainImage?.asset?.url || new URL(defaultOgImage, baseUrl).toString();
+  const mainImageUrl = post.mainImage?.asset
+    ? sanityImageUrl(post.mainImage, { width: 1600 })
+    : undefined;
+
+  const ogImage = mainImageUrl || new URL(defaultOgImage, baseUrl).toString();
 
   return {
     title: seoTitle,
@@ -110,6 +114,9 @@ export default async function BlogDetailPage({
   const description =
     getDescription(post.metaDescription, post.excerpt) ||
     `Read ${post.title} on ${siteName}.`;
+  const mainImageUrl = post.mainImage?.asset
+    ? sanityImageUrl(post.mainImage, { width: 1600 })
+    : undefined;
   const faqItems =
     post.faq
       ?.map((item) => ({
@@ -136,7 +143,7 @@ export default async function BlogDetailPage({
         url={canonicalUrl}
         title={seoTitle}
         description={description}
-        image={post.mainImage?.asset?.url}
+        image={mainImageUrl}
         datePublished={post.publishedAt}
         dateModified={post._updatedAt}
         authorName={post.author?.name || siteAuthorName}
@@ -151,12 +158,15 @@ export default async function BlogDetailPage({
       />
       {faqItems.length ? <FaqJsonLd items={faqItems} /> : null}
       {/* Featured Image Hero */}
-      {post.mainImage?.asset?.url && (
+      {mainImageUrl && (
         <div className="relative h-100 w-full overflow-hidden bg-black lg:h-125">
-          <img
-            src={post.mainImage.asset.url}
-            alt={post.mainImage.alt || post.title}
-            className="h-full w-full object-cover object-center opacity-70"
+          <Image
+            src={mainImageUrl}
+            alt={post.mainImage?.alt || post.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 1200px"
+            className="object-cover object-center opacity-70"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
         </div>
@@ -275,22 +285,19 @@ export default async function BlogDetailPage({
                   types: {
                     image: ({ value }) => {
                       if (!value?.asset) return null;
-                      const src = urlFor(value)
-                        .width(1200)
-                        .fit("max")
-                        .auto("format")
-                        .url();
-
-                      if (!src) return null;
+                      const src = sanityImageUrl(value, { width: 1200 });
 
                       return (
                         <figure className="my-8">
-                          <img
-                            src={src}
-                            alt={value.alt || ""}
-                            className="w-full rounded-sm object-cover"
-                            loading="lazy"
-                          />
+                          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-sm">
+                            <Image
+                              src={src}
+                              alt={value.alt || ""}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 960px"
+                              className="object-cover"
+                            />
+                          </div>
                           {value.alt && (
                             <figcaption className="mt-2 text-center text-sm text-gray-500">
                               {value.alt}

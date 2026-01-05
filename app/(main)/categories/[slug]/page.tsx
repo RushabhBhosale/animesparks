@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
+import { sanityImageUrl } from "@/sanity/lib/image";
 import {
   blogsByCategoryQuery,
   categoryBySlugQuery,
@@ -9,6 +10,7 @@ import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import Image from "next/image";
 
 type Category = {
   _id: string;
@@ -135,10 +137,12 @@ export default async function CategoryDetailPage({
                 >
                   {post.mainImage?.asset?.url ? (
                     <div className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-32 sm:w-56">
-                      <img
-                        src={post.mainImage.asset.url}
+                      <Image
+                        src={sanityImageUrl(post.mainImage, { width: 800 })}
                         alt={post.mainImage.alt || post.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 92vw, 420px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                   ) : null}
