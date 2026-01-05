@@ -196,6 +196,7 @@ export default async function BlogDetailPage({
             fill
             priority
             sizes="(max-width: 768px) 100vw, 1200px"
+            fetchPriority="high"
             quality={60}
             className="object-cover object-center opacity-70"
           />

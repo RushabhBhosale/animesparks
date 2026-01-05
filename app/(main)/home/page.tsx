@@ -63,6 +63,7 @@ export default async function Home() {
                   fill
                   sizes="(max-width: 768px) 100vw, 1200px"
                   priority
+                  fetchPriority="high"
                   quality={60}
                   className="object-cover opacity-80 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105"
                 />

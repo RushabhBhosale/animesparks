@@ -93,6 +93,7 @@ export default async function TrendingPage() {
                       alt={topTrending.mainImage.alt || topTrending.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 1200px"
+                      fetchPriority="high"
                       quality={60}
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />

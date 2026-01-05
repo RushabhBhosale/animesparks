@@ -12,11 +12,13 @@ import Script from "next/script";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const baseUrl = getBaseUrl();
@@ -36,6 +38,9 @@ export const metadata: Metadata = {
     "anime rankings",
     siteName,
   ],
+  verification: {
+    google: "tPu2ydEno2Cgozfk4C7IMvR9jnX8NgMyA2vFTRb7KdQ",
+  },
   openGraph: {
     title: siteName,
     description: siteDescription,
@@ -59,11 +64,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <meta
-          name="google-site-verification"
-          content="tPu2ydEno2Cgozfk4C7IMvR9jnX8NgMyA2vFTRb7KdQ"
-        />
+      <body
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-N73PGN515J"
           strategy="afterInteractive"
@@ -76,11 +80,7 @@ export default function RootLayout({
             gtag('config', 'G-N73PGN515J');
           `}
         </Script>
-      </head>
-      <body
-        suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+
         {children}
       </body>
     </html>

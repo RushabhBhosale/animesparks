@@ -142,6 +142,7 @@ export default async function AllBlogsPage({
                         alt={featured.mainImage.alt || featured.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 1200px"
+                        fetchPriority="high"
                         quality={60}
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
