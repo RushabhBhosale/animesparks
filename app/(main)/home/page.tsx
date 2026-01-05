@@ -4,7 +4,7 @@ import {
   trendingBlogsQuery,
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import Image from "next/image";
@@ -58,11 +58,12 @@ export default async function Home() {
             {featured.mainImage?.asset?.url && (
               <div className="relative h-125 w-full overflow-hidden lg:h-150">
                 <Image
-                  src={sanityImageUrl(featured.mainImage, { width: 1600 })}
+                  src={sanityHeroImageUrl(featured.mainImage)}
                   alt={featured.mainImage.alt || featured.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 1200px"
                   priority
+                  quality={60}
                   className="object-cover opacity-80 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { trendingBlogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -89,10 +89,11 @@ export default async function TrendingPage() {
                 {topTrending.mainImage?.asset?.url && (
                   <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
                     <Image
-                      src={sanityImageUrl(topTrending.mainImage, { width: 1600 })}
+                      src={sanityHeroImageUrl(topTrending.mainImage)}
                       alt={topTrending.mainImage.alt || topTrending.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 1200px"
+                      quality={60}
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />

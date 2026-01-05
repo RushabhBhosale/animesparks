@@ -43,3 +43,15 @@ export const sanityImageUrl = (source: SanityImageSource, options: ImageOptions 
 
   return imageBuilder.url();
 };
+
+const HERO_MAX_WIDTH = 1400;
+const HERO_QUALITY = 60;
+
+export const sanityHeroImageUrl = (source: SanityImageSource, options: ImageOptions = {}) =>
+  sanityImageUrl(source, {
+    ...options,
+    width: Math.min(options.width ?? HERO_MAX_WIDTH, HERO_MAX_WIDTH),
+    quality: Math.min(options.quality ?? HERO_QUALITY, HERO_QUALITY),
+    auto: options.auto ?? "format",
+    fit: options.fit ?? "max",
+  });

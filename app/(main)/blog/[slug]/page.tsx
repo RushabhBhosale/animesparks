@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
@@ -97,7 +97,7 @@ export async function generateMetadata({
     `Read ${post.title} on ${siteName}.`;
 
   const mainImageUrl = post.mainImage?.asset
-    ? sanityImageUrl(post.mainImage, { width: 1600 })
+    ? sanityHeroImageUrl(post.mainImage)
     : undefined;
 
   const ogImage = mainImageUrl || new URL(defaultOgImage, baseUrl).toString();
@@ -144,7 +144,7 @@ export default async function BlogDetailPage({
     getDescription(post.metaDescription, post.excerpt) ||
     `Read ${post.title} on ${siteName}.`;
   const mainImageUrl = post.mainImage?.asset
-    ? sanityImageUrl(post.mainImage, { width: 1600 })
+    ? sanityHeroImageUrl(post.mainImage)
     : undefined;
   const faqItems =
     post.faq
@@ -196,6 +196,7 @@ export default async function BlogDetailPage({
             fill
             priority
             sizes="(max-width: 768px) 100vw, 1200px"
+            quality={60}
             className="object-cover object-center opacity-70"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />

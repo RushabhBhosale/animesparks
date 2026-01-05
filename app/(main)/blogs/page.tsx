@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -138,10 +138,11 @@ export default async function AllBlogsPage({
                   {featured.mainImage?.asset?.url && (
                     <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
                       <Image
-                        src={sanityImageUrl(featured.mainImage, { width: 1600 })}
+                        src={sanityHeroImageUrl(featured.mainImage)}
                         alt={featured.mainImage.alt || featured.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 1200px"
+                        quality={60}
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute top-4 left-4">
@@ -217,10 +218,11 @@ export default async function AllBlogsPage({
                       {post.mainImage?.asset?.url && (
                         <div className="relative h-75 w-full overflow-hidden rounded-sm bg-gray-200">
                           <Image
-                            src={sanityImageUrl(post.mainImage, { width: 1600 })}
+                            src={sanityHeroImageUrl(post.mainImage)}
                             alt={post.mainImage.alt || post.title}
                             fill
                             sizes="(max-width: 768px) 100vw, 1200px"
+                            quality={60}
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>
