@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const metadata: Metadata = {
@@ -56,50 +57,58 @@ export default function PrivacyPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
         <section className="space-y-8 text-base leading-relaxed text-gray-700">
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Information We Collect
-            </h2>
-            <p className="mt-3">
-              If you subscribe to updates, we store the email address you
-              provide. Our servers may also log basic technical data such as IP
-              address, user agent, and request timing for security and
-              performance.
-            </p>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1">
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+                Information We Collect
+              </h2>
+              <p className="mt-3">
+                If you subscribe to updates, we store the email address you
+                provide. Our servers may also log basic technical data such as
+                IP address, user agent, and request timing for security and
+                performance.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+                How We Use Data
+              </h2>
+              <p className="mt-3">
+                Data is used to deliver requested updates, maintain site
+                reliability, and understand broad readership trends. We do not
+                sell personal data.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              How We Use Data
-            </h2>
-            <p className="mt-3">
-              Data is used to deliver requested updates, maintain site
-              reliability, and understand broad readership trends. We do not
-              sell personal data.
-            </p>
+          <AdSlot variant="full" />
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1">
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+                Cookies & Analytics
+              </h2>
+              <p className="mt-3">
+                We may use lightweight analytics to understand page usage. If
+                cookies are used, they are limited to essential functionality
+                and basic measurement.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+                Your Choices
+              </h2>
+              <p className="mt-3">
+                You can opt out of emails at any time using unsubscribe links.
+                You may also contact us to request removal of your email from
+                our records.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Cookies & Analytics
-            </h2>
-            <p className="mt-3">
-              We may use lightweight analytics to understand page usage. If
-              cookies are used, they are limited to essential functionality and
-              basic measurement.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-              Your Choices
-            </h2>
-            <p className="mt-3">
-              You can opt out of emails at any time using unsubscribe links.
-              You may also contact us to request removal of your email from our
-              records.
-            </p>
-          </div>
+          <AdSlot variant="full" />
         </section>
       </div>
     </main>

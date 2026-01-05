@@ -3,21 +3,24 @@ import { client } from "@/sanity/lib/client";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import Image from "next/image";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
-  title: "Blogs",
+  title: "Anime Blog Reviews Lists and Anime News",
   description:
-    "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+    "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
   alternates: {
     canonical: "/blogs",
   },
   openGraph: {
-    title: "Blogs",
+    title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
     url: "/blogs",
     type: "website",
     siteName,
@@ -25,9 +28,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blogs",
+    title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all AnimeSparks posts: reviews, rankings, lists, and story analysis.",
+      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
     images: [defaultOgImage],
   },
 };
@@ -120,10 +123,14 @@ export default async function AllBlogsPage({
         </div>
       </div>
 
+      <div className="mx-auto max-w-7xl px-4 pt-8 md:px-8">
+        <AdSlot variant="full" />
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-10 lg:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-8">
+          <div className="md:col-span-8 lg:col-span-8">
             {/* Featured Top Post */}
             {featured && (
               <div className="group mb-10 border-b border-gray-200 pb-10">
@@ -291,10 +298,12 @@ export default async function AllBlogsPage({
                 </svg>
               </button>
             </div>
+
+            <AdSlot variant="inline" className="mt-10" />
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Categories */}
               {categories.length > 0 && (
@@ -331,10 +340,12 @@ export default async function AllBlogsPage({
                 </section>
               )}
 
+              <AdSlot variant="sidebar" />
+
               {/* Newsletter */}
               <section className="rounded-sm border-2 border-red-600 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-900">
-                  Never Miss a Story
+                  Never Miss a Blog
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Subscribe to our newsletter for the latest updates and
@@ -359,15 +370,7 @@ export default async function AllBlogsPage({
                 </p>
               </section>
 
-              {/* Ad Space */}
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-sm font-semibold uppercase text-gray-400">
-                  Advertisement
-                </p>
-                <div className="mt-4 flex h-64 items-center justify-center rounded-sm bg-gray-200">
-                  <span className="text-gray-400">300x250</span>
-                </div>
-              </div>
+              <AdSlot variant="sidebar" />
 
               {/* Popular Tags */}
               {popularTags.length > 0 && (

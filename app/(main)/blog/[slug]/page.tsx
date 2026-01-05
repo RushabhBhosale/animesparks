@@ -7,8 +7,10 @@ import { sanityImageUrl } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { cache } from "react";
+import { formatDate } from "@/utils/date";
 import {
   defaultOgImage,
   getBaseUrl,
@@ -17,6 +19,8 @@ import {
   siteName,
 } from "@/utils/seo";
 import Image from "next/image";
+
+export const revalidate = 60;
 
 type Post = {
   _id: string;
@@ -41,6 +45,31 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
   const trimmed = source.replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
+};
+
+const insertInlineAd = (blocks: any) => {
+  if (!Array.isArray(blocks)) return blocks;
+  let paragraphCount = 0;
+  const insertAfter = new Set([2, 6]);
+  const output: any[] = [];
+
+  for (const block of blocks) {
+    output.push(block);
+    if (
+      block?._type === "block" &&
+      (block.style === "normal" || !block.style)
+    ) {
+      paragraphCount += 1;
+      if (insertAfter.has(paragraphCount)) {
+        output.push({
+          _type: "adSlot",
+          _key: `ad-inline-${paragraphCount}`,
+        });
+      }
+    }
+  }
+
+  return output;
 };
 
 const getPost = cache(async (slug: string) =>
@@ -136,6 +165,7 @@ export default async function BlogDetailPage({
           categoryIds,
         })
       : [];
+  const bodyWithAds = insertInlineAd(post.body);
 
   return (
     <main className="min-h-screen bg-white">
@@ -187,7 +217,7 @@ export default async function BlogDetailPage({
               <>
                 <Link
                   href={`/categories/${post.categories[0].slug}`}
-                  className="font-semibold text-gray-600 hover:text-red-600 transition-colors"
+                  className="font-semibold text-gray-600 hover:text-red-600 transition-colors text-nowrap"
                 >
                   {post.categories[0].title}
                 </Link>
@@ -198,9 +228,9 @@ export default async function BlogDetailPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 py-8 lg:grid-cols-12 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-12 md:gap-10 lg:gap-12">
           {/* Main Content */}
-          <article className="lg:col-span-8">
+          <article className="md:col-span-8 lg:col-span-8">
             {/* Category Tags */}
             <div className="mb-4 flex flex-wrap gap-2">
               {(post.categories || []).slice(0, 3).map((c) => (
@@ -280,9 +310,12 @@ export default async function BlogDetailPage({
             {/* Article Body */}
             <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors hover:prose-a:text-red-700 hover:prose-a:decoration-red-500 hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
-                value={post.body}
+                value={bodyWithAds}
                 components={{
                   types: {
+                    adSlot: () => (
+                      <AdSlot variant="inline" className="my-10 not-prose" />
+                    ),
                     image: ({ value }) => {
                       if (!value?.asset) return null;
                       const src = sanityImageUrl(value, { width: 1200 });
@@ -382,6 +415,8 @@ export default async function BlogDetailPage({
               </section>
             ) : null}
 
+            <AdSlot variant="full" className="mt-12 not-prose" />
+
             {/* FAQ */}
             {post.faq?.length ? (
               <section className="mt-12 rounded-sm border border-gray-200 bg-gray-50 p-6">
@@ -423,39 +458,49 @@ export default async function BlogDetailPage({
           </article>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Related Posts */}
               {related?.length ? (
                 <section className="rounded-sm border border-gray-200 bg-white p-5">
                   <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900">
-                    Related Stories
+                    Related Blogs
                   </h3>
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     {related.map((p: any) => (
                       <Link
-                        key={p.slug}
+                        key={p._id || p.slug}
                         href={`/blog/${p.slug}`}
-                        className="group block border-b border-gray-100 pb-5 last:border-0 last:pb-0"
+                        className="group block border-b border-gray-100 pb-4 last:border-0 last:pb-0"
                       >
-                        <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 group-hover:text-red-600 transition-colors">
-                          {p.title}
-                        </h4>
+                        <div className="flex gap-3">
+                          {p.mainImage?.asset?.url && (
+                            <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                              <img
+                                src={p.mainImage.asset.url}
+                                alt={p.mainImage.alt || p.title}
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 group-hover:text-red-600 transition-colors">
+                              {p.title}
+                            </h4>
+                            {p.publishedAt && (
+                              <p className="mt-1 text-xs text-gray-500">
+                                {formatDate(p.publishedAt)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </Link>
                     ))}
                   </div>
                 </section>
               ) : null}
 
-              {/* Ad Space Placeholder */}
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-sm font-semibold text-gray-400 uppercase">
-                  Advertisement
-                </p>
-                <div className="mt-4 h-64 bg-gray-200 rounded-sm flex items-center justify-center">
-                  <span className="text-gray-400">300x250</span>
-                </div>
-              </div>
+              <AdSlot variant="sidebar" />
 
               {/* Newsletter Signup */}
               <div className="rounded-sm border-2 border-red-600 bg-white p-6">

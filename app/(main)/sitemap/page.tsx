@@ -2,8 +2,11 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesQuery, sitemapPageBlogsQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Sitemap",
@@ -45,6 +48,7 @@ const coreLinks = [
   { label: "Blogs", href: "/blogs" },
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
+  { label: "Advertise", href: "/advertise" },
   { label: "About", href: "/about" },
   { label: "Privacy", href: "/privacy" },
 ];
@@ -90,7 +94,7 @@ export default async function SitemapPage() {
               Main Pages
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             {coreLinks.map((link) => (
               <Link
                 key={link.href}
@@ -116,6 +120,8 @@ export default async function SitemapPage() {
           </div>
         </section>
 
+        <AdSlot variant="full" className="mb-12" />
+
         {categories?.length ? (
           <section className="mb-12">
             <div className="mb-6 flex items-center gap-3">
@@ -124,7 +130,7 @@ export default async function SitemapPage() {
                 Categories
               </h2>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
               {categories.map((category) => (
                 <Link
                   key={category._id}
@@ -138,6 +144,8 @@ export default async function SitemapPage() {
           </section>
         ) : null}
 
+        <AdSlot variant="full" className="mb-12" />
+
         {posts?.length ? (
           <section>
             <div className="mb-6 flex items-center gap-3">
@@ -146,7 +154,7 @@ export default async function SitemapPage() {
                 Published Posts
               </h2>
             </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
               {posts.map((post) => (
                 <Link
                   key={post._id}

@@ -3,21 +3,24 @@ import { client } from "@/sanity/lib/client";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import { trendingBlogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
+import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { siteName } from "@/utils/seo";
 import Image from "next/image";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
-  title: "Trending",
+  title: "Trending Anime Articles and Popular Reads",
   description:
-    "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+    "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
-    title: "Trending",
+    title: "Trending Anime Articles and Popular Reads",
     description:
-      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+      "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
     url: "/trending",
     type: "website",
     siteName,
@@ -25,9 +28,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trending",
+    title: "Trending Anime Articles and Popular Reads",
     description:
-      "The most-read AnimeSparks posts right now: popular reviews, lists, and analysis.",
+      "Discover the most read and trending anime articles on AnimeSparks including popular reviews lists and current anime discussions.",
     images: ["/trending-poster.jpg"],
   },
 };
@@ -59,7 +62,7 @@ export default async function TrendingPage() {
             </span>
           </div>
           <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            Trending Stories
+            Trending Blogs
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-white/90">
             The most popular articles everyone is talking about right now.
@@ -68,6 +71,8 @@ export default async function TrendingPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
+        <AdSlot variant="full" className="mb-10" />
+
         {/* Top Trending - Full Width Feature */}
         {topTrending && (
           <section className="mb-12 border-b-4 border-red-600 pb-10">
@@ -80,7 +85,7 @@ export default async function TrendingPage() {
               </h2>
             </div>
             <Link href={`/blog/${topTrending.slug}`} className="group block">
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
                 {topTrending.mainImage?.asset?.url && (
                   <div className="relative h-87.5 w-full overflow-hidden rounded-sm bg-gray-200 lg:h-112.5">
                     <Image
@@ -119,16 +124,6 @@ export default async function TrendingPage() {
                   </p>
                   <div className="mt-6 flex items-center gap-4 text-sm font-medium text-gray-500">
                     <span>{formatDate(topTrending.publishedAt)}</span>
-                    <span className="flex items-center gap-1">
-                      <svg
-                        className="h-4 w-4"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                      </svg>
-                      12.5K Views
-                    </span>
                   </div>
                 </div>
               </div>
@@ -136,9 +131,9 @@ export default async function TrendingPage() {
           </section>
         )}
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-10">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-10 lg:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-8">
+          <div className="md:col-span-8 lg:col-span-8">
             {/* Hot Stories Grid */}
             <section className="mb-12">
               <div className="mb-6 flex items-center gap-3">
@@ -204,6 +199,8 @@ export default async function TrendingPage() {
               </div>
             </section>
 
+            <AdSlot variant="inline" className="mb-12" />
+
             {/* More Trending */}
             {moreTrending.length > 0 && (
               <section>
@@ -211,7 +208,7 @@ export default async function TrendingPage() {
                   <div className="flex items-center gap-3">
                     <div className="h-1 w-1 bg-red-600 rounded-full" />
                     <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
-                      More Trending Stories
+                      More Trending Blogs
                     </h2>
                   </div>
                 </div>
@@ -258,7 +255,7 @@ export default async function TrendingPage() {
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4">
+          <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Trending Stats */}
               <section className="rounded-sm border-2 border-red-600 bg-linear-to-br from-red-50 to-white p-6">
@@ -271,7 +268,7 @@ export default async function TrendingPage() {
                     <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
                   </svg>
                   <h3 className="text-lg font-black uppercase text-gray-900">
-                    Trending Stats
+                    Trending Overview
                   </h3>
                 </div>
                 <div className="space-y-4">
@@ -281,22 +278,6 @@ export default async function TrendingPage() {
                     </span>
                     <span className="text-sm font-semibold text-gray-600">
                       Trending Articles
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-red-600">
-                      500K+
-                    </span>
-                    <span className="text-sm font-semibold text-gray-600">
-                      Total Views
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-red-600">
-                      24h
-                    </span>
-                    <span className="text-sm font-semibold text-gray-600">
-                      Updated
                     </span>
                   </div>
                 </div>
@@ -336,6 +317,8 @@ export default async function TrendingPage() {
                   </div>
                 </section>
               )}
+
+              <AdSlot variant="sidebar" />
 
               {/* Why Trending Box */}
               <section className="rounded-sm border border-gray-200 bg-white p-5">
@@ -418,15 +401,7 @@ export default async function TrendingPage() {
                 </form>
               </section>
 
-              {/* Ad Space */}
-              <div className="rounded-sm border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-sm font-semibold uppercase text-gray-400">
-                  Advertisement
-                </p>
-                <div className="mt-4 flex h-64 items-center justify-center rounded-sm bg-gray-200">
-                  <span className="text-gray-400">300x250</span>
-                </div>
-              </div>
+              <AdSlot variant="sidebar" />
             </div>
           </aside>
         </div>
