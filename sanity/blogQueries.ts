@@ -283,3 +283,18 @@ export const rssBlogsQuery = groq`
   "excerpt": pt::text(body)
 }
 `;
+
+/* ----------------------------------------
+   ANIME LIST
+---------------------------------------- */
+export const animeListQuery = groq`
+*[_type == "animeEntry"] | order(title asc) {
+  _id,
+  title,
+  score,
+  coverImage,
+  bannerImage,
+  genres,
+  year
+}
+`;

@@ -195,7 +195,7 @@ export default async function BlogDetailPage({
             alt={post.mainImage?.alt || post.title}
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 1200px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
             fetchPriority="high"
             quality={60}
             className="object-cover object-center opacity-70"
@@ -316,7 +316,12 @@ export default async function BlogDetailPage({
                 components={{
                   types: {
                     adSlot: () => (
-                      <AdSlot variant="inline" className="my-10 not-prose" />
+                      <div
+                        className="my-10 not-prose"
+                        aria-label="Advertisement"
+                      >
+                        <AdSlot variant="inline" className="min-h-62.5" />
+                      </div>
                     ),
                     image: ({ value }) => {
                       if (!value?.asset) return null;
@@ -324,13 +329,15 @@ export default async function BlogDetailPage({
 
                       return (
                         <figure className="my-8">
-                          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-sm">
+                          <div className="relative aspect-video w-full overflow-hidden rounded-sm">
                             <Image
                               src={src}
                               alt={value.alt || ""}
                               fill
-                              sizes="(max-width: 768px) 100vw, 960px"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
                               className="object-cover"
+                              loading="lazy"
+                              quality={75}
                             />
                           </div>
                           {value.alt && (
@@ -479,7 +486,10 @@ export default async function BlogDetailPage({
                           {p.mainImage?.asset?.url && (
                             <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
                               <Image
-                                src={sanityImageUrl(p.mainImage, { width: 400, quality: 60 })}
+                                src={sanityImageUrl(p.mainImage, {
+                                  width: 400,
+                                  quality: 60,
+                                })}
                                 alt={p.mainImage.alt || p.title}
                                 fill
                                 sizes="(max-width: 768px) 40vw, 160px"

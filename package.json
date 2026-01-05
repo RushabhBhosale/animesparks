@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:anime-list": "node scripts/import-anime-list.cjs",
+    "fetch:anilist": "node scripts/fetch-anilist-bulk.cjs"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.0",

@@ -46,6 +46,7 @@ type Blog = {
 const coreLinks = [
   { label: "Home", href: "/home" },
   { label: "Blogs", href: "/blogs" },
+  { label: "My Anime List", href: "/my-anime-list" },
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
   { label: "Advertise", href: "/advertise" },

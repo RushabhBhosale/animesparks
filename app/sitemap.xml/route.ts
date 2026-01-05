@@ -35,6 +35,7 @@ export async function GET() {
   const staticRoutes = [
     "/home",
     "/blogs",
+    "/my-anime-list",
     "/categories",
     "/trending",
     "/about",

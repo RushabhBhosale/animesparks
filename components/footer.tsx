@@ -52,6 +52,12 @@ export default function Footer() {
                 </Link>
                 <Link
                   className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
+                  href="/my-anime-list"
+                >
+                  My Anime List
+                </Link>
+                <Link
+                  className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
                   href="/categories"
                 >
                   Categories
