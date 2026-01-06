@@ -25,6 +25,9 @@ const baseUrl = getBaseUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
+  icons: {
+    icon: "/favicon-48x48.png",
+  },
   title: {
     default: siteName,
     template: `%s | ${siteName}`,
