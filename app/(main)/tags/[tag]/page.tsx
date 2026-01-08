@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import Image from "next/image";
+import { PageHero } from "@/components/page-hero";
 
 export const revalidate = 60;
 
@@ -78,57 +79,44 @@ export default async function TagPage({
     : [];
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="relative overflow-hidden bg-linear-to-br from-red-600 via-red-700 to-red-900">
-        <div className="absolute inset-0 opacity-60">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: 'url("/anime-poster.jpg")',
-            }}
-          ></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-white" />
-            <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              Tag
-            </span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            {decodedTag ? `#${decodedTag}` : "Tagged Blogs"}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/90">
-            {decodedTag
-              ? `Blogs tagged with ${decodedTag}.`
-              : "Blogs grouped by tag."}
-          </p>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <PageHero
+        eyebrow="Tag"
+        title={decodedTag ? `#${decodedTag}` : "Tagged Blogs"}
+        description={
+          decodedTag
+            ? `Blogs tagged with ${decodedTag}.`
+            : "Blogs grouped by tag."
+        }
+        backgroundImage="/anime-poster.jpg"
+      />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <AdSlot variant="full" className="mb-10" />
+      <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 space-y-8">
+        <AdSlot variant="full" className="mb-8" />
 
-        <section>
-          <div className="mb-6 flex items-center gap-3">
-            <div className="h-1 w-1 rounded-full bg-red-600" />
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-2 w-2 rounded-full bg-[#ccff00]" />
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
               {decodedTag ? "Blogs" : "Latest Blogs"}
             </h2>
           </div>
 
           {posts.length ? (
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-1">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {posts.map((post) => (
                 <Link
                   key={post._id}
                   href={`/blog/${post.slug}`}
-                  className="group flex flex-col gap-4 border-b border-gray-200 pb-8 md:flex-row md:items-center"
+                  className="group flex flex-col gap-4 border border-[#1f1f1f] bg-[#0b0b0b] p-4 md:flex-row md:items-center"
                 >
                   {post.mainImage?.asset?.url ? (
-                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden rounded-sm bg-gray-200 md:h-32 md:w-56">
+                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden bg-black md:h-32 md:w-56">
                       <Image
-                        src={sanityImageUrl(post.mainImage, { width: 700, quality: 60 })}
+                        src={sanityImageUrl(post.mainImage, {
+                          width: 700,
+                          quality: 60,
+                        })}
                         alt={post.mainImage.alt || post.title}
                         fill
                         sizes="(max-width: 768px) 90vw, 320px"
@@ -136,16 +124,16 @@ export default async function TagPage({
                       />
                     </div>
                   ) : null}
-                  <div className="flex flex-1 flex-col justify-center">
+                  <div className="flex flex-1 flex-col justify-center gap-2">
                     {decodedTag ? (
-                      <span className="text-xs font-bold uppercase tracking-wider text-red-600">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#f20d0d]">
                         {decodedTag}
                       </span>
                     ) : null}
-                    <h3 className="mt-2 text-xl font-black leading-tight text-gray-900 transition-colors group-hover:text-red-600 sm:text-2xl">
+                    <h3 className="text-xl font-black uppercase leading-tight text-white transition-colors group-hover:text-[#ccff00] sm:text-2xl">
                       {post.title}
                     </h3>
-                    <p className="mt-2 text-sm font-medium text-gray-500">
+                    <p className="text-xs font-mono uppercase text-gray-500">
                       {formatDate(post.publishedAt)}
                     </p>
                   </div>
@@ -153,13 +141,13 @@ export default async function TagPage({
               ))}
             </div>
           ) : (
-            <p className="text-sm font-medium text-gray-600">
+            <p className="text-sm font-medium text-gray-400">
               No posts for this tag yet.
             </p>
           )}
         </section>
 
-        <AdSlot variant="full" className="mt-10" />
+        <AdSlot variant="full" className="mt-6" />
       </div>
     </main>
   );

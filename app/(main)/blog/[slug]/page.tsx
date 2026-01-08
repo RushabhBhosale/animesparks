@@ -168,7 +168,7 @@ export default async function BlogDetailPage({
   const bodyWithAds = insertInlineAd(post.body);
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
       <ArticleJsonLd
         url={canonicalUrl}
         title={seoTitle}

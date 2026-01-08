@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { PageHero } from "@/components/page-hero";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const metadata: Metadata = {
@@ -30,41 +30,23 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white">
-      <div className="relative overflow-hidden min-h-75 bg-linear-to-br from-red-600 via-red-700 to-red-900">
-        <div className="absolute inset-0 opacity-60">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: 'url("/about-poster.jpg")',
-            }}
-          ></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-white" />
-            <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              About
-            </span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            AnimeSparks
-          </h1>
-          <p className="mt-4 max-w-2xl text-white/90 text-lg">
-            A personal anime blog written by someone who actually watches anime.
-          </p>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <PageHero
+        eyebrow="About"
+        title="AnimeSparks"
+        description="A personal anime blog written by someone who actually watches anime."
+        backgroundImage="/about-poster.jpg"
+      />
 
-      {/* Content */}
-      <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
-        <section className="space-y-10 text-base leading-relaxed text-gray-700">
-          {/* Intro */}
+      <div className="mx-auto max-w-4xl px-4 py-12 md:px-8 space-y-10">
+        <AdSlot variant="full" className="mb-6" />
+
+        <section className="space-y-10 text-base leading-relaxed text-gray-300">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black tracking-tight text-white">
               Who Runs AnimeSparks?
             </h2>
-            <p className="mt-4 text-lg">
+            <p className="mt-4 text-lg text-gray-200">
               I’m <strong>Rushabh Bhosale</strong>, an anime fan who has watched
               over <strong>250 anime series</strong> across genres, eras, and
               formats — from long-running shounen to short psychological
@@ -77,9 +59,8 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* How I judge */}
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black tracking-tight text-white">
               How I Judge Anime
             </h2>
             <p className="mt-4">
@@ -93,9 +74,8 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* What you’ll find */}
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black tracking-tight text-white">
               What You’ll Find Here
             </h2>
             <ul className="mt-4 space-y-2 list-disc list-inside">
@@ -107,7 +87,7 @@ export default function AboutPage() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
               Anime I Love
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2">
@@ -125,7 +105,7 @@ export default function AboutPage() {
               ].map((title) => (
                 <div
                   key={title}
-                  className="rounded-sm border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700"
+                  className="rounded-sm border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200"
                 >
                   {title}
                 </div>
@@ -133,12 +113,11 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Trust */}
-          <div className="rounded-sm border border-gray-200 bg-gray-50 p-6">
-            <h2 className="text-xl font-black tracking-tight text-gray-900">
+          <div className="rounded-sm border border-[#1f1f1f] bg-[#0b0b0b] p-6">
+            <h2 className="text-xl font-black tracking-tight text-white">
               Why Trust AnimeSparks?
             </h2>
-            <p className="mt-3 text-sm text-gray-700">
+            <p className="mt-3 text-sm text-gray-300">
               AnimeSparks is written entirely by one person. Every article is
               based on shows I’ve watched myself — not summaries, AI scripts, or
               copied opinions. The goal is simple: write for people who actually
@@ -146,9 +125,8 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Transparency */}
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black tracking-tight text-white">
               Transparency
             </h2>
             <p className="mt-4">
@@ -158,7 +136,6 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Image credits */}
           <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             Image credits: TMDB (The Movie Database) and official promotional
             materials. Images are used for editorial purposes only.

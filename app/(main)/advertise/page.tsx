@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import { PageHero } from "@/components/page-hero";
 
 export const metadata: Metadata = {
   title: "Advertise",
@@ -28,60 +29,42 @@ export const metadata: Metadata = {
 
 export default function AdvertisePage() {
   return (
-    <main className="min-h-screen bg-white">
-      <div className="relative overflow-hidden bg-linear-to-br from-red-600 via-red-700 to-red-900">
-        <div className="absolute inset-0 opacity-60">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: 'url("/anime-poster.jpg")',
-            }}
-          ></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-white" />
-            <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              Advertise
-            </span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            Advertise on AnimeSparks
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/90">
-            Limited placements for brands that want a focused anime audience.
-          </p>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <PageHero
+        eyebrow="Advertise"
+        title="Advertise on AnimeSparks"
+        description="Limited placements for brands that want a focused anime audience."
+        backgroundImage="/anime-poster.jpg"
+      />
 
       <div className="mx-auto max-w-4xl px-4 py-12 md:px-8">
-        <section className="grid grid-cols-1 gap-8 text-base leading-relaxed text-gray-700 md:grid-cols-2 lg:grid-cols-1">
+        <section className="grid grid-cols-1 gap-8 text-base leading-relaxed text-gray-300 md:grid-cols-2 lg:grid-cols-1">
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
               Pricing
             </h2>
-            <p className="mt-3 text-lg">
+            <p className="mt-3 text-lg text-gray-200">
               Promote your brand here for just 99rs per month.
             </p>
           </div>
 
-          <div className="rounded-sm border border-gray-200 bg-white p-6">
-            <h3 className="text-lg font-black uppercase tracking-tight text-gray-900">
+          <div className="rounded-sm border border-[#1f1f1f] bg-[#0b0b0b] p-6">
+            <h3 className="text-lg font-black uppercase tracking-tight text-white">
               Contact
             </h3>
-            <p className="mt-3 text-sm text-gray-600">
+            <p className="mt-3 text-sm text-gray-400">
               Reach out directly for availability and placements.
             </p>
-            <div className="mt-4 space-y-2 text-sm font-semibold text-gray-700">
+            <div className="mt-4 space-y-2 text-sm font-semibold text-gray-200">
               <a
                 href="tel:+919137996317"
-                className="block transition-colors hover:text-red-600"
+                className="block transition-colors hover:text-[#ccff00]"
               >
                 +91 9137996317
               </a>
               <a
                 href="mailto:rushabhbhosale25757@gmail.com"
-                className="block transition-colors hover:text-red-600"
+                className="block transition-colors hover:text-[#ccff00]"
               >
                 rushabhbhosale25757@gmail.com
               </a>

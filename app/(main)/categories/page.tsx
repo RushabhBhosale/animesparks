@@ -4,6 +4,7 @@ import { categoriesWithCountsQuery } from "@/sanity/blogQueries";
 import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import { PageHero } from "@/components/page-hero";
 
 export const revalidate = 60;
 
@@ -49,10 +50,16 @@ export default async function CategoriesPage() {
 
   if (!categories?.length) {
     return (
-      <main className="min-h-screen bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+      <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+        <PageHero
+          eyebrow="Browse Themes"
+          title="Categories"
+          description="Editorial arcs, character studies, and story analysis."
+          backgroundImage="/anime-poster.jpg"
+        />
+        <div className="mx-auto max-w-6xl px-4 py-12 md:px-8">
           <AdSlot variant="full" className="mb-10" />
-          <p className="text-sm font-medium text-gray-600">
+          <p className="text-sm font-medium text-gray-400">
             No categories yet.
           </p>
           <AdSlot variant="full" className="mt-10" />
@@ -62,83 +69,53 @@ export default async function CategoriesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="relative overflow-hidden bg-linear-to-br from-red-600 via-red-700 to-red-900">
-        <div className="absolute inset-0 opacity-60">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: "url('/anime-poster.jpg')",
-            }}
-          ></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-white" />
-            <span className="text-sm font-bold uppercase tracking-wider text-white/90">
-              Browse Themes
-            </span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tight text-white md:text-6xl">
-            Categories
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/90">
-            Editorial arcs, character studies, and story analysis.
-          </p>
-        </div>
-      </div>
+    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <PageHero
+        eyebrow="Browse Themes"
+        title="Categories"
+        description="Editorial arcs, character studies, and story analysis."
+        backgroundImage="/anime-poster.jpg"
+      />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <AdSlot variant="full" className="mb-10" />
+      <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 space-y-10">
+        <AdSlot variant="full" className="mb-6" />
 
-        <section>
-          <div className="mb-6 flex items-center gap-3">
-            <div className="h-1 w-1 rounded-full bg-red-600" />
-            <h2 className="text-2xl font-black uppercase tracking-tight text-gray-900">
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-2 w-2 rounded-full bg-[#ccff00]" />
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
               All Categories
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
             {categories.map((category) => (
               <Link
                 key={category._id}
                 href={`/categories/${category.slug}`}
-                className="group relative overflow-hidden rounded-sm border-2 border-gray-200 bg-white p-6 transition-all hover:border-red-600 hover:shadow-lg"
+                className="group relative overflow-hidden border border-[#1f1f1f] bg-[#0b0b0b] p-6 transition-all hover:border-[#ccff00]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-red-600">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#f20d0d]">
                     Category
                   </span>
-                  <span className="text-xs font-semibold text-gray-500">
+                  <span className="text-[11px] font-semibold text-gray-500">
                     {formatCount(category.postCount)}
                   </span>
                 </div>
-                <h3 className="mt-3 text-2xl font-black leading-tight text-gray-900 transition-colors group-hover:text-red-600">
+                <h3 className="mt-3 text-2xl font-black uppercase leading-tight text-white transition-colors group-hover:text-[#ccff00]">
                   {category.title}
                 </h3>
-                <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 transition-colors group-hover:text-red-600">
+                <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 transition-colors group-hover:text-[#ccff00]">
                   View Articles
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                  <span aria-hidden>→</span>
                 </div>
               </Link>
             ))}
           </div>
         </section>
 
-        <AdSlot variant="full" className="mt-10" />
+        <AdSlot variant="full" className="mt-6" />
       </div>
     </main>
   );

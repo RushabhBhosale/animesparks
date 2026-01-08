@@ -125,8 +125,27 @@ export default async function Home() {
               )}
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] tracking-tighter uppercase mix-blend-difference">
-                <span className="text-outline-black block">
-                  {featured ? featured.title : "Featured Story"}
+                <span className="block">
+                  {(featured?.title || "Featured Story")
+                    .split(/\s+/)
+                    .map((word, i) => {
+                      const outline = (word.length + i) % 3 === 0; // random-ish but stable
+
+                      return (
+                        <span
+                          key={i}
+                          className={outline ? "text-outline text-black" : ""}
+                        >
+                          {word}
+                          {i <
+                          (featured?.title || "Featured Story").split(/\s+/)
+                            .length -
+                            1
+                            ? " "
+                            : ""}
+                        </span>
+                      );
+                    })}
                 </span>
               </h1>
 

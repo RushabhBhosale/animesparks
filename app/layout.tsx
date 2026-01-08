@@ -69,7 +69,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#050505] text-[#f0f0f0]`}
       >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-N73PGN515J"
