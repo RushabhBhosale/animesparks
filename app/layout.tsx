@@ -8,6 +8,7 @@ import {
   siteName,
 } from "@/utils/seo";
 import Script from "next/script";
+import { bungeeOutline } from "@/lib/font";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,7 +70,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#050505] text-[#f0f0f0]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${bungeeOutline.variable} antialiased bg-[#050505] text-[#f0f0f0]`}
       >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-N73PGN515J"

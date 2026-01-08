@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import {
   useCallback,
@@ -203,41 +204,47 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
             return (
               <article
                 key={post._id}
-                className={`relative group shrink-0 w-100 mt-12 snap-start ${transformClass}`}
+                className={`relative shrink-0 w-100 mt-12 snap-start ${transformClass}`}
               >
-                <div
-                  className={`bg-[#121212] border-2 border-[#2a2a2a] p-1 transform transition-all duration-300 hover:-translate-y-2 hover:z-50 shadow-lg ${borderHover}`}
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="block group"
+                  aria-label={`Read ${post.title}`}
                 >
-                  <div className="relative h-52 overflow-hidden bg-black">
-                    {post.mainImage?.asset?.url && (
-                      <Image
-                        src={sanityImageUrl(post.mainImage, {
-                          width: 900,
-                        })}
-                        alt={post.mainImage.alt || post.title}
-                        fill
-                        sizes="(max-width: 768px) 90vw, 420px"
-                        className="object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-                      />
-                    )}
-                    {post.categories?.[0]?.title && (
-                      <div className="absolute top-2 left-2 bg-black/80 text-white text-[11px] font-bold px-2 py-0.5 uppercase border border-white/20">
-                        {post.categories[0].title}
+                  <div
+                    className={`bg-[#121212] border-2 border-[#2a2a2a] p-1 transform transition-all duration-300 hover:-translate-y-2 hover:z-50 shadow-lg ${borderHover}`}
+                  >
+                    <div className="relative h-52 overflow-hidden bg-black">
+                      {post.mainImage?.asset?.url && (
+                        <Image
+                          src={sanityImageUrl(post.mainImage, {
+                            width: 900,
+                          })}
+                          alt={post.mainImage.alt || post.title}
+                          fill
+                          sizes="(max-width: 768px) 90vw, 420px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                        />
+                      )}
+                      {post.categories?.[0]?.title && (
+                        <div className="absolute top-2 left-2 bg-black/80 text-white text-[11px] font-bold px-2 py-0.5 uppercase border border-white/20">
+                          {post.categories[0].title}
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4 bg-[#151515]">
+                      <h3
+                        className={`text-xl font-bold uppercase leading-tight mb-2 transition-colors ${titleHover}`}
+                      >
+                        {post.title}
+                      </h3>
+                      <div className="flex justify-between items-center text-xs text-gray-500 font-mono">
+                        <span>{timeAgo(post.publishedAt)}</span>
+                        <ArrowUpRight className="h-4 w-4" />
                       </div>
-                    )}
-                  </div>
-                  <div className="p-4 bg-[#151515]">
-                    <h3
-                      className={`text-xl font-bold uppercase leading-tight mb-2 transition-colors ${titleHover}`}
-                    >
-                      {post.title}
-                    </h3>
-                    <div className="flex justify-between items-center text-xs text-gray-500 font-mono">
-                      <span>{timeAgo(post.publishedAt)}</span>
-                      <ArrowUpRight className="h-4 w-4" />
                     </div>
                   </div>
-                </div>
+                </Link>
               </article>
             );
           })}

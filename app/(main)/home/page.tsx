@@ -10,6 +10,7 @@ import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate, timeAgo } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import { bungeeOutline } from "@/lib/font";
 
 const spline = Spline_Sans({
   subsets: ["latin"],
@@ -134,7 +135,11 @@ export default async function Home() {
                       return (
                         <span
                           key={i}
-                          className={outline ? "text-outline text-black" : ""}
+                          className={
+                            outline
+                              ? `${bungeeOutline.className} font-bungee-outline`
+                              : ""
+                          }
                         >
                           {word}
                           {i <
@@ -265,8 +270,8 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
               <div className="lg:col-span-8 space-y-12">
-                <h3 className="text-5xl font-black text-white uppercase italic mb-8 relative inline-block">
-                  Latest <span className="text-outline">Updates</span>
+                <h3 className="text-5xl font-black text-white uppercase italic mb-8 pr-1 relative inline-block">
+                  Latest <span className="font-bungee-outline">Updates</span>
                   <span className="absolute -right-4 -top-4 text-[#ccff00] text-6xl select-none">
                     *
                   </span>
@@ -336,7 +341,9 @@ export default async function Home() {
                               {timeAgo(post.publishedAt)}
                             </span>
                           </div>
-                          <h4 className="text-2xl md:text-3xl font-black text-white uppercase leading-none mb-3 group-hover:text-[#f20d0d] transition-colors">
+                          <h4
+                            className={`text-2xl md:text-3xl font-black text-white uppercase leading-none mb-3 group-hover:text-[${badgeColors[idx]}] transition-colors`}
+                          >
                             {post.title}
                           </h4>
                           {post.excerpt && (
@@ -359,36 +366,35 @@ export default async function Home() {
                 {moreUpdates.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {moreUpdates.map((post) => (
-                      <article
-                        key={post._id}
-                        className="group relative pl-6 border-l-2 border-[#1f1f1f] hover:border-[#00f3ff] transition-colors"
-                      >
-                        <div className="absolute -left-[9px] top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
-                        <div className="flex gap-4">
-                          {post.mainImage?.asset?.url && (
-                            <div className="relative h-24 w-32 overflow-hidden border border-[#2a2a2a]">
-                              <Image
-                                src={sanityImageUrl(post.mainImage, {
-                                  width: 600,
-                                })}
-                                alt={post.mainImage.alt || post.title}
-                                fill
-                                sizes="160px"
-                                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                              />
+                      <Link href={`/blog/${post.slug}`} key={post._id}>
+                        <article className="group relative pl-6 border-l-2 border-[#1f1f1f] hover:border-[#00f3ff] transition-colors">
+                          <div className="absolute -left-[9px] top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
+                          <div className="flex gap-4">
+                            {post.mainImage?.asset?.url && (
+                              <div className="relative h-24 w-32 overflow-hidden border border-[#2a2a2a]">
+                                <Image
+                                  src={sanityImageUrl(post.mainImage, {
+                                    width: 600,
+                                  })}
+                                  alt={post.mainImage.alt || post.title}
+                                  fill
+                                  sizes="160px"
+                                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                />
+                              </div>
+                            )}
+                            <div className="flex flex-col justify-center">
+                              <h5 className="text-lg font-black uppercase leading-tight group-hover:text-[#00f3ff] transition-colors">
+                                {post.title}
+                              </h5>
+                              <span className="text-xs text-gray-500 font-mono mt-1">
+                                {timeAgo(post.publishedAt) ||
+                                  formatDate(post.publishedAt)}
+                              </span>
                             </div>
-                          )}
-                          <div className="flex flex-col justify-center">
-                            <h5 className="text-lg font-black uppercase leading-tight group-hover:text-[#00f3ff] transition-colors">
-                              {post.title}
-                            </h5>
-                            <span className="text-xs text-gray-500 font-mono mt-1">
-                              {timeAgo(post.publishedAt) ||
-                                formatDate(post.publishedAt)}
-                            </span>
                           </div>
-                        </div>
-                      </article>
+                        </article>
+                      </Link>
                     ))}
                   </div>
                 )}

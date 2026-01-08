@@ -239,9 +239,11 @@ export default async function BlogDetailPage({
                 <Link
                   key={c.slug}
                   href={`/categories/${c.slug}`}
-                  className="rounded-sm bg-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white hover:bg-red-700 transition-colors"
+                  className="inline-flex self-start bg-black border border-[#f20d0d] px-3 py-1 -rotate-2 shadow-[8px_8px_0px_0px_rgba(242,13,13,1)]"
                 >
-                  {c.title}
+                  <span className="text-[#f20d0d] font-black uppercase text-xs tracking-[0.2em]">
+                    {c.title}
+                  </span>
                 </Link>
               ))}
             </div>

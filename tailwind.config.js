@@ -6,7 +6,11 @@ module.exports = {
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+      "bungee-outline": ["var(--font-bungee-outline)"],
+     }
+    },
   },
   plugins: [
     require("@tailwindcss/typography"),
