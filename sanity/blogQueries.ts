@@ -201,14 +201,24 @@ export const latestBlogsQuery = groq`
   publishedAt <= now() &&
   defined(slug.current)
 ]
-| order(publishedAt desc)[0...13] {
+| order(publishedAt desc)[0...18] {
   _id,
   title,
   "slug": slug.current,
   publishedAt,
+  "excerpt": coalesce(metaDescription, pt::text(body)),
+  author->{
+    name,
+    image
+  },
   mainImage {
     asset->{ url },
     alt
+  },
+  categories[]->{
+    _id,
+    title,
+    "slug": slug.current
   }
 }
 `;
@@ -227,6 +237,12 @@ export const trendingBlogsQuery = groq`
   title,
   "slug": slug.current,
   publishedAt,
+  "excerpt": coalesce(metaDescription, pt::text(body)),
+  categories[]->{
+    _id,
+    title,
+    "slug": slug.current
+  },
   mainImage {
     asset-> { url },
     alt
