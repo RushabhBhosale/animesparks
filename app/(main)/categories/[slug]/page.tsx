@@ -208,9 +208,9 @@ export default async function CategoryDetailPage({
                 <div className="absolute -top-3 -right-3 bg-anime-lime text-black size-8 flex items-center justify-center font-black border border-black z-20">
                   <Terminal className="h-4 w-4" />
                 </div>
-                <h3 className="font-black text-anime-cyan uppercase tracking-widest text-sm mb-2">
+                <h2 className="font-black text-anime-cyan uppercase tracking-widest text-sm mb-2">
                   Category Manifest
-                </h3>
+                </h2>
                 <p className="text-white/60 text-sm leading-relaxed font-mono">
                   {category.description?.trim()
                     ? category.description.trim()

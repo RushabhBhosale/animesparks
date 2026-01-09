@@ -29,12 +29,12 @@ export default function Footer() {
           </div>
 
           <div aria-labelledby="footer-navigation-heading">
-            <p
+            <h3
               id="footer-navigation-heading"
-              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest"
+              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest text-base"
             >
               Navigation
-            </p>
+            </h3>
             <ul className="space-y-2 text-sm text-gray-400 uppercase">
               <li>
                 <Link
@@ -72,12 +72,12 @@ export default function Footer() {
           </div>
 
           <div aria-labelledby="footer-connect-heading">
-            <p
+            <h3
               id="footer-connect-heading"
-              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest"
+              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest text-base"
             >
               Connect
-            </p>
+            </h3>
             <div className="flex gap-3">
               <Link
                 prefetch={false}
