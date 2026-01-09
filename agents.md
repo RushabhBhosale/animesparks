@@ -1,137 +1,236 @@
-# Codex Agent Instructions — AnimeSparks
+Codex Agent Instructions — AnimeSparks (Updated)
+Project Identity
 
-## Project Overview
+AnimeSparks is a serious anime editorial publication, not a generic blog.
 
-AnimeSparks is a modern anime editorial blog built with:
+It focuses on:
 
-- Next.js (App Router)
-- Sanity CMS
-- Tailwind CSS
-- Light, minimal UI
-- SEO-first architecture
+Long-form anime analysis
 
-Primary focus:
+Psychological themes, lore, endings, character studies
 
-- Anime blogs and analysis
-- Dark shonen, character studies, storytelling
-- No general pop culture or tech content
+Editorial depth over speed or volume
 
----
+The UI is intentionally bold and distinctive, designed to feel like:
 
-## Core Principles
+a dossier
 
-- SEO-safe, server-rendered pages only
-- Minimal UI text, focus on blog content
-- Clean, readable layouts
-- Editorial tone, not fan-blog tone
-- No unnecessary abstractions
+a case file
 
----
+a curated magazine
 
-## Tech Stack Rules
+This visual identity is a core product feature, not decoration.
 
-- Use **Next.js App Router**
-- Prefer **Server Components**
-- Use **Sanity + GROQ** for content
-- Tailwind CSS for styling
-- shadcn/ui only when necessary
-- No heavy client-side state for blogs
+Non-Negotiable Foundations (Still Apply)
 
----
+These rules do not change.
 
-## Rendering Rules
+Tech Stack
 
-- Blog content must be rendered on the server
-- No `useEffect` for fetching blog data
-- No client-only blog pages
-- Metadata must be generated using `generateMetadata`
+Next.js App Router only
 
----
+Server Components by default
 
-## SEO Requirements
+Sanity CMS + GROQ
+
+Tailwind CSS
+
+shadcn/ui only when unavoidable
+
+Rendering & Data
+
+All blog content is server-rendered
+
+No useEffect for blog fetching
+
+No client-only blog pages
+
+Metadata via generateMetadata
+
+SEO & Indexing
 
 Every blog page must include:
 
-- Unique `<title>`
-- Meta description (from Sanity excerpt)
-- Canonical URL
-- Article JSON-LD
-- Breadcrumb JSON-LD
-- FAQ JSON-LD (only if FAQs exist)
+Unique <title>
+
+Meta description (Sanity excerpt)
+
+Canonical URL
+
+Article JSON-LD
+
+Breadcrumb JSON-LD
+
+FAQ JSON-LD only if FAQs exist
 
 Do NOT:
 
-- Add `noindex`
-- Duplicate canonicals
-- Create thin pages
+Use noindex
 
----
+Duplicate canonicals
 
-## Content Structure
+Create thin or placeholder pages
 
-Sanity schemas include:
+SEO stability > visual experimentation.
 
-- Post
-- Category
-- Author
-- Tags (string array)
-- Optional FAQ field
+UI Philosophy (Updated)
+
+AnimeSparks does not use a minimal blog UI anymore.
+
+Instead:
+
+Editorial, magazine-style layouts are the default
+
+Strong typography, panels, and hierarchy are intentional
+
+UI must feel curated, not templated
+
+However:
+
+Readability always wins
+
+Visual intensity must never obscure content
+
+Text must remain scannable and semantic
+
+Structure stays consistent. Intensity can vary per page, but never breaks clarity.
+
+Content Layout Rules
+Blog Pages (Default Layout)
+
+All blog pages use the same editorial dossier structure:
+
+Full-bleed hero with title
+
+Category + tag indicators
+
+Author sidebar
+
+Structured content panels
+
+Clear section hierarchy
+
+Optional community/comments section
 
 Rules:
 
-- 1–2 categories per post max
-- Tags are supportive, not primary navigation
-- Categories drive structure and internal linking
+Content column must remain readable (optimal line length)
 
----
+Headings must use proper HTML semantics (h1 → h2 → h3)
 
-## Homepage Guidelines
+First meaningful paragraph must appear early (SEO + UX)
 
-- Light theme
-- Minimal copy (1–2 sentences max per section)
-- Blog cards are the primary focus
-- No hero paragraphs
-- No marketing fluff
+No decorative UI should delay content discovery.
 
----
+Homepage & Index Pages (Updated)
 
-## Coding Style
+Homepage, category pages, and tag pages:
 
-- Prefer clarity over cleverness
-- Avoid comments unless absolutely necessary
-- Use semantic HTML
-- Keep components small and readable
-- No unnecessary re-renders
+Are editorial dashboards, not feeds
 
----
+Feature curated sections (Featured, Trending, Deep Dive)
 
-## What Codex Should Avoid
+Minimal copy per section (1–2 lines max)
 
-- Adding unrelated features
-- Overengineering UI
-- Mixing non-anime topics
-- Adding client-side data fetching for blogs
-- Introducing SEO-breaking changes
+No marketing language
 
----
+No filler content
 
-## Allowed Enhancements
+Homepage is a magazine cover, not a landing page.
 
-- Internal linking components
-- Related posts logic
-- Category and tag pages
-- RSS feed
-- Sitemap generation
-- Performance optimizations
+Categories & Taxonomy
 
----
+Categories are editorial sections, not filters.
 
-## Goal
+Rules:
 
-Build a fast, clean, authoritative anime blog that:
+1–2 categories per post max
 
-- Indexes reliably
-- Feels editorial
-- Scales without SEO regressions
+Categories drive navigation and internal linking
 
-Codex should prioritize **stability, clarity, and SEO safety** over experimentation.
+Category pages may include:
+
+short editorial descriptions
+
+manifesto-style copy
+
+curated featured content
+
+Tags:
+
+Support discovery
+
+Never replace categories
+
+Not primary navigation
+
+Design Discipline Rules
+
+To protect long-term usability:
+
+Avoid visual noise stacking
+
+Avoid animation that distracts from reading
+
+Avoid novelty UI that does not serve content
+
+Allow “quiet zones” in long articles
+
+Do not sacrifice performance for aesthetics
+
+Bold does not mean chaotic.
+
+What Codex Must Avoid (Expanded)
+
+Do NOT:
+
+Revert to generic blog layouts
+
+Introduce client-side rendering for content
+
+Add pop-culture or non-anime topics
+
+Over-animate or gamify reading
+
+Add UI that hides or fragments content
+
+Treat AnimeSparks like a startup landing page
+
+Allowed Enhancements (Updated)
+
+Codex MAY add:
+
+Editorial layout variants (same structure, different intensity)
+
+Internal linking blocks (“Related Files”, “Next Case”)
+
+Reading time indicators
+
+Category manifests or intro sections
+
+Performance optimizations
+
+Structured content enhancements (quotes, callouts, panels)
+
+Only if they:
+
+preserve SEO
+
+improve clarity
+
+respect the editorial tone
+
+Final Objective
+
+Build AnimeSparks as:
+
+A fast, server-rendered anime publication
+
+Visually distinctive and immediately recognizable
+
+SEO-safe and scalable
+
+Serious, editorial, and authoritative
+
+This is not a blog theme.
+It is a publishing system.
