@@ -43,6 +43,36 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Anime Theme */
+  --color-anime-ink: var(--anime-ink);
+  --color-anime-panel: var(--anime-panel);
+  --color-anime-paper: var(--anime-paper);
+  --color-anime-paper-dark: var(--anime-paper-dark);
+
+  --color-anime-text: var(--anime-text);
+
+  --color-anime-muted: var(--anime-muted);
+  --color-anime-muted-strong: var(--anime-muted-strong);
+  --color-anime-muted-subtle: var(--anime-muted-subtle);
+  --color-anime-muted-whisper: var(--anime-muted-whisper);
+
+  --color-anime-line: var(--anime-line);
+  --color-anime-line-strong: var(--anime-line-strong);
+  --color-anime-line-subtle: var(--anime-line-subtle);
+
+  --color-anime-red: var(--anime-red);
+  --color-anime-cyan: var(--anime-cyan);
+  --color-anime-lime: var(--anime-lime);
+  --color-anime-neon: var(--anime-neon);
+
+  --color-anime-red-soft: var(--anime-red-soft);
+  --color-anime-cyan-soft: var(--anime-cyan-soft);
+
+  --shadow-hard: 8px 8px 0px 0px rgba(242, 13, 13, 1);
+  --shadow-hard-white: 6px 6px 0px 0px rgba(255, 255, 255, 1);
+  --shadow-hard-blue: 6px 6px 0px 0px #00f3ff;
+  --shadow-hard-green: 6px 6px 0px 0px #ccff00;
 }
 
 :root {
@@ -147,6 +177,7 @@
     color: inherit;
   }
 }
+
 
 .blogContent {
   a {
@@ -256,6 +287,7 @@
 @layer utilities {
   .text-outline {
     -webkit-text-stroke: 1px white;
+    color: transparent;
   }
 
   .text-outline-red {
@@ -266,6 +298,30 @@
   .text-outline-black {
     -webkit-text-stroke: 2px rgb(255, 255, 255);
     color: white;
+  }
+
+  .font-display {
+    font-family: var(--font-spline-sans), "Spline Sans", var(--font-geist-sans),
+      sans-serif;
+  }
+
+  .bg-grid {
+    background-size: 40px 40px;
+    background-image: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+      );
+  }
+
+  .glitch-hover:hover {
+    animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+    color: #f20d0d;
   }
 
   .marquee-track {
