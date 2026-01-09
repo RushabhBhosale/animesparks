@@ -74,6 +74,7 @@ export default function Footer() {
             </h5>
             <div className="flex gap-3">
               <Link
+                prefetch={false}
                 className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/"
                 aria-label="Visit AnimeSparks home"
@@ -82,6 +83,7 @@ export default function Footer() {
                 <span className="sr-only">AnimeSparks home</span>
               </Link>
               <Link
+                prefetch={false}
                 className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/blogs"
                 aria-label="Browse all AnimeSparks blogs"
@@ -90,6 +92,7 @@ export default function Footer() {
                 <span className="sr-only">Browse all blogs</span>
               </Link>
               <Link
+                prefetch={false}
                 className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/about"
                 aria-label="Learn about AnimeSparks"

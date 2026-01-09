@@ -60,6 +60,7 @@ export default async function Header() {
           <nav className="hidden items-center gap-1 md:flex">
             {links.map(({ href, label }) => (
               <Link
+                prefetch={false}
                 key={href}
                 href={href}
                 className={clsx(
