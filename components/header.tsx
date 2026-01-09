@@ -13,7 +13,7 @@ type NavItem = {
 };
 
 const navLinks: NavItem[] = [
-  { href: "/home", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/blogs", label: "Blogs" },
   { href: "/categories", label: "Categories" },
   { href: "/trending", label: "Trending" },
@@ -68,11 +68,7 @@ export default function Header() {
             "flex items-center justify-between px-4 py-4 border-b border-[#1f1f1f]"
           )}
         >
-          <span
-            className={clsx(
-              "text-lg font-bold tracking-tight text-white"
-            )}
-          >
+          <span className={clsx("text-lg font-bold tracking-tight text-white")}>
             Menu
           </span>
           <button
@@ -113,7 +109,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 border-b border-[#1f1f1f] bg-[#050505]/90 backdrop-blur supports-backdrop-filter:bg-[#050505]/85">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link
-            href="/home"
+            href="/"
             className="group flex items-center gap-3 no-underline transition-transform hover:translate-y-[-1px]"
             aria-label="AnimeSparks home"
           >

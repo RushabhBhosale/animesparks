@@ -33,7 +33,7 @@ export async function GET() {
   const posts: SitemapPost[] = await client.fetch(sitemapBlogsQuery);
 
   const staticRoutes = [
-    "/home",
+    "/",
     "/blogs",
     "/my-anime-list",
     "/categories",

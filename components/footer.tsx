@@ -36,7 +36,7 @@ export default function Footer() {
               <li>
                 <Link
                   className="hover:text-white hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
-                  href="/home"
+                  href="/"
                 >
                   Home
                 </Link>
@@ -75,7 +75,7 @@ export default function Footer() {
             <div className="flex gap-3">
               <a
                 className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors"
-                href="/home"
+                href="/"
               >
                 <Globe2 className="h-5 w-5" />
               </a>
