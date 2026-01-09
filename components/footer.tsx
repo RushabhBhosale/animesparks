@@ -28,10 +28,13 @@ export default function Footer() {
             </p>
           </div>
 
-          <div>
-            <h5 className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest">
+          <div aria-labelledby="footer-navigation-heading">
+            <p
+              id="footer-navigation-heading"
+              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest"
+            >
               Navigation
-            </h5>
+            </p>
             <ul className="space-y-2 text-sm text-gray-400 uppercase">
               <li>
                 <Link
@@ -68,10 +71,13 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h5 className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest">
+          <div aria-labelledby="footer-connect-heading">
+            <p
+              id="footer-connect-heading"
+              className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest"
+            >
               Connect
-            </h5>
+            </p>
             <div className="flex gap-3">
               <Link
                 prefetch={false}
