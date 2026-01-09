@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { Spline_Sans } from "next/font/google";
 
 import { TrendingRail } from "@/components/trending-rail";
 import { latestBlogsQuery } from "@/sanity/blogQueries";
@@ -10,15 +9,9 @@ import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate, timeAgo } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
-import { bungeeOutline } from "@/lib/font";
+import { bungeeOutline, splineSans } from "@/lib/font";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
-const spline = Spline_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const revalidate = 60;
 
@@ -107,7 +100,7 @@ export default async function Home() {
     <>
       <Header />
       <main
-        className={`${spline.className} bg-[#050505] text-[#f0f0f0] overflow-hidden`}
+        className={`${splineSans.className} bg-[#050505] text-[#f0f0f0] overflow-hidden`}
       >
         <div className="relative min-h-screen">
           {/* Hero */}
@@ -167,10 +160,12 @@ export default async function Home() {
                 <div className="flex flex-wrap gap-4 mt-4">
                   {featured?.slug && (
                     <Link
+                      prefetch={false}
                       href={`/blog/${featured.slug}`}
                       className="bg-white text-black font-black uppercase tracking-wider px-8 py-4 text-sm hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_rgba(242,13,13,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                      aria-label={`Read article: ${featured.title ?? "Featured story"}`}
                     >
-                      Read Article
+                      Read Article: {featured.title ?? "Featured story"}
                     </Link>
                   )}
 
@@ -358,10 +353,13 @@ export default async function Home() {
                               </p>
                             )}
                             <Link
+                              prefetch={false}
                               href={`/blog/${post.slug}`}
                               className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest hover:gap-4 transition-all"
+                              aria-label={`Read more about ${post.title ?? "this article"}`}
                             >
-                              Read More <ArrowUpRight className="h-4 w-4" />
+                              Read More: {post.title ?? "this article"}{" "}
+                              <ArrowUpRight className="h-4 w-4" />
                             </Link>
                           </div>
                         </div>
@@ -372,7 +370,7 @@ export default async function Home() {
                   {moreUpdates.length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {moreUpdates.map((post) => (
-                        <Link href={`/blog/${post.slug}`} key={post._id}>
+                        <Link prefetch={false} href={`/blog/${post.slug}`} key={post._id}>
                           <article className="group relative pl-6 border-l-2 border-[#1f1f1f] hover:border-[#00f3ff] transition-colors">
                             <div className="absolute -left-[9px] top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
                             <div className="flex gap-4">
@@ -446,6 +444,7 @@ export default async function Home() {
                         <div className="space-y-4">
                           {mustReads.map((post, idx) => (
                             <Link
+                              prefetch={false}
                               key={post._id}
                               href={`/blog/${post.slug}`}
                               className="flex gap-4 items-center group"
@@ -509,6 +508,7 @@ export default async function Home() {
 
                       return (
                         <Link
+                          prefetch={false}
                           key={post._id}
                           href={`/blog/${post.slug}`}
                           className={`group cursor-pointer ${

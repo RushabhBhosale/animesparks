@@ -73,24 +73,30 @@ export default function Footer() {
               Connect
             </h5>
             <div className="flex gap-3">
-              <a
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors"
+              <Link
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/"
+                aria-label="Visit AnimeSparks home"
               >
                 <Globe2 className="h-5 w-5" />
-              </a>
-              <a
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors"
+                <span className="sr-only">AnimeSparks home</span>
+              </Link>
+              <Link
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/blogs"
+                aria-label="Browse all AnimeSparks blogs"
               >
                 <Zap className="h-5 w-5" />
-              </a>
-              <a
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors"
+                <span className="sr-only">Browse all blogs</span>
+              </Link>
+              <Link
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/about"
+                aria-label="Learn about AnimeSparks"
               >
                 <AtSign className="h-5 w-5" />
-              </a>
+                <span className="sr-only">About AnimeSparks</span>
+              </Link>
             </div>
           </div>
         </div>

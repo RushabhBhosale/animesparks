@@ -1,11 +1,8 @@
 // components/header.tsx
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { headers } from "next/headers";
 import clsx from "clsx";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, Zap, X } from "lucide-react";
 
 type NavItem = {
   href: string;
@@ -20,94 +17,28 @@ const navLinks: NavItem[] = [
   { href: "/about", label: "About" },
 ];
 
-export default function Header() {
-  const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default async function Header() {
+  const headerList = await headers();
+  const currentPath =
+    headerList.get("x-pathname") ||
+    headerList.get("next-url") ||
+    headerList.get("referer") ||
+    "/";
+
   const links = navLinks;
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(`${href}/`);
+    if (href === "/") return currentPath === "/" || currentPath === "/home";
+    return (
+      currentPath === href ||
+      currentPath.startsWith(`${href}?`) ||
+      currentPath.startsWith(`${href}/`)
+    );
   };
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => setMobileMenuOpen(false));
-    return () => cancelAnimationFrame(frame);
-  }, [pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = mobileMenuOpen ? "hidden" : "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileMenuOpen]);
-
-  const mobileOverlay = (
-    <>
-      <div
-        className={clsx(
-          "fixed inset-0 z-40 transition-opacity duration-300 md:hidden bg-black/70",
-          mobileMenuOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        )}
-        onClick={() => setMobileMenuOpen(false)}
-        aria-hidden="true"
-      />
-
-      <div
-        className={clsx(
-          "fixed right-0 top-0 z-50 h-full w-72 transition-transform duration-300 ease-in-out md:hidden",
-          mobileMenuOpen ? "translate-x-0" : "translate-x-full",
-          "border-l border-[#242424] bg-[#0a0a0a] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
-        )}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile menu"
-      >
-        <div
-          className={clsx(
-            "flex items-center justify-between px-4 py-4 border-b border-[#1f1f1f]"
-          )}
-        >
-          <span className={clsx("text-lg font-bold tracking-tight text-white")}>
-            Menu
-          </span>
-          <button
-            className={clsx(
-              "rounded-md p-2 transition-colors text-white/80 hover:bg-white/10 hover:text-white"
-            )}
-            onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close menu"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        <nav className="flex h-[calc(100%-73px)] flex-col px-4 py-6">
-          <div className="flex flex-col gap-2">
-            {links.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={clsx(
-                  "inline-flex items-center gap-3 rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] no-underline transition-colors",
-                  isActive(href)
-                    ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                )}
-                aria-current={isActive(href) ? "page" : undefined}
-              >
-                <span>{label}</span>
-              </Link>
-            ))}
-          </div>
-        </nav>
-      </div>
-    </>
-  );
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#1f1f1f] bg-[#050505]/90 backdrop-blur supports-backdrop-filter:bg-[#050505]/85">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 relative">
           <Link
             href="/"
             className="group flex items-center gap-3 no-underline transition-transform hover:translate-y-[-1px]"
@@ -149,22 +80,42 @@ export default function Header() {
             ))}
           </nav>
 
-          <button
-            className="rounded-md p-2 text-white transition-colors hover:bg-white/10 md:hidden"
-            onClick={() => setMobileMenuOpen((v) => !v)}
-            aria-label="Toggle menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
+          <details className="md:hidden">
+            <summary
+              className="flex items-center rounded-md p-2 text-white transition-colors hover:bg-white/10 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+              aria-label="Toggle menu"
+            >
               <Menu className="h-6 w-6" />
-            )}
-          </button>
+            </summary>
+            <div className="absolute right-4 top-16 z-50 w-72 border border-[#242424] bg-[#0a0a0a] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+              <div className="flex items-center justify-between px-4 py-4 border-b border-[#1f1f1f]">
+                <span className="text-lg font-bold tracking-tight text-white">
+                  Menu
+                </span>
+                <X className="h-5 w-5 text-white/60" />
+              </div>
+              <nav className="flex flex-col gap-2 px-4 py-6">
+                {links.map(({ href, label }) => (
+                  <Link
+                    prefetch={false}
+                    key={href}
+                    href={href}
+                    className={clsx(
+                      "inline-flex items-center gap-3 rounded-md px-4 py-3 text-sm font-semibold uppercase tracking-[0.14em] no-underline transition-colors",
+                      isActive(href)
+                        ? "bg-white/10 text-white"
+                        : "text-white/70 hover:bg-white/5 hover:text-white"
+                    )}
+                    aria-current={isActive(href) ? "page" : undefined}
+                  >
+                    <span>{label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </details>
         </div>
       </header>
-
-      {mobileOverlay}
     </>
   );
 }

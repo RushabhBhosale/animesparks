@@ -1,16 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
 
 import { sanityImageUrl } from "@/sanity/lib/image";
 import { timeAgo } from "@/utils/date";
@@ -67,103 +57,8 @@ const collageTransforms = [
   "lg:rotate-2 lg:-translate-y-3",
 ];
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
-
 export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [thumb, setThumb] = useState({ width: 0, left: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-
-  const visiblePosts = useMemo(() => posts ?? [], [posts]);
-
-  const updateThumb = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const { scrollLeft, scrollWidth, clientWidth } = scroller;
-    if (scrollWidth <= 0) return;
-
-    if (scrollWidth <= clientWidth) {
-      setThumb({ width: 100, left: 0 });
-      return;
-    }
-
-    const thumbPercent = (clientWidth / scrollWidth) * 100;
-    const maxLeft = Math.max(0, 100 - thumbPercent);
-    const progress =
-      scrollWidth > clientWidth ? scrollLeft / (scrollWidth - clientWidth) : 0;
-
-    setThumb({
-      width: thumbPercent,
-      left: progress * maxLeft,
-    });
-  }, []);
-
-  const scrollToPercent = useCallback((percent: number, smooth = true) => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-    if (maxScroll <= 0) return;
-
-    const nextLeft = maxScroll * clamp(percent, 0, 1);
-    scroller.scrollTo({ left: nextLeft, behavior: smooth ? "smooth" : "auto" });
-  }, []);
-
-  const handleTrackPointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!trackRef.current) return;
-      const { left, width } = trackRef.current.getBoundingClientRect();
-      if (width === 0) return;
-
-      const percent = clamp((event.clientX - left) / width, 0, 1);
-      scrollToPercent(percent);
-      setIsDragging(true);
-    },
-    [scrollToPercent]
-  );
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(updateThumb);
-    const scroller = scrollerRef.current;
-    if (!scroller) {
-      return () => cancelAnimationFrame(frame);
-    }
-
-    const handleScroll = () => updateThumb();
-    scroller.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", updateThumb);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      scroller.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", updateThumb);
-    };
-  }, [updateThumb, visiblePosts.length]);
-
-  useEffect(() => {
-    if (!isDragging) return undefined;
-
-    const handlePointerMove = (event: PointerEvent) => {
-      if (!trackRef.current) return;
-      const { left, width } = trackRef.current.getBoundingClientRect();
-      if (width === 0) return;
-      const percent = clamp((event.clientX - left) / width, 0, 1);
-      scrollToPercent(percent, false);
-    };
-
-    const handlePointerUp = () => setIsDragging(false);
-
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-    };
-  }, [isDragging, scrollToPercent]);
+  const visiblePosts = posts ?? [];
 
   return (
     <section className="mb-10">
@@ -174,26 +69,14 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
             Now
           </span>
         </h2>
-        <div
-          ref={trackRef}
-          className="h-1 bg-[#1e1e1e] flex-grow mb-4 relative overflow-hidden rounded-full cursor-pointer"
-          onPointerDown={handleTrackPointerDown}
-        >
-          <div
-            className="absolute inset-y-0 bg-[#ccff00] transition-[width,left] duration-200 ease-out"
-            style={{
-              width: `${thumb.width}%`,
-              left: `${thumb.left}%`,
-            }}
-          />
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-gray-400">
+          <span className="inline-block h-1 w-8 bg-[#ccff00]" />
+          Swipe or scroll to explore
         </div>
       </div>
 
       <div className="-mx-2 sm:-mx-4">
-        <div
-          ref={scrollerRef}
-          className="flex gap-6 overflow-x-auto pb-4 lg:pb-6 px-2 sm:px-4 snap-x snap-mandatory hide-scrollbar"
-        >
+        <div className="flex gap-6 overflow-x-auto pb-4 lg:pb-6 px-2 sm:px-4 snap-x snap-mandatory hide-scrollbar">
           {visiblePosts.map((post, idx) => {
             const transformClass = collageTransforms[idx] ?? "";
             const borderHover =
@@ -207,6 +90,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                 className={`relative shrink-0 w-100 mt-12 snap-start ${transformClass}`}
               >
                 <Link
+                  prefetch={false}
                   href={`/blog/${post.slug}`}
                   className="block group"
                   aria-label={`Read ${post.title}`}
@@ -238,9 +122,12 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                       >
                         {post.title}
                       </h3>
-                      <div className="flex justify-between items-center text-xs text-gray-500 font-mono">
+                      <div className="flex items-center justify-between text-[11px] uppercase text-gray-500 tracking-[0.16em]">
                         <span>{timeAgo(post.publishedAt)}</span>
-                        <ArrowUpRight className="h-4 w-4" />
+                        <span className="inline-flex items-center gap-1 text-white group-hover:text-[#ccff00] transition-colors">
+                          Read
+                          <ArrowUpRight className="h-4 w-4" />
+                        </span>
                       </div>
                     </div>
                   </div>

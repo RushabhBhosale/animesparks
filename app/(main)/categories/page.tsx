@@ -5,6 +5,7 @@ import { categoriesWithCountsQuery } from "@/sanity/blogQueries";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
+import { splineSans } from "@/lib/font";
 
 export const revalidate = 60;
 
@@ -108,7 +109,9 @@ export default async function CategoriesPage() {
   const InterviewsBg = bgFromCover(c3);
 
   return (
-    <main className="bg-[#050505] text-[#f0f0f0] font-[Spline_Sans] overflow-x-hidden selection:bg-[#ccff00] selection:text-black">
+    <main
+      className={`${splineSans.className} bg-[#050505] text-[#f0f0f0] overflow-x-hidden selection:bg-[#ccff00] selection:text-black`}
+    >
       {/* Global CSS utilities (kept local so you get exact look even if globals differ) */}
       <style
         dangerouslySetInnerHTML={{
@@ -162,6 +165,7 @@ export default async function CategoriesPage() {
 
               <div className="flex flex-wrap gap-2 md:max-w-xs">
                 <Link
+                  prefetch={false}
                   href="/categories"
                   className="px-3 py-1 bg-white text-black font-black uppercase text-xs hover:bg-[#f20d0d] hover:text-white skew-x-12 transition-colors"
                 >
@@ -170,6 +174,7 @@ export default async function CategoriesPage() {
 
                 {filterCats.map((cat, i) => (
                   <Link
+                    prefetch={false}
                     key={cat._id}
                     href={`/categories/${cat.slug}`}
                     className={[
@@ -197,6 +202,7 @@ export default async function CategoriesPage() {
             {/* REVIEWS (uses first real category) */}
             {c0 ? (
               <Link
+                prefetch={false}
                 href={`/categories/${c0.slug}`}
                 className="md:col-span-8 group relative min-h-[400px] md:min-h-[500px] cursor-pointer"
               >
@@ -247,6 +253,7 @@ export default async function CategoriesPage() {
             {/* NEWS (uses second real category) */}
             {c1 ? (
               <Link
+                prefetch={false}
                 href={`/categories/${c1.slug}`}
                 className="md:col-span-4 relative group cursor-pointer mt-12 md:mt-0"
               >
@@ -295,6 +302,7 @@ export default async function CategoriesPage() {
             {/* ANALYSIS (uses third real category) */}
             {c2 ? (
               <Link
+                prefetch={false}
                 href={`/categories/${c2.slug}`}
                 className="md:col-span-5 relative group cursor-pointer min-h-[300px]"
               >
@@ -333,6 +341,7 @@ export default async function CategoriesPage() {
             {/* INTERVIEWS (uses fourth real category) */}
             {c3 ? (
               <Link
+                prefetch={false}
                 href={`/categories/${c3.slug}`}
                 className="md:col-span-7 relative group cursor-pointer min-h-[300px]"
               >
@@ -406,6 +415,7 @@ export default async function CategoriesPage() {
                     {fandomChips.length ? (
                       fandomChips.map((cat) => (
                         <Link
+                          prefetch={false}
                           key={cat._id}
                           href={`/categories/${cat.slug}`}
                           className="bg-black border border-white px-4 py-2 rounded-full text-xs font-bold uppercase hover:bg-white hover:text-black transition-colors"
@@ -415,6 +425,7 @@ export default async function CategoriesPage() {
                       ))
                     ) : (
                       <Link
+                        prefetch={false}
                         href="/categories"
                         className="bg-black border border-white px-4 py-2 rounded-full text-xs font-bold uppercase hover:bg-white hover:text-black transition-colors"
                       >
@@ -443,6 +454,7 @@ export default async function CategoriesPage() {
             {/* MUSIC (real category if available) */}
             {musicCat ? (
               <Link
+                prefetch={false}
                 href={`/categories/${musicCat.slug}`}
                 className="md:col-span-3 mt-6 group cursor-pointer"
               >
@@ -462,6 +474,7 @@ export default async function CategoriesPage() {
             {/* RETRO ANIME (real category if available) */}
             {retroCat ? (
               <Link
+                prefetch={false}
                 href={`/categories/${retroCat.slug}`}
                 className="md:col-span-6 mt-6 group cursor-pointer"
               >

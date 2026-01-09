@@ -1,6 +1,3 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,26 +15,11 @@ export function BlogListContent({
   posts,
   initialVisible = 10,
 }: BlogListContentProps) {
-  const [visibleCount, setVisibleCount] = useState(() =>
-    Math.min(Math.max(initialVisible, 0), posts.length)
-  );
-
-  const { primaryPosts, extraPosts, hasMore } = useMemo(() => {
-    const capped = Math.min(visibleCount, posts.length);
-    const visiblePosts = posts.slice(0, capped);
-
-    return {
-      primaryPosts: visiblePosts.slice(0, 10),
-      extraPosts: visiblePosts.slice(10),
-      hasMore: capped < posts.length,
-    };
-  }, [posts, visibleCount]);
-
-  const handleLoadMore = () => {
-    setVisibleCount((count) => Math.min(count + 10, posts.length));
-  };
-
   if (!posts.length) return null;
+
+  const capped = Math.min(Math.max(initialVisible, 0), posts.length);
+  const primaryPosts = posts.slice(0, Math.max(capped, 10));
+  const extraPosts = posts.slice(primaryPosts.length);
 
   return (
     <div className="space-y-10">
@@ -49,6 +31,7 @@ export function BlogListContent({
           if (isLarge) {
             return (
               <Link
+                prefetch={false}
                 key={post._id}
                 href={`/blog/${post.slug}`}
                 className="group relative block ob-panel border-2 border-white/15 bg-anime-panel p-4 md:p-5 shadow-hard-white hover:-translate-y-1 transition-transform"
@@ -93,6 +76,7 @@ export function BlogListContent({
 
           return (
             <Link
+              prefetch={false}
               key={post._id}
               href={`/blog/${post.slug}`}
               className="group relative flex gap-4 ob-panel border-2 border-white/10 bg-anime-panel p-4 md:p-5 shadow-hard-white hover:-translate-y-1 transition-transform"
@@ -137,21 +121,13 @@ export function BlogListContent({
 
       {extraPosts.length > 0 && (
         <section className="space-y-6 border-t border-white/10 pt-8">
-          {/* <div className="flex items-center gap-3">
-            <span className="bg-anime-red px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-white border-2 border-black shadow-hard-white">
-              More Files
-            </span>
-            <span className="text-xs uppercase text-white/60">
-              Continue the read
-            </span>
-          </div> */}
-
           <div className="space-y-6">
             {extraPosts.map((post: BlogPost, index: number) => {
               const displayNumber = primaryPosts.length + index + 2;
 
               return (
                 <Link
+                  prefetch={false}
                   key={post._id}
                   href={`/blog/${post.slug}`}
                   className="group relative flex gap-4 ob-panel border-2 border-white/10 bg-anime-panel p-4 md:p-5 shadow-hard-white hover:-translate-y-1 transition-transform"
@@ -196,19 +172,6 @@ export function BlogListContent({
             })}
           </div>
         </section>
-      )}
-
-      {hasMore && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={handleLoadMore}
-            className="inline-flex items-center gap-2 border-2 border-white/15 bg-black px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition-all hover:border-anime-lime hover:text-anime-lime hover:shadow-hard-green"
-          >
-            Load 10 More Articles
-            <span className="text-anime-lime">+</span>
-          </button>
-        </div>
       )}
     </div>
   );
