@@ -14,7 +14,7 @@ type NavItem = {
 };
 
 const navLinks: NavItem[] = [
-  { href: "/home", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/blogs", label: "Blogs" },
   { href: "/categories", label: "Categories" },
   { href: "/trending", label: "Trending" },
@@ -51,7 +51,7 @@ export default function Header() {
 
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
-            href="/home"
+            href="/"
             className="group flex items-center gap-3 no-underline transition-colors hover:text-neutral-700"
             aria-label="AnimeSparks home"
           >

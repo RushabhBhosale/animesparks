@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteName,
     description: siteDescription,
-    url: "/home",
+    url: "/",
     siteName,
     type: "website",
     images: [{ url: defaultOgImage }],

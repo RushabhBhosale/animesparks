@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-3">
             <Link
-              href="/home"
+              href="/"
               className="inline-block text-xl font-black uppercase tracking-tight text-neutral-900 transition-colors hover:text-neutral-700"
             >
               AnimeSparks
@@ -40,7 +40,7 @@ export default function Footer() {
               <nav className="flex flex-col gap-3">
                 <Link
                   className="text-sm text-neutral-600 transition-colors hover:text-neutral-900"
-                  href="/home"
+                  href="/"
                 >
                   Home
                 </Link>
