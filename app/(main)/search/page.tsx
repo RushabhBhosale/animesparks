@@ -5,7 +5,6 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Menu, Search, X, Zap } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { createPortal } from "react-dom";
 import {
   useEffect,
   useMemo,
@@ -29,7 +28,6 @@ const navLinks: NavItem[] = [
   { href: "/blogs", label: "Blogs" },
   { href: "/categories", label: "Categories" },
   { href: "/trending", label: "Trending" },
-  { href: "/about", label: "About" },
 ];
 
 const normalizeForHighlight = (s: string) => s.trim().toLowerCase();
@@ -63,7 +61,7 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
+
   const abortRef = useRef<AbortController | null>(null);
   const blurTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -89,10 +87,6 @@ export default function Header() {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setHasMounted(true);
   }, []);
 
   useEffect(() => {
@@ -171,83 +165,6 @@ export default function Header() {
   const stopBlur = (e: MouseEvent) => {
     e.preventDefault();
   };
-
-  const mobileMenu = (
-    <div
-      className={clsx(
-        "fixed inset-0 md:hidden z-[900]",
-        isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
-      )}
-      aria-hidden={!isMobileMenuOpen}
-    >
-      <div
-        onClick={() => setIsMobileMenuOpen(false)}
-        className={clsx(
-          "absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300",
-          isMobileMenuOpen ? "opacity-100" : "opacity-0"
-        )}
-      />
-      <div
-        className={clsx(
-          "absolute right-0 top-0 h-full w-full max-w-[300px] bg-gradient-to-b from-[#0a0a0a] to-black border-l border-white/10 shadow-2xl transition-transform duration-300 ease-in-out z-[121]",
-          isMobileMenuOpen
-            ? "translate-x-0 pointer-events-auto"
-            : "translate-x-full"
-        )}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="flex h-16 items-center justify-between border-b border-white/10 px-6 bg-white/[0.02]">
-          <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
-              <Zap className="h-4 w-4" />
-            </div>
-            <span className="text-base font-bold text-white">AnimeSparks</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="rounded-lg p-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <nav className="flex flex-col gap-2 p-6" aria-label="Mobile">
-          {navLinks.map(({ href, label }) => {
-            const active = isActive(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={clsx(
-                  "group flex items-center justify-between rounded-xl px-5 py-4 text-sm font-semibold uppercase tracking-widest no-underline transition-all duration-200",
-                  active
-                    ? "text-[#ccff00] bg-[#ccff00]/10 border border-[#ccff00]/20 shadow-lg shadow-[#ccff00]/5"
-                    : "text-white/75 hover:bg-white/5 hover:text-white border border-transparent"
-                )}
-                aria-current={active ? "page" : undefined}
-              >
-                {label}
-                <span
-                  className={clsx(
-                    "transition-transform duration-200",
-                    active
-                      ? "text-[#ccff00]"
-                      : "text-white/40 group-hover:translate-x-1"
-                  )}
-                >
-                  →
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-    </div>
-  );
 
   return (
     <header
@@ -399,7 +316,7 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile: only search icon (goes to /search) + menu */}
+          {/* Mobile: search icon -> /search, menu */}
           <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
@@ -420,18 +337,74 @@ export default function Header() {
               <Menu className="h-5 w-5" />
             </button>
           </div>
-
-          {/* Desktop menu button hidden already, so no duplicate */}
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="hidden md:hidden"
-            aria-hidden="true"
-          />
         </div>
       </div>
 
-      {hasMounted && createPortal(mobileMenu, document.body)}
+      {/* Mobile Menu (fixed z-index so it never goes under header/content) */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-[400] md:hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          />
+          <div className="absolute right-0 top-0 z-[110] h-full w-full max-w-sm bg-gradient-to-b from-[#0a0a0a] to-black border-l border-white/10 shadow-2xl animate-in slide-in-from-right duration-300">
+            <div className="flex h-16 items-center justify-between border-b border-white/10 px-6 bg-white/[0.02]">
+              <div className="flex items-center gap-2">
+                <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <span className="text-base font-bold text-white">
+                  AnimeSparks
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-lg p-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <nav className="flex flex-col gap-2 p-6" aria-label="Mobile">
+              {navLinks.map(({ href, label }) => {
+                const active = isActive(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={clsx(
+                      "group flex items-center justify-between rounded-xl px-5 py-4 text-sm font-semibold uppercase tracking-widest no-underline transition-all duration-200",
+                      active
+                        ? "text-[#ccff00] bg-[#ccff00]/10 border border-[#ccff00]/20 shadow-lg shadow-[#ccff00]/5"
+                        : "text-white/75 hover:bg-white/5 hover:text-white border border-transparent"
+                    )}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {label}
+                    <span
+                      className={clsx(
+                        "transition-transform duration-200",
+                        active
+                          ? "text-[#ccff00]"
+                          : "text-white/40 group-hover:translate-x-1"
+                      )}
+                    >
+                      →
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -62,7 +62,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
 
   return (
     <section className="mb-10">
-      <div className="flex flex-col md:flex-row items-end gap-4 mb-16 px-4">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 md:mb-16 mb-6 px-4">
         <h2 className="text-6xl md:text-7xl flex-2/500 font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 uppercase italic tracking-tighter leading-[0.8]">
           Trending <br />
           <span className="text-[#f20d0d] text-4xl md:text-6xl not-italic ml-12 font-bold">

@@ -40,8 +40,8 @@ export async function generateMetadata({
   const baseTitle = "Anime Topics and Tags on AnimeSparks";
   const title = decodedTag ? `${baseTitle}: ${decodedTag}` : baseTitle;
   const description = decodedTag
-    ? `Browse anime articles by topic on ${siteName}, including ${decodedTag} reviews lists and editorials.`
-    : "Browse anime articles by topic including reviews seasonal anime sports anime and psychological series.";
+    ? `Browse anime articles by topic on ${siteName}, including ${decodedTag} reviews and lists.`
+    : "Browse anime articles by topic including reviews, seasonal anime, sports anime, and psychological series.";
   const canonical = `/tags/${safeTag}`;
 
   return {

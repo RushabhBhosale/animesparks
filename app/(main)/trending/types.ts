@@ -4,6 +4,7 @@ export type BlogPost = {
   slug: string;
   publishedAt?: string;
   excerpt?: string;
+  metaDescription?: string;
   tags?: string[];
   _createdAt?: string;
   categories?: {

@@ -11,6 +11,7 @@ import { AdSlot } from "@/components/ads/ad-slot";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
 import { BlogListContent } from "./blog-list-content";
+import { canonicalizeSearchValue } from "@/utils/search-index";
 import type { BlogCategory, BlogPost } from "./types";
 
 export const revalidate = 60;
@@ -18,14 +19,14 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Anime Blog Reviews Lists and Anime News",
   description:
-    "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
+    "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
   alternates: {
     canonical: "/blogs",
   },
   openGraph: {
     title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
+      "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
     url: "/blogs",
     type: "website",
     siteName,
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Anime Blog Reviews Lists and Anime News",
     description:
-      "Browse all anime articles on AnimeSparks including reviews watchlists season updates and in depth anime editorials.",
+      "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
     images: [defaultOgImage],
   },
 };
@@ -43,16 +44,27 @@ export const metadata: Metadata = {
 export default async function AllBlogsPage({
   searchParams,
 }: {
-  searchParams?: { sort?: string };
+  searchParams?: Promise<{ sort?: string | string[]; q?: string | string[] }>;
 }) {
-  const { sort } = searchParams || {};
+  const params = (await searchParams) ?? {};
+  const sort = Array.isArray(params.sort) ? params.sort[0] : params.sort;
+  const rawQuery = Array.isArray(params.q) ? params.q[0] : params.q;
+  const query = rawQuery?.toLowerCase().trim();
+  const normalizedQuery = query ? canonicalizeSearchValue(query) : "";
   const activeSort =
     sort === "popular" ? "popular" : sort === "recent" ? "recent" : "all";
 
   const blogs = await client.fetch<BlogPost[]>(blogsQuery);
   const categories = await client.fetch<BlogCategory[]>(categoriesQuery);
 
-  const posts = blogs ?? [];
+  const posts = (blogs ?? []).filter((post) => {
+    if (!normalizedQuery) return true;
+    const content = [post.title, post.metaDescription || post.excerpt]
+      .filter(Boolean)
+      .map((entry: any) => canonicalizeSearchValue(entry))
+      .join(" ");
+    return content.includes(normalizedQuery);
+  });
 
   const tagCounts = posts.reduce((acc: Map<string, number>, post) => {
     (post.tags || []).forEach((tag) => {
@@ -184,7 +196,7 @@ export default async function AllBlogsPage({
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12">
           {/* LEFT */}
           <div className="md:col-span-8 space-y-10">
-            {/* Featured dossier */}
+            {/* Featured highlight */}
             {featured && (
               <section className="relative ob-panel border-2 border-white/15 bg-anime-panel p-4 md:p-6 shadow-hard-white">
                 <div className="absolute -top-4 -left-4 bg-anime-lime text-black font-black text-sm px-4 py-2 border-2 border-black shadow-hard z-20 uppercase tracking-[0.14em]">
@@ -234,7 +246,7 @@ export default async function AllBlogsPage({
 
                     <p className="text-base text-anime-muted">
                       {featured.excerpt ??
-                        "An editorial spotlight chosen by our team. Expect strong takes and thoughtful analysis."}
+                        "A featured spotlight chosen by our team. Expect strong takes and thoughtful analysis."}
                     </p>
 
                     <div className="flex flex-wrap gap-3">
@@ -358,7 +370,7 @@ export default async function AllBlogsPage({
                   Never Miss a Blog
                 </h3>
                 <p className="mt-2 text-sm text-anime-muted">
-                  Subscribe for editorials, breakdowns, and trending anime
+                  Subscribe for articles, breakdowns, and trending anime
                   stories.
                 </p>
                 <form className="mt-4 space-y-3">

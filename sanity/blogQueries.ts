@@ -16,6 +16,7 @@ export const blogsQuery = groq`
   "slug": slug.current,
   publishedAt,
   _createdAt,
+  metaDescription,
   tags,
   mainImage {
     asset->{

@@ -12,14 +12,14 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Trending Anime Case Files",
   description:
-    "A curated dossier of the top trending anime editorials, hot takes, and visual investigations from AnimeSparks.",
+    "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
     title: "Trending Anime Case Files",
     description:
-      "A curated dossier of the top trending anime editorials, hot takes, and visual investigations from AnimeSparks.",
+      "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
     url: "/trending",
     type: "website",
     siteName,
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Trending Anime Case Files",
     description:
-      "A curated dossier of the top trending anime editorials, hot takes, and visual investigations from AnimeSparks.",
+      "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
     images: [defaultOgImage],
   },
 };
@@ -39,9 +39,10 @@ type FilterValue = "recent" | "popular" | "discussed" | "visual" | "all";
 export default async function TrendingPage({
   searchParams,
 }: {
-  searchParams?: { sort?: string };
+  searchParams?: Promise<{ sort?: string | string[] }>;
 }) {
-  const { sort } = searchParams || {};
+  const params = (await searchParams) ?? {};
+  const sort = Array.isArray(params.sort) ? params.sort[0] : params.sort;
   const posts = (await client.fetch<BlogPost[]>(blogsQuery)) ?? [];
 
   const tagCounts = posts.reduce((acc, post) => {
@@ -132,14 +133,14 @@ export default async function TrendingPage({
   if (!sortedPosts.length) {
     return (
       <main className="min-h-screen bg-[#050505] text-[#f0f0f0] font-display bg-grid selection:bg-[#ccff00] selection:text-black">
-        <div className="pt-32 pb-20">
+        <div className="pt-10 md:pt-32 pb-20">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h1 className="text-4xl font-black uppercase tracking-tight text-white">
               Trending intel will appear soon.
             </h1>
             <p className="mt-4 text-gray-400">
-              We are curating the top editorials now. Check again shortly for
-              the dossier.
+              We are curating the top articles now. Check again shortly for the
+              latest drops.
             </p>
           </div>
         </div>

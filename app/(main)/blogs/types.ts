@@ -10,6 +10,7 @@ export type BlogPost = {
   slug: string;
   publishedAt?: string;
   excerpt?: string;
+  metaDescription?: string;
   mainImage?: {
     asset?: { url?: string };
     alt?: string;

@@ -12,20 +12,19 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 import { bungeeOutline, splineSans } from "@/lib/font";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import clsx from "clsx";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "AnimeSparks Anime Blog Home",
   description:
-    "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest editorials, character studies, and shonen breakdowns.",
-  alternates: {
-    canonical: "/",
-  },
+    "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest articles, character studies, and shonen breakdowns.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "AnimeSparks Anime Blog Home",
     description:
-      "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest editorials, character studies, and shonen breakdowns.",
+      "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest articles, character studies, and shonen breakdowns.",
     url: "/",
     type: "website",
     siteName,
@@ -46,17 +45,11 @@ type BlogCard = {
   slug: string;
   publishedAt?: string;
   excerpt?: string;
-  mainImage?: {
-    asset?: { url?: string };
-    alt?: string;
-  };
+  mainImage?: { asset?: { url?: string }; alt?: string };
   categories?: { _id: string; title: string; slug: string }[];
   author?: {
     name?: string;
-    image?: {
-      asset?: { url?: string };
-      alt?: string;
-    };
+    image?: { asset?: { url?: string }; alt?: string };
   };
 };
 
@@ -86,52 +79,59 @@ export default async function Home() {
   const trendingSource = latestPosts.slice(0, 10);
   const featured = trendingSource[0] ?? null;
   const trendingCollage = trendingSource;
+
   const marqueeTitles =
     trendingSource.length > 0
       ? trendingSource.map((post) => post.title).filter(Boolean)
       : (latest?.map((post) => post.title).filter(Boolean) ?? []);
+
   const mainUpdates = latestPosts.slice(0, 3);
   const moreUpdates = latestPosts.slice(3, 6);
   const editorsPicks = latestPosts.slice(1, 4);
   const mustReads = trendingSource.slice(0, 5);
-  const callout = trendingCollage[3] ?? trendingSource[3];
 
   return (
     <>
       <Header />
+
       <main
-        className={`${splineSans.className} bg-[#050505] text-[#f0f0f0] overflow-hidden`}
+        className={`${splineSans.className} bg-[#050505] text-[#f0f0f0] overflow-x-hidden`}
       >
-        <div className="relative min-h-screen">
+        {/* fix any accidental horizontal overflow from rotated/marquee */}
+        <div className="relative min-h-screen overflow-x-hidden">
           {/* Hero */}
-          <header className="relative w-full pt-32 pb-20 px-4 md:px-8 overflow-hidden">
+          <header className="relative w-full pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 md:px-8 overflow-hidden">
             <div className="absolute top-0 right-0 w-2/3 h-full bg-[#f20d0d0d] -skew-x-12 z-0 pointer-events-none" />
-            <div className="absolute top-16 left-4 md:left-10 text-[12rem] md:text-[16rem] lg:text-[20rem] font-black text-white/5 select-none z-0 leading-none whitespace-nowrap">
+
+            {/* decorative ANIME - smaller on mobile */}
+            <div className="absolute top-12 sm:top-14 left-4 md:left-10 text-[6rem] sm:text-[9rem] md:text-[16rem] lg:text-[20rem] font-black text-white/5 select-none z-0 leading-none whitespace-nowrap pointer-events-none">
               ANIME
             </div>
 
-            <div className="max-w-[1400px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 flex flex-col gap-6 relative">
+            <div className="relative z-10 mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+              {/* LEFT */}
+              <div className="lg:col-span-7 flex flex-col gap-5 sm:gap-6 relative">
                 <div className="absolute -left-12 -top-12 size-24 border-4 border-dashed border-[#2f2f2f] rounded-full animate-[spin_10s_linear_infinite] opacity-40 hidden lg:block" />
 
                 {featured?.categories?.[0]?.title && (
-                  <div className="inline-flex self-start bg-black border border-[#f20d0d] px-3 py-1 -rotate-2 shadow-[8px_8px_0px_0px_rgba(242,13,13,1)]">
+                  <div className="inline-flex self-start bg-black border border-[#f20d0d] px-3 py-1 -rotate-2 shadow-hard">
                     <span className="text-[#f20d0d] font-black uppercase text-xs tracking-[0.2em]">
                       {featured.categories[0].title}
                     </span>
                   </div>
                 )}
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[0.9] tracking-tighter uppercase mix-blend-difference">
-                  <span className="block">
+                {/* responsive title sizes + better wrap */}
+                <h1 className="text-[2.15rem] leading-[0.95] sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase mix-blend-difference">
+                  <span className="block break-words">
                     {(featured?.title || "Featured Story")
                       .split(/\s+/)
-                      .map((word, i) => {
-                        const outline = (word.length + i) % 3 === 0; // random-ish but stable
+                      .map((word, i, arr) => {
+                        const outline = (word.length + i) % 3 === 0;
 
                         return (
                           <span
-                            key={i}
+                            key={`${word}-${i}`}
                             className={
                               outline
                                 ? `${bungeeOutline.className} font-bungee-outline`
@@ -139,12 +139,7 @@ export default async function Home() {
                             }
                           >
                             {word}
-                            {i <
-                            (featured?.title || "Featured Story").split(/\s+/)
-                              .length -
-                              1
-                              ? " "
-                              : ""}
+                            {i < arr.length - 1 ? " " : ""}
                           </span>
                         );
                       })}
@@ -152,27 +147,27 @@ export default async function Home() {
                 </h1>
 
                 {featured?.excerpt && (
-                  <p className="text-lg md:text-xl text-gray-300 font-medium max-w-xl border-l-4 border-[#ccff00] pl-6 py-2">
+                  <p className="text-sm sm:text-base md:text-lg text-gray-300 font-medium max-w-xl border-l-4 border-[#ccff00] pl-4 sm:pl-6 py-2">
                     {getExcerpt(featured.excerpt, 190)}
                   </p>
                 )}
 
-                <div className="flex flex-wrap gap-4 mt-4">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 mt-2 sm:mt-4">
                   {featured?.slug && (
                     <Link
                       prefetch={false}
                       href={`/blog/${featured.slug}`}
-                      className="bg-white text-black font-black uppercase tracking-wider px-8 py-4 text-sm hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_rgba(242,13,13,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                      className="w-full sm:w-auto bg-white text-black font-black uppercase tracking-wider px-5 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm hover:bg-[#ccff00] transition-all shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1"
                       aria-label={`Read article: ${featured.title ?? "Featured story"}`}
                     >
-                      Read Article: {featured.title ?? "Featured story"}
+                      Read Article
                     </Link>
                   )}
 
                   {featured?.categories?.[0]?.slug && (
                     <Link
                       href={`/categories/${featured.categories[0].slug}`}
-                      className="flex items-center gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full"
+                      className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full"
                     >
                       <span className="text-xs font-bold uppercase text-gray-300">
                         {featured.categories[0].title}
@@ -183,9 +178,9 @@ export default async function Home() {
                 </div>
 
                 {featured?.author?.name && (
-                  <div className="flex items-center gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full w-fit">
+                  <div className="flex items-center gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full w-fit max-w-full">
                     {featured.author.image?.asset?.url && (
-                      <div className="relative size-10 overflow-hidden rounded-full border border-white/80">
+                      <div className="relative size-9 sm:size-10 overflow-hidden rounded-full border border-white/80 shrink-0">
                         <Image
                           src={sanityImageUrl(featured.author.image, {
                             width: 100,
@@ -200,20 +195,22 @@ export default async function Home() {
                         />
                       </div>
                     )}
-                    <span className="text-xs font-bold uppercase text-gray-300">
+                    <span className="text-[11px] sm:text-xs font-bold uppercase text-gray-300 truncate">
                       By {featured.author.name}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* RIGHT IMAGE */}
               {featured?.mainImage?.asset?.url && (
                 <div
-                  className="lg:col-span-5 relative mt-10 lg:mt-0 group"
+                  className="lg:col-span-5 relative mt-2 sm:mt-6 lg:mt-0 group"
                   style={{ perspective: "1200px" }}
                 >
-                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 group-hover:rotate-2 group-hover:scale-105 border-2 border-white/10">
-                    <div className="relative aspect-[4/5] md:aspect-square w-full overflow-hidden bg-[#0c0c0c] grayscale group-hover:grayscale-0 transition-all duration-500">
+                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10">
+                    {/* keep a solid aspect on mobile, not too tall */}
+                    <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-[#0c0c0c] grayscale lg:group-hover:grayscale-0 transition-all duration-500">
                       <Image
                         src={sanityHeroImageUrl(featured.mainImage)}
                         alt={featured.mainImage.alt || featured.title}
@@ -223,16 +220,21 @@ export default async function Home() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="absolute -bottom-6 -right-6 bg-[#ccff00] text-black font-black text-4xl px-4 py-2 transform -rotate-6 shadow-[6px_6px_0px_0px_white] z-30">
+
+                    {/* badge: smaller + inside safe area on mobile */}
+                    <div className="absolute -bottom-4 -right-2 sm:-bottom-6 sm:-right-6 bg-[#ccff00] text-black font-black text-2xl sm:text-4xl px-3 sm:px-4 py-2 transform -rotate-6 shadow-[6px_6px_0px_0px_white] z-30">
                       #01
                     </div>
+
                     {featured.categories?.[0]?.title && (
-                      <div className="absolute top-4 -left-8 bg-[#00f3ff] text-black font-bold text-xs px-3 py-1 transform -rotate-90 origin-bottom-right uppercase tracking-widest">
+                      <div className="absolute top-4 -left-8 bg-[#00f3ff] text-black font-bold text-[10px] sm:text-xs px-3 py-1 transform -rotate-90 origin-bottom-right uppercase tracking-widest hidden sm:block">
                         {featured.categories[0].title}
                       </div>
                     )}
                   </div>
-                  <div className="absolute top-4 left-4 w-full h-full border-4 border-[#f20d0d] z-10 -translate-x-4 translate-y-4" />
+
+                  {/* offset border: reduce on mobile */}
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-full h-full border-4 border-[#f20d0d] z-10 -translate-x-3 translate-y-3 sm:-translate-x-4 sm:translate-y-4" />
                 </div>
               )}
             </div>
@@ -241,11 +243,11 @@ export default async function Home() {
           {/* Marquee */}
           {marqueeTitles.length > 0 && (
             <div className="bg-[#f20d0d] overflow-hidden py-3 transform -rotate-1 origin-left w-[105%] -ml-2 border-y-4 border-black z-20 relative">
-              <div className="whitespace-nowrap flex gap-12 marquee-track">
+              <div className="whitespace-nowrap flex gap-10 marquee-track">
                 {marqueeTitles.concat(marqueeTitles).map((title, idx) => (
                   <span
                     key={`${title}-${idx}`}
-                    className="text-black font-black uppercase text-xl italic tracking-widest"
+                    className="text-black font-black uppercase text-base sm:text-xl italic tracking-widest"
                   >
                     {"///"} {title} {"///"}
                   </span>
@@ -255,25 +257,25 @@ export default async function Home() {
           )}
 
           <div className="relative w-full overflow-hidden">
-            <div className="max-w-[1600px] mx-auto px-4 py-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
               {/* Trending */}
               {trendingCollage.length > 0 && (
-                <>
-                  <TrendingRail posts={trendingCollage} />
-                </>
+                <TrendingRail posts={trendingCollage} />
               )}
 
-              <div className="my-24 border-t border-[#1f1f1f] relative">
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#050505] px-4 text-gray-500 font-mono text-xs uppercase tracking-[0.3em]">
+              <div className="my-14 sm:my-20 md:my-24 border-t border-[#1f1f1f] relative">
+                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#050505] px-4 text-gray-500 font-mono text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em]">
                   Scroll Down for more
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                <div className="lg:col-span-8 space-y-12">
-                  <h3 className="text-5xl font-black text-white uppercase italic mb-8 pr-1 relative inline-block">
+              {/* MAIN LAYOUT: stack on mobile, 2-col on lg */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
+                {/* LEFT */}
+                <section className="lg:col-span-8 space-y-10 sm:space-y-12 min-w-0">
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase italic mb-4 sm:mb-6 pr-1 relative inline-block">
                     Latest <span className="font-bungee-outline">Updates</span>
-                    <span className="absolute -right-4 -top-4 text-[#ccff00] text-6xl select-none">
+                    <span className="absolute -right-3 -top-3 sm:-right-4 sm:-top-4 text-[#ccff00] text-4xl sm:text-6xl select-none">
                       *
                     </span>
                   </h3>
@@ -285,22 +287,22 @@ export default async function Home() {
                     return (
                       <article
                         key={post._id}
-                        className={`group relative pl-8 border-l-2 border-[#1f1f1f] transition-colors ${
+                        className={clsx(
+                          "group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] transition-colors hover:border-[#f20d0d] min-w-0",
                           alignReverse ? "md:text-right" : ""
-                        } hover:border-[#f20d0d]`}
+                        )}
                       >
-                        <div className="absolute -left-[9px] top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#f20d0d] group-hover:bg-[#f20d0d] transition-colors rounded-full" />
-                        <div
-                          className={`grid md:grid-cols-2 gap-6 ${
-                            alignReverse ? "md:text-right" : ""
-                          }`}
-                        >
+                        <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#f20d0d] group-hover:bg-[#f20d0d] transition-colors rounded-full" />
+
+                        {/* stack on mobile, 2-col from md */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                           <div
-                            className={`relative overflow-hidden border border-[#2a2a2a] group-hover:border-[#f20d0d]/60 transition-colors ${
-                              alignReverse ? "order-1 md:order-2" : ""
-                            }`}
+                            className={clsx(
+                              "relative overflow-hidden border border-[#2a2a2a] group-hover:border-[#f20d0d]/60 transition-colors",
+                              alignReverse ? "md:order-2" : ""
+                            )}
                           >
-                            {post.mainImage?.asset?.url && (
+                            {post.mainImage?.asset?.url ? (
                               <div className="relative aspect-video">
                                 <Image
                                   src={sanityImageUrl(post.mainImage, {
@@ -312,20 +314,24 @@ export default async function Home() {
                                   className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                                 />
                               </div>
+                            ) : (
+                              <div className="aspect-video bg-[#0c0c0c]" />
                             )}
                           </div>
 
                           <div
-                            className={`flex flex-col justify-center ${
-                              alignReverse ? "order-2 md:order-1" : ""
-                            }`}
+                            className={clsx(
+                              "flex flex-col justify-center min-w-0",
+                              alignReverse ? "md:order-1" : ""
+                            )}
                           >
                             <div
-                              className={`flex gap-2 mb-3 ${
+                              className={clsx(
+                                "flex flex-wrap gap-2 mb-3",
                                 alignReverse
                                   ? "justify-start md:justify-end"
                                   : "justify-start"
-                              }`}
+                              )}
                             >
                               {post.categories?.[0]?.title && (
                                 <span
@@ -342,24 +348,24 @@ export default async function Home() {
                                 {timeAgo(post.publishedAt)}
                               </span>
                             </div>
-                            <h4
-                              className={`text-2xl md:text-3xl font-black text-white uppercase leading-none mb-3 group-hover:text-[${badgeColors[idx]}] transition-colors`}
-                            >
+
+                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase leading-tight sm:leading-none mb-3 transition-colors group-hover:text-white">
                               {post.title}
                             </h4>
+
                             {post.excerpt && (
-                              <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                              <p className="text-gray-400 text-sm leading-relaxed mb-4 line-clamp-3">
                                 {getExcerpt(post.excerpt, 160)}
                               </p>
                             )}
+
                             <Link
                               prefetch={false}
                               href={`/blog/${post.slug}`}
                               className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest hover:gap-4 transition-all"
                               aria-label={`Read more about ${post.title ?? "this article"}`}
                             >
-                              Read More: {post.title ?? "this article"}{" "}
-                              <ArrowUpRight className="h-4 w-4" />
+                              Read More <ArrowUpRight className="h-4 w-4" />
                             </Link>
                           </div>
                         </div>
@@ -368,14 +374,18 @@ export default async function Home() {
                   })}
 
                   {moreUpdates.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                       {moreUpdates.map((post) => (
-                        <Link prefetch={false} href={`/blog/${post.slug}`} key={post._id}>
+                        <Link
+                          prefetch={false}
+                          href={`/blog/${post.slug}`}
+                          key={post._id}
+                        >
                           <article className="group relative pl-6 border-l-2 border-[#1f1f1f] hover:border-[#00f3ff] transition-colors">
-                            <div className="absolute -left-[9px] top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
+                            <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
                             <div className="flex gap-4">
                               {post.mainImage?.asset?.url && (
-                                <div className="relative h-24 w-32 overflow-hidden border border-[#2a2a2a]">
+                                <div className="relative h-20 w-28 sm:h-24 sm:w-32 overflow-hidden border border-[#2a2a2a] shrink-0">
                                   <Image
                                     src={sanityImageUrl(post.mainImage, {
                                       width: 600,
@@ -387,8 +397,8 @@ export default async function Home() {
                                   />
                                 </div>
                               )}
-                              <div className="flex flex-col justify-center">
-                                <h5 className="text-lg font-black uppercase leading-tight group-hover:text-[#00f3ff] transition-colors">
+                              <div className="flex flex-col justify-center min-w-0">
+                                <h5 className="text-base sm:text-lg font-black uppercase leading-tight group-hover:text-[#00f3ff] transition-colors line-clamp-2">
                                   {post.title}
                                 </h5>
                                 <span className="text-xs text-gray-500 font-mono mt-1">
@@ -405,20 +415,22 @@ export default async function Home() {
 
                   <Link
                     href="/blogs"
-                    className="block text-center w-full bg-transparent border-2 border-[#2a2a2a] text-white font-black uppercase py-4 hover:bg-white hover:text-black transition-colors tracking-widest text-lg group"
+                    className="block text-center w-full bg-transparent border-2 border-[#2a2a2a] text-white font-black uppercase py-4 hover:bg-white hover:text-black transition-colors tracking-widest text-base sm:text-lg group"
                   >
                     Load More Chaos{" "}
                     <span className="inline-block transition-transform group-hover:rotate-180 ml-2">
                       +
                     </span>
                   </Link>
-                </div>
+                </section>
 
-                <aside className="lg:col-span-4 space-y-12 relative">
-                  <div className="sticky top-24 space-y-8">
-                    <div className="bg-[#f20d0d] p-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,0.7)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all cursor-pointer group">
-                      <div className="bg-black p-6 h-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,_#2d2d2d_1px,_transparent_1px)] bg-[size:14px_14px]" />
+                {/* RIGHT SIDEBAR: NOT sticky on mobile, sticky on lg */}
+                <aside className="lg:col-span-4 space-y-10 lg:space-y-12 relative min-w-0">
+                  <div className="lg:sticky lg:top-24 space-y-8">
+                    {/* Merch */}
+                    <div className="bg-[#f20d0d] p-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,0.7)] lg:hover:translate-x-1 lg:hover:translate-y-1 lg:hover:shadow-none transition-all cursor-pointer group">
+                      <div className="bg-black p-6 h-56 sm:h-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#2d2d2d_1px,transparent_1px)] [background-size:14px_14px]" />
                         <h4 className="text-2xl font-black text-white uppercase italic z-10">
                           Anime
                           <br />
@@ -433,6 +445,7 @@ export default async function Home() {
                       </div>
                     </div>
 
+                    {/* Must Reads */}
                     {mustReads.length > 0 && (
                       <div className="bg-[#121212] border border-[#2a2a2a] p-6 relative">
                         <div className="absolute -top-3 -right-3 bg-[#ccff00] text-black px-2 py-1 font-black text-xs uppercase rotate-3 border border-black">
@@ -447,12 +460,12 @@ export default async function Home() {
                               prefetch={false}
                               key={post._id}
                               href={`/blog/${post.slug}`}
-                              className="flex gap-4 items-center group"
+                              className="flex gap-4 items-start group"
                             >
-                              <span className="text-4xl font-black text-[#2c2c2c] group-hover:text-[#f20d0d] transition-colors italic">
+                              <span className="text-3xl sm:text-4xl font-black text-[#2c2c2c] group-hover:text-[#f20d0d] transition-colors italic shrink-0 leading-none">
                                 {idx + 1}
                               </span>
-                              <p className="text-sm font-bold text-white leading-tight group-hover:translate-x-2 transition-transform">
+                              <p className="text-sm font-bold text-white leading-tight group-hover:translate-x-1 transition-transform line-clamp-2">
                                 {post.title}
                               </p>
                             </Link>
@@ -461,8 +474,9 @@ export default async function Home() {
                       </div>
                     )}
 
-                    <div className="border-2 border-white p-6 transform -rotate-2 bg-black">
-                      <h4 className="text-3xl font-black uppercase text-white mb-2 text-center">
+                    {/* Newsletter */}
+                    <div className="border-2 border-white p-6 transform lg:-rotate-2 bg-black">
+                      <h4 className="text-2xl sm:text-3xl font-black uppercase text-white mb-2 text-center">
                         Join the
                         <br />
                         <span className="text-[#f20d0d]">Squad</span>
@@ -487,16 +501,17 @@ export default async function Home() {
 
             {/* Editor Picks */}
             {editorsPicks.length > 0 && (
-              <section className="bg-[#f0f0f0] text-black py-20 transform -skew-y-2 origin-top-left border-y-8 border-black">
-                <div className="max-w-7xl mx-auto px-6 transform skew-y-2">
-                  <div className="flex justify-between items-end mb-12">
-                    <h3 className="text-6xl font-black uppercase tracking-tighter">
+              <section className="bg-[#f0f0f0] text-black py-14 sm:py-16 md:py-20 transform -skew-y-2 origin-top-left border-y-8 border-black">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 transform skew-y-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-6 mb-10 sm:mb-12">
+                    <h3 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter">
                       Editors <br />
                       <span className="text-[#f20d0d]">Picks</span>
                     </h3>
-                    <ArrowDown className="h-14 w-14 animate-bounce" />
+                    <ArrowDown className="h-10 w-10 sm:h-14 sm:w-14 animate-bounce self-start sm:self-auto" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {editorsPicks.slice(0, 3).map((post, idx) => {
                       const accent =
                         ["#f20d0d", "#00f3ff", "#ccff00"][idx] ?? "#f20d0d";
@@ -516,7 +531,7 @@ export default async function Home() {
                           }`}
                         >
                           <div
-                            className={`overflow-hidden border-4 border-black ${shadowClass} hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all bg-black h-80 relative`}
+                            className={`overflow-hidden border-4 border-black ${shadowClass} hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all bg-black h-72 sm:h-80 relative`}
                           >
                             {post.mainImage?.asset?.url && (
                               <Image
@@ -529,8 +544,8 @@ export default async function Home() {
                                 className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-110"
                               />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                            <div className="absolute bottom-0 left-0 p-6">
+                            <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-90" />
+                            <div className="absolute bottom-0 left-0 p-5 sm:p-6">
                               {post.categories?.[0]?.title && (
                                 <span
                                   className="text-xs font-black uppercase px-2 py-1 mb-2 inline-block border border-black"
@@ -543,7 +558,7 @@ export default async function Home() {
                                 </span>
                               )}
                               <h4
-                                className={`text-white text-2xl font-black uppercase leading-none transition-colors ${hoverText}`}
+                                className={`text-white text-xl sm:text-2xl font-black uppercase leading-tight transition-colors ${hoverText} line-clamp-3`}
                               >
                                 {post.title}
                               </h4>
@@ -559,6 +574,7 @@ export default async function Home() {
           </div>
         </div>
       </main>
+
       <Footer />
     </>
   );
