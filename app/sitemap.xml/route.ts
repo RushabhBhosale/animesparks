@@ -30,7 +30,9 @@ export const revalidate = 3600;
 
 export async function GET() {
   const baseUrl = getBaseUrl();
-  const posts: SitemapPost[] = await client.fetch(sitemapBlogsQuery);
+  const posts: SitemapPost[] = await client
+    .withConfig({ useCdn: false })
+    .fetch(sitemapBlogsQuery);
 
   const staticRoutes = [
     "/",

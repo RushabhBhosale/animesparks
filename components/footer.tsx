@@ -38,7 +38,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-400 uppercase">
               <li>
                 <Link
-                  className="hover:text-white hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
                   href="/"
                 >
                   Home
@@ -46,7 +46,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  className="hover:text-white hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
                   href="/blogs"
                 >
                   Blogs
@@ -54,7 +54,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  className="hover:text-white hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
                   href="/trending"
                 >
                   Trending
@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  className="hover:text-white hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
                   href="/categories"
                 >
                   Categories
@@ -81,7 +81,7 @@ export default function Footer() {
             <div className="flex gap-3">
               <Link
                 prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/"
                 aria-label="Visit AnimeSparks home"
               >
@@ -90,7 +90,7 @@ export default function Footer() {
               </Link>
               <Link
                 prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/blogs"
                 aria-label="Browse all AnimeSparks blogs"
               >
@@ -99,7 +99,7 @@ export default function Footer() {
               </Link>
               <Link
                 prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
+                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
                 href="/about"
                 aria-label="Learn about AnimeSparks"
               >

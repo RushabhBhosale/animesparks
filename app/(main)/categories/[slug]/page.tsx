@@ -235,8 +235,8 @@ export default async function CategoryDetailPage({
                   scroll={false}
                   className={
                     sortKey === "newest"
-                      ? "text-white hover:text-anime-lime uppercase text-[11px] sm:text-xs font-black underline decoration-2 underline-offset-4"
-                      : "text-white/40 hover:text-white uppercase text-[11px] sm:text-xs font-black"
+                      ? "text-white md:hover:text-anime-lime uppercase text-[11px] sm:text-xs font-black underline decoration-2 underline-offset-4"
+                      : "text-white/40 md:hover:text-white uppercase text-[11px] sm:text-xs font-black"
                   }
                 >
                   Newest
@@ -247,8 +247,8 @@ export default async function CategoryDetailPage({
                   scroll={false}
                   className={
                     sortKey === "popular"
-                      ? "text-white hover:text-anime-lime uppercase text-[11px] sm:text-xs font-black underline decoration-2 underline-offset-4"
-                      : "text-white/40 hover:text-white uppercase text-[11px] sm:text-xs font-black"
+                      ? "text-white md:hover:text-anime-lime uppercase text-[11px] sm:text-xs font-black underline decoration-2 underline-offset-4"
+                      : "text-white/40 md:hover:text-white uppercase text-[11px] sm:text-xs font-black"
                   }
                 >
                   Popular
@@ -278,7 +278,7 @@ export default async function CategoryDetailPage({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 auto-rows-min">
               {/* FEATURED BIG */}
               {featured && (
-                <article className="lg:col-span-8 group relative min-h-[420px] sm:min-h-[480px] md:min-h-[520px] border-4 border-black hover:border-anime-red transition-colors duration-300 overflow-hidden">
+                <article className="lg:col-span-8 group relative min-h-[420px] sm:min-h-[480px] md:min-h-[520px] border-4 border-black md:hover:border-anime-red transition-colors duration-300 overflow-hidden">
                   <div className="absolute inset-0">
                     {featured.mainImage?.asset?.url ? (
                       <Image
@@ -288,7 +288,7 @@ export default async function CategoryDetailPage({
                         alt={featured.mainImage.alt || featured.title}
                         fill
                         sizes="(max-width: 1024px) 100vw, 1100px"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover transition-transform duration-700 md:group-hover:scale-105"
                         priority
                       />
                     ) : (
@@ -311,7 +311,7 @@ export default async function CategoryDetailPage({
                       </span>
                     </div>
 
-                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white uppercase leading-[0.95] sm:leading-[0.88] md:leading-[0.85] mb-4 sm:mb-6 group-hover:text-anime-red transition-colors break-words">
+                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white uppercase leading-[0.95] sm:leading-[0.88] md:leading-[0.85] mb-4 sm:mb-6 md:group-hover:text-anime-red transition-colors break-words">
                       {featured.title.split(" ").slice(0, 3).join(" ")}
                       {featured.title.split(" ").length > 3 ? (
                         <>
@@ -330,7 +330,7 @@ export default async function CategoryDetailPage({
 
                     <Link
                       href={`/blog/${featured.slug}`}
-                      className="inline-flex items-center gap-2 bg-white text-black font-black uppercase px-5 sm:px-6 py-3 text-xs sm:text-sm hover:bg-anime-red hover:text-white transition-all shadow-hard-green"
+                      className="inline-flex items-center gap-2 bg-white text-black font-black uppercase px-5 sm:px-6 py-3 text-xs sm:text-sm md:hover:bg-anime-red md:hover:text-white transition-all shadow-hard-green"
                     >
                       Jack In <ArrowRight className="h-4 w-4" />
                     </Link>
@@ -341,7 +341,7 @@ export default async function CategoryDetailPage({
               {/* FEATURED SIDE (not row-span on mobile) */}
               {rest[0] && (
                 <article className="lg:col-span-4 group relative min-h-[420px] sm:min-h-[520px] lg:min-h-[520px]">
-                  <div className="h-full bg-anime-panel border border-white/15 p-2 flex flex-col relative overflow-hidden group-hover:border-anime-lime transition-colors">
+                  <div className="h-full bg-anime-panel border border-white/15 p-2 flex flex-col relative overflow-hidden md:group-hover:border-anime-lime transition-colors">
                     <div className="absolute top-4 right-4 z-20 bg-black/80 backdrop-blur text-white border border-white/15 size-11 sm:size-12 rounded-full flex items-center justify-center">
                       <Star className="h-5 w-5 text-anime-lime animate-bounce" />
                     </div>
@@ -355,7 +355,7 @@ export default async function CategoryDetailPage({
                           alt={rest[0].mainImage.alt || rest[0].title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 520px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                          className="object-cover transition-transform duration-500 md:group-hover:scale-110 md:group-hover:rotate-2"
                         />
                       ) : (
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.18),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.18),transparent_55%)]" />
@@ -367,7 +367,7 @@ export default async function CategoryDetailPage({
                         <span className="text-anime-lime font-mono text-[10px] sm:text-xs uppercase mb-2 block">
                           &gt; Essay
                         </span>
-                        <h3 className="text-2xl sm:text-3xl font-black uppercase leading-none text-white mb-4 group-hover:text-anime-lime transition-colors">
+                        <h3 className="text-2xl sm:text-3xl font-black uppercase leading-none text-white mb-4 md:group-hover:text-anime-lime transition-colors">
                           {rest[0].title}
                         </h3>
                         <p className="text-white/45 text-xs sm:text-sm line-clamp-3">
@@ -393,7 +393,7 @@ export default async function CategoryDetailPage({
                       <div className="mt-4">
                         <Link
                           href={`/blog/${rest[0].slug}`}
-                          className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-lime hover:underline underline-offset-4"
+                          className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-lime md:hover:underline underline-offset-4"
                         >
                           Read Now <ArrowRight className="h-4 w-4" />
                         </Link>
@@ -406,7 +406,7 @@ export default async function CategoryDetailPage({
               {/* 2 SMALL CARDS */}
               {rest.slice(1, 3).map((p, idx) => (
                 <article key={p._id} className="lg:col-span-4 group">
-                  <div className="bg-black border-2 border-white/15 p-1 transform transition-all duration-300 hover:-translate-y-2 shadow-hard-blue">
+                  <div className="bg-black border-2 border-white/15 p-1 transform transition-all duration-300 md:hover:-translate-y-2 shadow-hard-blue">
                     <div className="aspect-video relative overflow-hidden bg-black mb-4 border border-white/10">
                       {p.mainImage?.asset?.url ? (
                         <Image
@@ -414,7 +414,7 @@ export default async function CategoryDetailPage({
                           alt={p.mainImage.alt || p.title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 520px"
-                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                          className="object-cover grayscale md:group-hover:grayscale-0 transition-all duration-500"
                         />
                       ) : (
                         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(242,13,13,0.25),transparent_60%),linear-gradient(315deg,rgba(0,243,255,0.18),transparent_60%)]" />
@@ -434,14 +434,14 @@ export default async function CategoryDetailPage({
                     </div>
 
                     <div className="px-2 pb-2">
-                      <h3 className="text-lg sm:text-xl font-black uppercase leading-tight text-white mb-2 group-hover:text-anime-cyan break-words">
+                      <h3 className="text-lg sm:text-xl font-black uppercase leading-tight text-white mb-2 md:group-hover:text-anime-cyan break-words">
                         {p.title}
                       </h3>
                       <p className="text-xs text-white/50 mb-3 line-clamp-2">
                         {p.excerpt || "Quick hit from the category feed."}
                       </p>
                       <Link
-                        className="text-anime-cyan text-xs font-black uppercase tracking-widest hover:underline underline-offset-4"
+                        className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4"
                         href={`/blog/${p.slug}`}
                       >
                         Read Now
@@ -454,7 +454,7 @@ export default async function CategoryDetailPage({
               {/* QUOTE CARD */}
               {rest[3] && (
                 <article className="lg:col-span-4 group relative z-10">
-                  <div className="bg-anime-lime p-1 transform rotate-1 sm:rotate-2 hover:rotate-0 transition-all duration-300 shadow-lg hover:z-20">
+                  <div className="bg-anime-lime p-1 transform rotate-1 sm:rotate-2 md:hover:rotate-0 transition-all duration-300 shadow-lg md:hover:z-20">
                     <div className="bg-black p-4 h-full flex flex-col">
                       <div className="flex justify-between items-start mb-4">
                         <Quote className="h-9 w-9 sm:h-10 sm:w-10 text-anime-lime" />
@@ -475,7 +475,7 @@ export default async function CategoryDetailPage({
 
                         <Link
                           href={`/blog/${rest[3].slug}`}
-                          className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-white border border-white px-3 py-2 hover:bg-white hover:text-black transition-colors"
+                          className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors"
                         >
                           Open <ArrowRight className="h-4 w-4" />
                         </Link>
@@ -488,7 +488,7 @@ export default async function CategoryDetailPage({
               {/* BIG HORIZONTAL BREAKING */}
               {rest[4] && (
                 <article className="lg:col-span-12 group mt-2">
-                  <div className="relative bg-anime-panel border-y-4 border-anime-red overflow-hidden hover:bg-black/40 transition-colors">
+                  <div className="relative bg-anime-panel border-y-4 border-anime-red overflow-hidden md:hover:bg-black/40 transition-colors">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-black to-transparent z-10 hidden md:block" />
                     <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-center p-6 sm:p-8 relative z-20">
                       <div className="order-2 md:order-1">
@@ -513,7 +513,7 @@ export default async function CategoryDetailPage({
                         </p>
 
                         <Link
-                          className="inline-block border-2 border-white text-white px-6 sm:px-8 py-3 text-xs sm:text-sm font-black uppercase hover:bg-white hover:text-black transition-colors"
+                          className="inline-block border-2 border-white text-white px-6 sm:px-8 py-3 text-xs sm:text-sm font-black uppercase md:hover:bg-white md:hover:text-black transition-colors"
                           href={`/blog/${rest[4].slug}`}
                         >
                           Full Breakdown
@@ -543,9 +543,9 @@ export default async function CategoryDetailPage({
               {/* LIST ROW of SMALL BOOKMARK CARDS */}
               {rest.slice(5, 8).map((p) => (
                 <article key={p._id} className="lg:col-span-4 group">
-                  <div className="bg-white/5 border border-white/15 hover:border-white transition-all p-4 relative overflow-hidden">
+                  <div className="bg-white/5 border border-white/15 md:hover:border-white transition-all p-4 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-2">
-                      <Bookmark className="h-5 w-5 text-white/25 group-hover:text-white transition-colors" />
+                      <Bookmark className="h-5 w-5 text-white/25 md:group-hover:text-white transition-colors" />
                     </div>
                     <div className="flex gap-4">
                       <div className="w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0 relative border border-white/15 bg-black overflow-hidden">
@@ -563,7 +563,7 @@ export default async function CategoryDetailPage({
                         <span className="text-[10px] font-black text-anime-red uppercase mb-1 block">
                           {category.title}
                         </span>
-                        <h4 className="font-black text-white uppercase leading-tight mb-2 group-hover:underline underline-offset-4 break-words">
+                        <h4 className="font-black text-white uppercase leading-tight mb-2 md:group-hover:underline underline-offset-4 break-words">
                           {p.title}
                         </h4>
                         <span className="text-xs text-white/40">
@@ -574,7 +574,7 @@ export default async function CategoryDetailPage({
                     <div className="mt-3">
                       <Link
                         href={`/blog/${p.slug}`}
-                        className="text-anime-cyan text-xs font-black uppercase tracking-widest hover:underline underline-offset-4"
+                        className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4"
                       >
                         Read Now
                       </Link>
@@ -586,7 +586,7 @@ export default async function CategoryDetailPage({
               {/* WIDE ESSAY */}
               {rest[8] && (
                 <article className="lg:col-span-8 group relative mt-2">
-                  <div className="flex flex-col md:flex-row h-full bg-black border-2 border-white/15 hover:shadow-hard-green transition-all overflow-hidden">
+                  <div className="flex flex-col md:flex-row h-full bg-black border-2 border-white/15 md:hover:shadow-hard-green transition-all overflow-hidden">
                     <div className="md:w-1/2 relative min-h-[220px] sm:min-h-[280px] md:min-h-[300px]">
                       {rest[8].mainImage?.asset?.url ? (
                         <Image
@@ -596,7 +596,7 @@ export default async function CategoryDetailPage({
                           alt={rest[8].mainImage.alt || rest[8].title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 760px"
-                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                          className="object-cover grayscale md:group-hover:grayscale-0 transition-all duration-500"
                         />
                       ) : (
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.15),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.2),transparent_55%)]" />
@@ -607,7 +607,7 @@ export default async function CategoryDetailPage({
                     <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center relative">
                       <div className="absolute -left-3 top-8 size-6 bg-anime-lime rotate-45 border-2 border-black z-10 hidden md:block" />
 
-                      <h3 className="text-2xl sm:text-3xl font-black uppercase text-white mb-4 group-hover:text-anime-lime transition-colors break-words">
+                      <h3 className="text-2xl sm:text-3xl font-black uppercase text-white mb-4 md:group-hover:text-anime-lime transition-colors break-words">
                         {rest[8].title}
                       </h3>
 
@@ -619,7 +619,7 @@ export default async function CategoryDetailPage({
                       <div className="flex items-center gap-3">
                         <div className="h-px bg-white/15 flex-grow" />
                         <Link
-                          className="text-xs font-black uppercase text-white border border-white px-3 py-2 hover:bg-white hover:text-black transition-colors"
+                          className="text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors"
                           href={`/blog/${rest[8].slug}`}
                         >
                           Read Essay
@@ -639,7 +639,7 @@ export default async function CategoryDetailPage({
                 <div className="mt-4">
                   <Link
                     href="/blogs"
-                    className="inline-flex items-center gap-2 text-xs font-black uppercase text-anime-lime hover:underline underline-offset-4"
+                    className="inline-flex items-center gap-2 text-xs font-black uppercase text-anime-lime md:hover:underline underline-offset-4"
                   >
                     Browse all blogs <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -651,12 +651,12 @@ export default async function CategoryDetailPage({
           {/* LOAD MORE (UI only) */}
           {posts.length > 10 ? (
             <div className="mt-12 sm:mt-20 flex justify-center px-4">
-              <button className="relative group overflow-hidden w-full sm:w-auto px-7 sm:px-12 py-4 sm:py-6 bg-transparent border-2 border-white/15 hover:border-anime-red transition-colors">
-                <span className="absolute top-0 left-0 w-full h-full bg-anime-red -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-in-out z-0" />
-                <span className="relative z-10 text-base sm:text-xl font-black uppercase tracking-[0.22em] sm:tracking-[0.3em] text-white group-hover:text-black">
+              <button className="relative group overflow-hidden w-full sm:w-auto px-7 sm:px-12 py-4 sm:py-6 bg-transparent border-2 border-white/15 md:hover:border-anime-red transition-colors">
+                <span className="absolute top-0 left-0 w-full h-full bg-anime-red -translate-x-full md:group-hover:translate-x-0 transition-transform duration-300 ease-in-out z-0" />
+                <span className="relative z-10 text-base sm:text-xl font-black uppercase tracking-[0.22em] sm:tracking-[0.3em] text-white md:group-hover:text-black">
                   Load More Data
                 </span>
-                <span className="absolute -bottom-2 -right-2 text-6xl text-white/10 group-hover:text-black/20 font-black z-0 transition-colors">
+                <span className="absolute -bottom-2 -right-2 text-6xl text-white/10 md:group-hover:text-black/20 font-black z-0 transition-colors">
                   <Plus className="h-10 w-10" />
                 </span>
               </button>

@@ -66,7 +66,7 @@ export function SearchPageForm({ initialQuery }: Props) {
       />
       <button
         type="submit"
-        className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/80 hover:text-white hover:border-white/30 transition-colors"
+        className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/80 md:hover:text-white md:hover:border-white/30 transition-colors"
       >
         Search
       </button>

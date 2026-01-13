@@ -210,7 +210,7 @@ export default async function BlogDetailPage({
           <div className="flex items-center gap-2 text-sm">
             <Link
               href="/"
-              className="font-semibold text-gray-600 hover:text-red-600 transition-colors"
+              className="font-semibold text-gray-600 md:hover:text-red-600 transition-colors"
             >
               Home
             </Link>
@@ -219,7 +219,7 @@ export default async function BlogDetailPage({
               <>
                 <Link
                   href={`/categories/${post.categories[0].slug}`}
-                  className="font-semibold text-gray-600 hover:text-red-600 transition-colors text-nowrap"
+                  className="font-semibold text-gray-600 md:hover:text-red-600 transition-colors text-nowrap"
                 >
                   {post.categories[0].title}
                 </Link>
@@ -292,7 +292,7 @@ export default async function BlogDetailPage({
                 </span>
                 <button
                   type="button"
-                  className="rounded-sm bg-gray-100 p-2 hover:bg-gray-200 transition-colors"
+                  className="rounded-sm bg-gray-100 p-2 md:hover:bg-gray-200 transition-colors"
                   aria-label="Share on Facebook"
                 >
                   <svg
@@ -305,7 +305,7 @@ export default async function BlogDetailPage({
                 </button>
                 <button
                   type="button"
-                  className="rounded-sm bg-gray-100 p-2 hover:bg-gray-200 transition-colors"
+                  className="rounded-sm bg-gray-100 p-2 md:hover:bg-gray-200 transition-colors"
                   aria-label="Share on Twitter/X"
                 >
                   <svg
@@ -320,7 +320,7 @@ export default async function BlogDetailPage({
             </div>
 
             {/* Article Body */}
-            <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors hover:prose-a:text-red-700 hover:prose-a:decoration-red-500 hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
+            <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 md:hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
                 value={bodyWithAds}
                 components={{
@@ -425,7 +425,7 @@ export default async function BlogDetailPage({
                     <Link
                       key={t}
                       href={`/tags/${encodeURIComponent(t)}`}
-                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-red-600 hover:text-red-600 transition-colors"
+                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 md:hover:bg-gray-50 md:hover:border-red-600 md:hover:text-red-600 transition-colors"
                     >
                       #{t}
                     </Link>
@@ -503,12 +503,12 @@ export default async function BlogDetailPage({
                                 alt={p.mainImage.alt || p.title}
                                 fill
                                 sizes="(max-width: 768px) 40vw, 160px"
-                                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                className="object-cover transition-transform duration-300 md:group-hover:scale-110"
                               />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 group-hover:text-red-600 transition-colors">
+                            <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 md:group-hover:text-red-600 transition-colors">
                               {p.title}
                             </h4>
                             {p.publishedAt && (
@@ -542,7 +542,7 @@ export default async function BlogDetailPage({
                   />
                   <button
                     type="submit"
-                    className="w-full rounded-sm bg-red-600 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:bg-red-700 transition-colors"
+                    className="w-full rounded-sm bg-red-600 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white md:hover:bg-red-700 transition-colors"
                   >
                     Subscribe
                   </button>

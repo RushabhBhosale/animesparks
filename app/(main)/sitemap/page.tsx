@@ -83,12 +83,12 @@ export default async function SitemapPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="group flex items-center justify-between border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-all hover:border-[#ccff00] hover:text-[#ccff00]"
+                className="group flex items-center justify-between border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-all md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
               >
                 <span>{link.label}</span>
                 <span
                   aria-hidden
-                  className="text-gray-500 transition-transform group-hover:translate-x-1 group-hover:text-[#ccff00]"
+                  className="text-gray-500 transition-transform md:group-hover:translate-x-1 md:group-hover:text-[#ccff00]"
                 >
                   →
                 </span>
@@ -112,7 +112,7 @@ export default async function SitemapPage() {
                 <Link
                   key={category._id}
                   href={`/categories/${category.slug}`}
-                  className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-all hover:border-[#ccff00] hover:text-[#ccff00]"
+                  className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-all md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
                 >
                   {category.title}
                 </Link>
@@ -136,7 +136,7 @@ export default async function SitemapPage() {
                 <Link
                   key={post._id}
                   href={`/blog/${post.slug}`}
-                  className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-colors hover:border-[#ccff00] hover:text-[#ccff00]"
+                  className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-colors md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
                 >
                   <span className="block">{post.title}</span>
                   {post.publishedAt ? (

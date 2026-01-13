@@ -19,29 +19,29 @@ type TrendingPost = {
 };
 
 const collageHoverBorders = [
-  "hover:border-[#00f3ff]",
-  "hover:border-[#ccff00]",
-  "hover:border-[#f20d0d]",
-  "hover:border-[#00f3ff]",
-  "hover:border-[#f20d0d]",
-  "hover:border-[#00f3ff]",
-  "hover:border-[#ccff00]",
-  "hover:border-[#f20d0d]",
-  "hover:border-[#00f3ff]",
-  "hover:border-[#ccff00]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
 ];
 
 const collageHoverTitles = [
-  "group-hover:text-[#00f3ff]",
-  "group-hover:text-[#ccff00]",
-  "group-hover:text-[#f20d0d]",
-  "group-hover:text-[#00f3ff]",
-  "group-hover:text-[#f20d0d]",
-  "group-hover:text-[#00f3ff]",
-  "group-hover:text-[#ccff00]",
-  "group-hover:text-[#f20d0d]",
-  "group-hover:text-[#00f3ff]",
-  "group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
 ];
 
 const collageTransforms = [
@@ -80,9 +80,9 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
           {visiblePosts.map((post, idx) => {
             const transformClass = collageTransforms[idx] ?? "";
             const borderHover =
-              collageHoverBorders[idx] ?? "hover:border-[#f20d0d]";
+              collageHoverBorders[idx] ?? "md:hover:border-[#f20d0d]";
             const titleHover =
-              collageHoverTitles[idx] ?? "group-hover:text-[#f20d0d]";
+              collageHoverTitles[idx] ?? "md:group-hover:text-[#f20d0d]";
 
             return (
               <article
@@ -96,7 +96,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                   aria-label={`Read ${post.title}`}
                 >
                   <div
-                    className={`bg-[#121212] border-2 border-[#2a2a2a] p-1 transform transition-all duration-300 hover:-translate-y-2 hover:z-50 shadow-lg ${borderHover}`}
+                    className={`bg-[#121212] border-2 border-[#2a2a2a] p-1 transform transition-all duration-300 md:hover:-translate-y-2 md:hover:z-50 shadow-lg ${borderHover}`}
                   >
                     <div className="relative h-52 overflow-hidden bg-black">
                       {post.mainImage?.asset?.url && (
@@ -107,7 +107,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                           alt={post.mainImage.alt || post.title}
                           fill
                           sizes="(max-width: 768px) 90vw, 420px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                          className="object-cover transition-transform duration-500 md:group-hover:scale-110 opacity-80 md:group-hover:opacity-100"
                         />
                       )}
                       {post.categories?.[0]?.title && (
@@ -124,7 +124,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                       </h3>
                       <div className="flex items-center justify-between text-[11px] uppercase text-gray-500 tracking-[0.16em]">
                         <span>{timeAgo(post.publishedAt)}</span>
-                        <span className="inline-flex items-center gap-1 text-white group-hover:text-[#ccff00] transition-colors">
+                        <span className="inline-flex items-center gap-1 text-white md:group-hover:text-[#ccff00] transition-colors">
                           Read
                           <ArrowUpRight className="h-4 w-4" />
                         </span>

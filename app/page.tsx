@@ -67,9 +67,9 @@ const editorShadows = [
 ];
 
 const editorTextHover = [
-  "group-hover:text-[#f20d0d]",
-  "group-hover:text-[#00f3ff]",
-  "group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
 ];
 
 export default async function Home() {
@@ -157,7 +157,7 @@ export default async function Home() {
                     <Link
                       prefetch={false}
                       href={`/blog/${featured.slug}`}
-                      className="w-full sm:w-auto bg-white text-black font-black uppercase tracking-wider px-5 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm hover:bg-[#ccff00] transition-all shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                      className="w-full sm:w-auto bg-white text-black font-black uppercase tracking-wider px-5 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm md:hover:bg-[#ccff00] transition-all shadow-hard md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1"
                       aria-label={`Read article: ${featured.title ?? "Featured story"}`}
                     >
                       Read Article
@@ -210,15 +210,17 @@ export default async function Home() {
                 >
                   <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10">
                     {/* keep a solid aspect on mobile, not too tall */}
-                    <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-[#0c0c0c] grayscale lg:group-hover:grayscale-0 transition-all duration-500">
-                      <Image
-                        src={sanityHeroImageUrl(featured.mainImage)}
-                        alt={featured.mainImage.alt || featured.title}
-                        fill
-                        priority
-                        sizes="(max-width: 768px) 100vw, 620px"
-                        className="object-cover"
-                      />
+                    <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-[#0c0c0c] md:grayscale lg:group-hover:grayscale-0 transition-all duration-500">
+                      <Link prefetch={false} href={`/blog/${featured.slug}`}>
+                        <Image
+                          src={sanityHeroImageUrl(featured.mainImage)}
+                          alt={featured.mainImage.alt || featured.title}
+                          fill
+                          priority
+                          sizes="(max-width: 768px) 100vw, 620px"
+                          className="object-cover"
+                        />
+                      </Link>
                     </div>
 
                     {/* badge: smaller + inside safe area on mobile */}
@@ -288,17 +290,17 @@ export default async function Home() {
                       <article
                         key={post._id}
                         className={clsx(
-                          "group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] transition-colors hover:border-[#f20d0d] min-w-0",
+                          "group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] transition-colors md:hover:border-[#f20d0d] min-w-0",
                           alignReverse ? "md:text-right" : ""
                         )}
                       >
-                        <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#f20d0d] group-hover:bg-[#f20d0d] transition-colors rounded-full" />
+                        <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] md:group-hover:border-[#f20d0d] md:group-hover:bg-[#f20d0d] transition-colors rounded-full" />
 
                         {/* stack on mobile, 2-col from md */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                           <div
                             className={clsx(
-                              "relative overflow-hidden border border-[#2a2a2a] group-hover:border-[#f20d0d]/60 transition-colors",
+                              "relative overflow-hidden border border-[#2a2a2a] md:group-hover:border-[#f20d0d]/60 transition-colors",
                               alignReverse ? "md:order-2" : ""
                             )}
                           >
@@ -311,7 +313,7 @@ export default async function Home() {
                                   alt={post.mainImage.alt || post.title}
                                   fill
                                   sizes="(max-width: 768px) 100vw, 560px"
-                                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                  className="object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-500"
                                 />
                               </div>
                             ) : (
@@ -349,7 +351,7 @@ export default async function Home() {
                               </span>
                             </div>
 
-                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase leading-tight sm:leading-none mb-3 transition-colors group-hover:text-white">
+                            <h4 className="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase leading-tight sm:leading-none mb-3 transition-colors md:group-hover:text-white">
                               {post.title}
                             </h4>
 
@@ -362,7 +364,7 @@ export default async function Home() {
                             <Link
                               prefetch={false}
                               href={`/blog/${post.slug}`}
-                              className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest hover:gap-4 transition-all"
+                              className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest md:hover:gap-4 transition-all"
                               aria-label={`Read more about ${post.title ?? "this article"}`}
                             >
                               Read More <ArrowUpRight className="h-4 w-4" />
@@ -381,8 +383,8 @@ export default async function Home() {
                           href={`/blog/${post.slug}`}
                           key={post._id}
                         >
-                          <article className="group relative pl-6 border-l-2 border-[#1f1f1f] hover:border-[#00f3ff] transition-colors">
-                            <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] group-hover:border-[#00f3ff] group-hover:bg-[#00f3ff] transition-colors rounded-full" />
+                          <article className="group relative pl-6 border-l-2 border-[#1f1f1f] md:hover:border-[#00f3ff] transition-colors">
+                            <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] md:group-hover:border-[#00f3ff] md:group-hover:bg-[#00f3ff] transition-colors rounded-full" />
                             <div className="flex gap-4">
                               {post.mainImage?.asset?.url && (
                                 <div className="relative h-20 w-28 sm:h-24 sm:w-32 overflow-hidden border border-[#2a2a2a] shrink-0">
@@ -393,12 +395,12 @@ export default async function Home() {
                                     alt={post.mainImage.alt || post.title}
                                     fill
                                     sizes="160px"
-                                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                                    className="object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-500"
                                   />
                                 </div>
                               )}
                               <div className="flex flex-col justify-center min-w-0">
-                                <h5 className="text-base sm:text-lg font-black uppercase leading-tight group-hover:text-[#00f3ff] transition-colors line-clamp-2">
+                                <h5 className="text-base sm:text-lg font-black uppercase leading-tight md:group-hover:text-[#00f3ff] transition-colors line-clamp-2">
                                   {post.title}
                                 </h5>
                                 <span className="text-xs text-gray-500 font-mono mt-1">
@@ -415,10 +417,10 @@ export default async function Home() {
 
                   <Link
                     href="/blogs"
-                    className="block text-center w-full bg-transparent border-2 border-[#2a2a2a] text-white font-black uppercase py-4 hover:bg-white hover:text-black transition-colors tracking-widest text-base sm:text-lg group"
+                    className="block text-center w-full bg-transparent border-2 border-[#2a2a2a] text-white font-black uppercase py-4 md:hover:bg-white md:hover:text-black transition-colors tracking-widest text-base sm:text-lg group"
                   >
                     Load More Chaos{" "}
-                    <span className="inline-block transition-transform group-hover:rotate-180 ml-2">
+                    <span className="inline-block transition-transform md:group-hover:rotate-180 ml-2">
                       +
                     </span>
                   </Link>
@@ -439,7 +441,7 @@ export default async function Home() {
                         <p className="text-gray-400 text-xs mb-4 z-10">
                           Limited Edition Drops
                         </p>
-                        <button className="bg-white text-black text-xs font-bold uppercase px-4 py-2 z-10 group-hover:bg-[#f20d0d] group-hover:text-white transition-colors">
+                        <button className="bg-white text-black text-xs font-bold uppercase px-4 py-2 z-10 md:group-hover:bg-[#f20d0d] md:group-hover:text-white transition-colors">
                           Shop Now
                         </button>
                       </div>
@@ -462,10 +464,10 @@ export default async function Home() {
                               href={`/blog/${post.slug}`}
                               className="flex gap-4 items-start group"
                             >
-                              <span className="text-3xl sm:text-4xl font-black text-[#2c2c2c] group-hover:text-[#f20d0d] transition-colors italic shrink-0 leading-none">
+                              <span className="text-3xl sm:text-4xl font-black text-[#2c2c2c] md:group-hover:text-[#f20d0d] transition-colors italic shrink-0 leading-none">
                                 {idx + 1}
                               </span>
-                              <p className="text-sm font-bold text-white leading-tight group-hover:translate-x-1 transition-transform line-clamp-2">
+                              <p className="text-sm font-bold text-white leading-tight md:group-hover:translate-x-1 transition-transform line-clamp-2">
                                 {post.title}
                               </p>
                             </Link>
@@ -490,7 +492,7 @@ export default async function Home() {
                         className="w-full bg-[#0e0e0e] border-none text-white text-center font-bold text-sm py-3 mb-2 focus:ring-2 focus:ring-[#f20d0d] uppercase placeholder-gray-600"
                         placeholder="YOUR EMAIL"
                       />
-                      <button className="w-full bg-[#f20d0d] text-white font-black uppercase py-3 hover:bg-red-700 transition-colors">
+                      <button className="w-full bg-[#f20d0d] text-white font-black uppercase py-3 md:hover:bg-red-700 transition-colors">
                         Subscribe
                       </button>
                     </div>
@@ -519,7 +521,7 @@ export default async function Home() {
                         editorShadows[idx] ??
                         "shadow-[8px_8px_0px_0px_#f20d0d]";
                       const hoverText =
-                        editorTextHover[idx] ?? "group-hover:text-[#f20d0d]";
+                        editorTextHover[idx] ?? "md:group-hover:text-[#f20d0d]";
 
                       return (
                         <Link
@@ -531,7 +533,7 @@ export default async function Home() {
                           }`}
                         >
                           <div
-                            className={`overflow-hidden border-4 border-black ${shadowClass} hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all bg-black h-72 sm:h-80 relative`}
+                            className={`overflow-hidden border-4 border-black ${shadowClass} md:hover:shadow-none md:hover:translate-x-2 md:hover:translate-y-2 transition-all bg-black h-72 sm:h-80 relative`}
                           >
                             {post.mainImage?.asset?.url && (
                               <Image
@@ -541,7 +543,7 @@ export default async function Home() {
                                 alt={post.mainImage.alt || post.title}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 420px"
-                                className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="absolute inset-0 object-cover transition-transform duration-700 md:group-hover:scale-110"
                               />
                             )}
                             <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-90" />

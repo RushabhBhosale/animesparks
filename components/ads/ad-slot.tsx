@@ -46,7 +46,7 @@ export function AdSlot({ variant, className }: AdSlotProps) {
         <div className="flex items-center justify-between pt-2">
           <Link
             href="/advertise"
-            className="inline-flex items-center rounded-sm border border-gray-300 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-800"
+            className="inline-flex items-center rounded-sm border border-gray-300 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600 transition-colors md:hover:border-gray-400 md:hover:text-gray-800"
           >
             Advertise
           </Link>

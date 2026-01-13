@@ -58,13 +58,13 @@ export default function AdvertisePage() {
             <div className="mt-4 space-y-2 text-sm font-semibold text-gray-200">
               <a
                 href="tel:+919137996317"
-                className="block transition-colors hover:text-[#ccff00]"
+                className="block transition-colors md:hover:text-[#ccff00]"
               >
                 +91 9137996317
               </a>
               <a
                 href="mailto:rushabhbhosale25757@gmail.com"
-                className="block transition-colors hover:text-[#ccff00]"
+                className="block transition-colors md:hover:text-[#ccff00]"
               >
                 rushabhbhosale25757@gmail.com
               </a>

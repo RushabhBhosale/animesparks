@@ -64,14 +64,14 @@ export default function AboutPage() {
               <div className="mt-8 md:mt-10 flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
                 <Link
                   href="#writer"
-                  className="w-full sm:w-auto bg-white text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm hover:bg-anime-lime transition-colors shadow-hard hover:shadow-none hover:translate-x-1 hover:translate-y-1 text-center"
+                  className="w-full sm:w-auto bg-white text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm md:hover:bg-anime-lime transition-colors shadow-hard md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1 text-center"
                 >
                   Meet The Writer
                 </Link>
 
                 <Link
                   href="/blogs"
-                  className="w-full sm:w-auto bg-transparent border-2 border-white text-white font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm hover:bg-white hover:text-black transition-colors text-center"
+                  className="w-full sm:w-auto bg-transparent border-2 border-white text-white font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm md:hover:bg-white md:hover:text-black transition-colors text-center"
                 >
                   Read the Blog <ArrowRight className="inline h-4 w-4 ml-2" />
                 </Link>
@@ -83,10 +83,10 @@ export default function AboutPage() {
               <div className="absolute top-10 right-10 w-64 h-64 border-4 border-dashed border-white/20 rounded-full animate-[spin_20s_linear_infinite]" />
               <div className="absolute bottom-20 left-0 w-32 h-32 bg-anime-red/20 backdrop-blur-sm z-10" />
 
-              <div className="absolute inset-0 z-10 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+              <div className="absolute inset-0 z-10 transform rotate-3 lg:hover:rotate-0 transition-transform duration-500">
                 <div className="w-full h-full bg-black border-4 border-white overflow-hidden relative shadow-hard-green">
                   <div
-                    className="absolute inset-0 bg-cover bg-center grayscale hover:grayscale-0 transition-all duration-500"
+                    className="absolute inset-0 bg-cover bg-center grayscale lg:hover:grayscale-0 transition-all duration-500"
                     style={{ backgroundImage: `url(/me.jpeg)` }}
                   />
                   <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent h-1/2" />
@@ -168,14 +168,14 @@ export default function AboutPage() {
             <div className="mt-8 md:mt-10 flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
               <Link
                 href="/blogs"
-                className="w-full sm:w-auto bg-anime-red text-white hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm hover:bg-anime-lime transition-all shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-1 hover:translate-y-1 text-center"
+                className="w-full sm:w-auto bg-anime-red text-white md:hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm md:hover:bg-anime-lime transition-all shadow-[8px_8px_0px_0px_#fff] md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1 text-center"
               >
                 Read Articles
               </Link>
 
               <Link
                 href="/categories"
-                className="w-full sm:w-auto bg-black text-white font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm border-2 border-white/20 hover:border-anime-cyan hover:text-anime-cyan transition-colors text-center"
+                className="w-full sm:w-auto bg-black text-white font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm border-2 border-white/20 md:hover:border-anime-cyan md:hover:text-anime-cyan transition-colors text-center"
               >
                 Browse Categories
               </Link>
@@ -186,7 +186,7 @@ export default function AboutPage() {
           <div className="relative flex items-center justify-center">
             <div className="relative w-full max-w-[520px] aspect-square border-2 border-white/20 p-2 transform rotate-1 md:rotate-2">
               <div className="w-full h-full bg-anime-panel relative overflow-hidden group">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiLz4KPC9zdmc+')] bg-cover opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiLz4KPC9zdmc+')] bg-cover opacity-30 md:group-hover:opacity-50 transition-opacity duration-500" />
                 <div className="absolute inset-0 flex items-center justify-center px-4">
                   <h3 className="text-5xl sm:text-7xl md:text-9xl font-black text-white mix-blend-overlay uppercase text-center leading-none">
                     Solo
@@ -215,8 +215,8 @@ export default function AboutPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard hover:-translate-y-1 md:hover:-translate-y-2 transition-transform duration-300 group">
-                <div className="size-14 md:size-16 bg-anime-red text-white flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl group-hover:rotate-12 transition-transform">
+              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard md:hover:-translate-y-2 transition-transform duration-300 group">
+                <div className="size-14 md:size-16 bg-anime-red text-white flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl md:group-hover:rotate-12 transition-transform">
                   <Eye className="h-6 w-6 md:h-7 md:w-7" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black uppercase mb-3 md:mb-4">
@@ -228,8 +228,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard-blue hover:-translate-y-1 md:hover:-translate-y-2 transition-transform duration-300 group md:mt-12">
-                <div className="size-14 md:size-16 bg-anime-cyan text-black flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl group-hover:-rotate-12 transition-transform">
+              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard-blue md:hover:-translate-y-2 transition-transform duration-300 group md:mt-12">
+                <div className="size-14 md:size-16 bg-anime-cyan text-black flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl md:group-hover:-rotate-12 transition-transform">
                   <Brain className="h-6 w-6 md:h-7 md:w-7" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black uppercase mb-3 md:mb-4">
@@ -241,8 +241,8 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard-green hover:-translate-y-1 md:hover:-translate-y-2 transition-transform duration-300 group">
-                <div className="size-14 md:size-16 bg-anime-lime text-black flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl group-hover:rotate-180 transition-transform duration-700">
+              <div className="border-4 border-black p-6 md:p-8 bg-white shadow-hard-green md:hover:-translate-y-2 transition-transform duration-300 group">
+                <div className="size-14 md:size-16 bg-anime-lime text-black flex items-center justify-center border-2 border-black mb-5 md:mb-6 text-3xl md:group-hover:rotate-180 transition-transform duration-700">
                   <Skull className="h-6 w-6 md:h-7 md:w-7" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black uppercase mb-3 md:mb-4">
@@ -274,11 +274,11 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
             <div className="group relative lg:col-span-8">
               <div className="absolute inset-0 bg-anime-red transform translate-x-2 translate-y-2 md:translate-x-3 md:translate-y-3 border-2 border-white/20" />
-              <div className="relative bg-anime-panel border-2 border-white/15 p-2 overflow-hidden hover:-translate-y-1 md:hover:-translate-y-2 transition-transform duration-300">
+              <div className="relative bg-anime-panel border-2 border-white/15 p-2 overflow-hidden md:hover:-translate-y-2 transition-transform duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   <div className="md:col-span-6 h-[320px] sm:h-[380px] md:h-[520px] bg-black relative overflow-hidden border border-white/10">
                     <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 md:group-hover:scale-105 grayscale md:group-hover:grayscale-0"
                       style={{ backgroundImage: `url(/me.jpeg)` }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -342,7 +342,7 @@ export default function AboutPage() {
                     <div className="mt-6 md:mt-8 flex flex-wrap gap-4">
                       <Link
                         href="/blogs"
-                        className="w-full sm:w-auto bg-anime-red text-white hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm hover:bg-anime-lime transition-all shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-1 hover:translate-y-1 text-center"
+                        className="w-full sm:w-auto bg-anime-red text-white md:hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm md:hover:bg-anime-lime transition-all shadow-[8px_8px_0px_0px_#fff] md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1 text-center"
                       >
                         Read My Latest
                       </Link>
@@ -412,10 +412,10 @@ export default function AboutPage() {
                   />
                   <button
                     type="submit"
-                    className="w-full bg-anime-red text-white hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm hover:bg-[#ccff00]
+                    className="w-full bg-anime-red text-white md:hover:text-black font-black uppercase tracking-wider px-6 md:px-8 py-3.5 md:py-4 text-xs md:text-sm md:hover:bg-[#ccff00]
                     transition-all duration-200 ease-out
                     shadow-[8px_8px_0px_0px_#fff]
-                    hover:shadow-none hover:translate-x-1 hover:translate-y-1
+                    md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1
                     active:translate-x-2 active:translate-y-2 active:shadow-none"
                   >
                     Subscribe Now
@@ -445,13 +445,13 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <Link
                   href="/contact"
-                  className="w-full sm:w-auto bg-white text-black font-black uppercase px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-lg hover:bg-anime-lime transition-colors shadow-hard-green hover:shadow-none hover:translate-x-1 hover:translate-y-1 text-center"
+                  className="w-full sm:w-auto bg-white text-black font-black uppercase px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-lg md:hover:bg-anime-lime transition-colors shadow-hard-green md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1 text-center"
                 >
                   Message Me
                 </Link>
                 <Link
                   href="/blogs"
-                  className="w-full sm:w-auto bg-transparent border-2 border-white text-white font-black uppercase px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-lg hover:bg-white hover:text-black transition-colors text-center"
+                  className="w-full sm:w-auto bg-transparent border-2 border-white text-white font-black uppercase px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-lg md:hover:bg-white md:hover:text-black transition-colors text-center"
                 >
                   Read Articles
                 </Link>

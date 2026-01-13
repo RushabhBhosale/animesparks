@@ -120,7 +120,7 @@ export default async function TagPage({
                         alt={post.mainImage.alt || post.title}
                         fill
                         sizes="(max-width: 768px) 90vw, 320px"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover transition-transform duration-300 md:group-hover:scale-105"
                       />
                     </div>
                   ) : null}
@@ -130,7 +130,7 @@ export default async function TagPage({
                         {decodedTag}
                       </span>
                     ) : null}
-                    <h3 className="text-xl font-black uppercase leading-tight text-white transition-colors group-hover:text-[#ccff00] sm:text-2xl">
+                    <h3 className="text-xl font-black uppercase leading-tight text-white transition-colors md:group-hover:text-[#ccff00] sm:text-2xl">
                       {post.title}
                     </h3>
                     <p className="text-xs font-mono uppercase text-gray-500">

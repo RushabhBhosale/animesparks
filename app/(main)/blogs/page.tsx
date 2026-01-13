@@ -212,7 +212,7 @@ export default async function AllBlogsPage({
                           alt={featured.mainImage.alt || featured.title}
                           fill
                           sizes="(max-width: 768px) 100vw, 960px"
-                          className="object-cover transition-transform duration-500 hover:scale-105"
+                          className="object-cover transition-transform duration-500 md:hover:scale-105"
                           priority
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
@@ -235,7 +235,7 @@ export default async function AllBlogsPage({
 
                   <div className="md:col-span-5 flex flex-col justify-center gap-4">
                     <Link href={`/blog/${featured.slug}`} className="group">
-                      <h2 className="text-3xl md:text-4xl font-black uppercase leading-tight tracking-tight text-white group-hover:text-anime-lime transition-colors">
+                      <h2 className="text-3xl md:text-4xl font-black uppercase leading-tight tracking-tight text-white md:group-hover:text-anime-lime transition-colors">
                         {featured.title}
                       </h2>
                     </Link>
@@ -252,7 +252,7 @@ export default async function AllBlogsPage({
                     <div className="flex flex-wrap gap-3">
                       <Link
                         href={`/blog/${featured.slug}`}
-                        className="bg-anime-red text-white hover:text-black font-black uppercase tracking-wider px-8 py-4 text-sm hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                        className="bg-anime-red text-white md:hover:text-black font-black uppercase tracking-wider px-8 py-4 text-sm md:hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_#fff] md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1"
                       >
                         Read Feature
                       </Link>
@@ -260,7 +260,7 @@ export default async function AllBlogsPage({
                       {featured.categories?.[0] && (
                         <Link
                           href={`/categories/${featured.categories[0].slug}`}
-                          className="inline-flex items-center gap-2 bg-black px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white border-2 border-white/15 hover:border-anime-lime hover:text-anime-lime transition-colors"
+                          className="inline-flex items-center gap-2 bg-black px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white border-2 border-white/15 md:hover:border-anime-lime md:hover:text-anime-lime transition-colors"
                         >
                           {featured.categories[0].title}
                         </Link>
@@ -282,7 +282,7 @@ export default async function AllBlogsPage({
                     "px-6 py-3 font-black uppercase tracking-[0.18em] text-sm border-2 transition-all",
                     activeSort === "all"
                       ? "bg-anime-lime text-black border-white shadow-hard"
-                      : "bg-black text-white border-white/20 hover:border-anime-lime hover:text-anime-lime"
+                      : "bg-black text-white border-white/20 md:hover:border-anime-lime md:hover:text-anime-lime"
                   )}
                 >
                   All Posts
@@ -296,7 +296,7 @@ export default async function AllBlogsPage({
                     "px-6 py-3 font-black uppercase tracking-[0.18em] text-sm border-2 transition-all",
                     activeSort === "recent"
                       ? "bg-anime-cyan text-black border-white shadow-hard-blue"
-                      : "bg-black text-white border-white/20 hover:border-anime-cyan hover:text-anime-cyan"
+                      : "bg-black text-white border-white/20 md:hover:border-anime-cyan md:hover:text-anime-cyan"
                   )}
                 >
                   Most Recent
@@ -310,7 +310,7 @@ export default async function AllBlogsPage({
                     "px-6 py-3 font-black uppercase tracking-[0.18em] text-sm border-2 transition-all",
                     activeSort === "popular"
                       ? "bg-anime-red text-white border-black shadow-hard-white"
-                      : "bg-black text-white border-white/20 hover:border-anime-red hover:text-anime-red"
+                      : "bg-black text-white border-white/20 md:hover:border-anime-red md:hover:text-anime-red"
                   )}
                 >
                   Popular
@@ -350,10 +350,10 @@ export default async function AllBlogsPage({
                         href={`/categories/${cat.slug}`}
                         className="group flex items-center justify-between border-b border-white/10 pb-3 last:border-0 last:pb-0"
                       >
-                        <span className="text-sm font-semibold text-gray-200 group-hover:text-anime-lime transition-colors">
+                        <span className="text-sm font-semibold text-gray-200 md:group-hover:text-anime-lime transition-colors">
                           {cat.title}
                         </span>
-                        <span className="text-xs text-white/50 group-hover:text-anime-lime transition-colors">
+                        <span className="text-xs text-white/50 md:group-hover:text-anime-lime transition-colors">
                           →
                         </span>
                       </Link>
@@ -381,7 +381,7 @@ export default async function AllBlogsPage({
                   />
                   <button
                     type="submit"
-                    className="bg-anime-red text-white hover:text-black font-black uppercase tracking-wider px-8 py-4 text-sm hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_#fff] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+                    className="bg-anime-red text-white md:hover:text-black font-black uppercase tracking-wider px-8 py-4 text-sm md:hover:bg-[#ccff00] transition-all shadow-[8px_8px_0px_0px_#fff] md:hover:shadow-none md:hover:translate-x-1 md:hover:translate-y-1"
                   >
                     Subscribe Now
                   </button>
@@ -404,7 +404,7 @@ export default async function AllBlogsPage({
                       <Link
                         key={tag}
                         href={`/tags/${encodeURIComponent(tag)}`}
-                        className="border-2 border-white/10 bg-black px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white/80 hover:border-anime-lime hover:text-anime-lime transition-colors"
+                        className="border-2 border-white/10 bg-black px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white/80 md:hover:border-anime-lime md:hover:text-anime-lime transition-colors"
                       >
                         #{tag}
                       </Link>
@@ -424,7 +424,7 @@ export default async function AllBlogsPage({
                       <a
                         key={label}
                         href="#"
-                        className="flex items-center justify-center border-2 border-white/10 bg-black px-3 py-2.5 text-sm font-black uppercase tracking-[0.14em] text-white/80 hover:border-anime-lime hover:text-anime-lime transition-colors"
+                        className="flex items-center justify-center border-2 border-white/10 bg-black px-3 py-2.5 text-sm font-black uppercase tracking-[0.14em] text-white/80 md:hover:border-anime-lime md:hover:text-anime-lime transition-colors"
                       >
                         {label}
                       </a>

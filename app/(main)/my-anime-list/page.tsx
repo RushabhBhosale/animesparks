@@ -79,7 +79,7 @@ export default async function MyAnimeListPage() {
             </span>
             <Link
               href="/studio"
-              className="rounded-full border border-[#1f1f1f] bg-[#0b0b0b] px-3 py-2 text-gray-200 transition-colors hover:border-[#ccff00] hover:text-[#ccff00]"
+              className="rounded-full border border-[#1f1f1f] bg-[#0b0b0b] px-3 py-2 text-gray-200 transition-colors md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
             >
               Add anime
             </Link>

@@ -64,16 +64,16 @@ export function TrendingContent({ posts }: TrendingContentProps) {
           {/* Filters: visible on mobile as horizontal scroll, stays on right on md+ */}
           <div className="hidden lg:block md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 md:w-[28%] z-20 pointer-events-auto">
             <div className="flex md:flex-wrap gap-3 md:gap-4 overflow-x-auto md:overflow-visible -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0">
-              <button className="shrink-0 bg-anime-lime text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-3 hover:rotate-0 hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
+              <button className="shrink-0 bg-anime-lime text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-3 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
                 🔥 This Week
               </button>
-              <button className="shrink-0 bg-anime-red text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-2 hover:rotate-0 hover:scale-[1.03] transition-all border-2 border-black shadow-hard-white cursor-pointer">
+              <button className="shrink-0 bg-anime-red text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-2 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-black shadow-hard-white cursor-pointer">
                 📈 Popular Now
               </button>
-              <button className="shrink-0 bg-anime-cyan text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-2 hover:rotate-0 hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
+              <button className="shrink-0 bg-anime-cyan text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-2 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
                 💬 Most Discussed
               </button>
-              <button className="shrink-0 bg-black text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-3 hover:rotate-0 hover:scale-[1.03] transition-all border-2 border-white shadow-hard-green cursor-pointer">
+              <button className="shrink-0 bg-black text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-3 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard-green cursor-pointer">
                 👁️ Visuals
               </button>
             </div>
@@ -100,7 +100,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                       alt={heroPost.mainImage.alt || heroPost.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 1400px"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 md:group-hover:scale-105"
                       priority
                     />
                   ) : (
@@ -120,7 +120,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                         </span>
                       </div>
 
-                      <h2 className="text-2xl sm:text-3xl md:text-6xl font-black uppercase leading-[0.95] md:leading-none text-white group-hover:text-anime-lime transition-colors mb-3 sm:mb-4">
+                      <h2 className="text-2xl sm:text-3xl md:text-6xl font-black uppercase leading-[0.95] md:leading-none text-white md:group-hover:text-anime-lime transition-colors mb-3 sm:mb-4">
                         {heroPost.title}
                       </h2>
 
@@ -169,7 +169,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                 <Link
                   href={`/blog/${post.slug}`}
                   className={clsx(
-                    "group block relative transform transition-all hover:rotate-0 hover:-translate-y-1 md:hover:-translate-y-2",
+                    "group block relative transform transition-all md:hover:rotate-0 md:hover:-translate-y-2",
                     rotation
                   )}
                 >
@@ -196,7 +196,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                           alt={post.mainImage.alt || post.title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 520px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover transition-transform duration-500 md:group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                         <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-sm text-white text-[10px] font-black uppercase px-2 py-1 border border-white/20">
@@ -207,7 +207,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                       <div className="h-48 sm:h-56 mb-4 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.18),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.18),transparent_55%)] border-2 border-white/10" />
                     )}
 
-                    <h3 className="text-lg sm:text-xl font-black uppercase text-white leading-tight mb-3 group-hover:text-anime-lime transition-colors line-clamp-3">
+                    <h3 className="text-lg sm:text-xl font-black uppercase text-white leading-tight mb-3 md:group-hover:text-anime-lime transition-colors line-clamp-3">
                       {post.title}
                     </h3>
 
@@ -239,7 +239,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
               <article key={post._id}>
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="group block relative transition-all hover:-translate-y-1 md:hover:-translate-y-2"
+                  className="group block relative transition-all md:hover:-translate-y-2"
                 >
                   <div className="relative bg-anime-panel border-2 border-white/20 p-4 sm:p-6 shadow-hard-white">
                     <div className="absolute -top-4 -left-4 bg-white text-black font-black text-base sm:text-lg px-3 py-2 border-2 border-black shadow-hard z-10">
@@ -253,7 +253,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                           alt={post.mainImage.alt || post.title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 650px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover transition-transform duration-500 md:group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                       </div>
@@ -269,7 +269,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                         </span>
                       </div>
 
-                      <h4 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight group-hover:text-anime-cyan transition-colors line-clamp-3">
+                      <h4 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight md:group-hover:text-anime-cyan transition-colors line-clamp-3">
                         {post.title}
                       </h4>
 
@@ -280,7 +280,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                       ) : null}
 
                       <div className="pt-1">
-                        <span className="text-xs font-black uppercase text-white/60 group-hover:text-anime-lime transition-colors">
+                        <span className="text-xs font-black uppercase text-white/60 md:group-hover:text-anime-lime transition-colors">
                           Continue Reading →
                         </span>
                       </div>
@@ -296,7 +296,7 @@ export function TrendingContent({ posts }: TrendingContentProps) {
               <button
                 type="button"
                 onClick={handleLoadMore}
-                className="w-full sm:w-auto bg-anime-lime text-black font-black uppercase tracking-wide px-6 sm:px-8 py-4 border-2 border-black shadow-hard hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(204,255,0,0.35)] transition-all"
+                className="w-full sm:w-auto bg-anime-lime text-black font-black uppercase tracking-wide px-6 sm:px-8 py-4 border-2 border-black shadow-hard md:hover:-translate-y-1 md:hover:shadow-[8px_8px_0px_0px_rgba(204,255,0,0.35)] transition-all"
               >
                 Load 10 More Files
               </button>
