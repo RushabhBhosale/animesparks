@@ -351,10 +351,10 @@ export default function Header() {
 
                 <div className="max-h-[420px] overflow-y-auto">
                   {dropdownItems.length > 0 ? (
-                    dropdownItems.map((item) => (
+                    dropdownItems.map((item, idx) => (
                       <Link
-                        key={item._id}
-                        href={`/${item.kind}/${item.slug}`}
+                        key={idx}
+                        href={`/blog/${item.slug}`}
                         onClick={() => closeDropdown()}
                         className="group block border-b border-white/5 px-4 py-3 transition-colors md:hover:bg-white/5 last:border-b-0"
                       >
