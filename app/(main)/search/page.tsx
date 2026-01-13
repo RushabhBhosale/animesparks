@@ -1,410 +1,239 @@
-// components/header.tsx
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import clsx from "clsx";
-import { Menu, Search, X, Zap } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type MouseEvent,
-} from "react";
+import { groq } from "next-sanity";
 
-type NavItem = { href: string; label: string };
-type SearchResult = {
+import { SearchPageForm } from "@/components/search-page-form";
+import { client } from "@/sanity/lib/client";
+import { formatDate } from "@/utils/date";
+import { runFuzzySearch, type SearchDoc } from "@/utils/search-index";
+import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
+
+export const dynamic = "force-dynamic";
+
+type SearchParamsInput = Promise<{ q?: string | string[] }>;
+
+type RawSearchDoc = {
   _id: string;
+  title: string;
+  metaDescription?: string;
+  slug: string;
+  typeLabel?: string;
+  publishedAt?: string;
+};
+
+type RankedResult = {
+  id: string;
   title: string;
   slug: string;
   typeLabel?: string;
-  kind: string;
   metaDescription?: string;
+  publishedAt?: string;
+  score: number;
 };
 
-const navLinks: NavItem[] = [
-  { href: "/blogs", label: "Blogs" },
-  { href: "/categories", label: "Categories" },
-  { href: "/trending", label: "Trending" },
-];
+const SEARCH_RESULT_LIMIT = 32;
+const FETCH_POOL_LIMIT = 180;
 
-const normalizeForHighlight = (s: string) => s.trim().toLowerCase();
+const searchQuery = groq`
+*[
+  _type == "post" &&
+  defined(slug.current) &&
+  publishedAt <= now()
+]
+| order(publishedAt desc)[0...$limit]{
+  _id,
+  title,
+  metaDescription,
+  publishedAt,
+  "slug": slug.current,
+  "typeLabel": coalesce(categories[0]->title, "Article")
+}
+`;
 
-function Highlight({ text, query }: { text: string; query: string }) {
-  const q = normalizeForHighlight(query);
-  if (!q) return <>{text}</>;
-  const t = text;
-  const idx = t.toLowerCase().indexOf(q);
-  if (idx < 0) return <>{text}</>;
-  const before = t.slice(0, idx);
-  const match = t.slice(idx, idx + q.length);
-  const after = t.slice(idx + q.length);
-  return (
-    <>
-      {before}
-      <mark className="bg-[#ccff00]/20 text-[#ccff00] font-medium">
-        {match}
-      </mark>
-      {after}
-    </>
+async function getResults(query: string): Promise<RankedResult[]> {
+  const q = query.trim();
+  if (q.length < 2) return [];
+
+  const fetched = await client.fetch<RawSearchDoc[]>(searchQuery, {
+    limit: FETCH_POOL_LIMIT,
+  });
+
+  const docs: SearchDoc[] = (fetched ?? []).map((doc) => ({
+    id: doc._id,
+    title: doc.title,
+    slug: doc.slug,
+    metaDescription: doc.metaDescription,
+    typeLabel: doc.typeLabel,
+  }));
+
+  const publishedAtById = new Map(
+    (fetched ?? []).map((doc) => [doc._id, doc.publishedAt])
   );
+
+  return runFuzzySearch(q, docs, SEARCH_RESULT_LIMIT).map((result) => ({
+    ...result,
+    publishedAt: publishedAtById.get(result.id),
+  }));
 }
 
-export default function Header() {
-  const currentPath = usePathname() || "/";
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: SearchParamsInput;
+}): Promise<Metadata> {
+  const params = (await searchParams) ?? {};
+  const rawQuery = Array.isArray(params.q) ? params.q[0] : params.q;
+  const query = rawQuery?.trim() ?? "";
 
-  const abortRef = useRef<AbortController | null>(null);
-  const blurTimeout = useRef<NodeJS.Timeout | null>(null);
+  const baseUrl = getBaseUrl();
+  const title = query
+    ? `Search results for "${query}"`
+    : "Search AnimeSparks archive";
+  const description = query
+    ? `Live results for "${query}" across AnimeSparks analyses, dossiers, and breakdowns.`
+    : "Search the AnimeSparks archive of analyses, lore breakdowns, and character studies.";
+  const canonical = `${baseUrl}/search${query ? `?q=${encodeURIComponent(query)}` : ""}`;
+  const ogImage = new URL(defaultOgImage, baseUrl).toString();
 
-  const isActive = (href: string) => {
-    if (href === "/") return currentPath === "/" || currentPath === "/home";
-    return (
-      currentPath === href ||
-      currentPath.startsWith(`${href}?`) ||
-      currentPath.startsWith(`${href}/`)
-    );
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName,
+      type: "website",
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   };
+}
 
-  const q = searchTerm.trim();
-  const dropdownItems = useMemo(() => (results || []).slice(0, 7), [results]);
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams?: SearchParamsInput;
+}) {
+  const params = (await searchParams) ?? {};
+  const rawQuery = Array.isArray(params.q) ? params.q[0] : params.q;
+  const query = rawQuery?.trim() ?? "";
+  const hasQuery = query.length >= 2;
 
-  const shouldShowDropdown = useMemo(() => {
-    return (
-      isFocused && q.length >= 2 && (isLoading || dropdownItems.length >= 0)
-    );
-  }, [isFocused, q.length, isLoading, dropdownItems.length]);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (q.length < 2) {
-      setResults([]);
-      if (abortRef.current) {
-        abortRef.current.abort();
-        abortRef.current = null;
-      }
-      return;
-    }
-
-    const handler = setTimeout(async () => {
-      if (abortRef.current) abortRef.current.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-      setIsLoading(true);
-
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
-          signal: controller.signal,
-        });
-        if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
-        setResults(Array.isArray(data.results) ? data.results : []);
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") setResults([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 250);
-
-    return () => clearTimeout(handler);
-  }, [q]);
-
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setIsMobileMenuOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isMobileMenuOpen]);
-
-  const closeDropdown = () => {
-    setIsFocused(false);
-    if (blurTimeout.current) {
-      clearTimeout(blurTimeout.current);
-      blurTimeout.current = null;
-    }
-  };
-
-  const handleBlur = () => {
-    blurTimeout.current = setTimeout(() => closeDropdown(), 120);
-  };
-
-  const goToSearch = (term: string) => {
-    const t = term.trim();
-    if (!t) return;
-    closeDropdown();
-    router.push(`/search?q=${encodeURIComponent(t)}`);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Escape") {
-      closeDropdown();
-      event.currentTarget.blur();
-      return;
-    }
-    if (event.key === "Enter") {
-      event.preventDefault();
-      goToSearch(searchTerm);
-    }
-  };
-
-  const stopBlur = (e: MouseEvent) => {
-    e.preventDefault();
-  };
+  const results = hasQuery ? await getResults(query) : [];
 
   return (
-    <header
-      className={clsx(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled
-          ? "bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/20"
-          : "bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm"
-      )}
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="group flex items-center gap-2 text-lg font-bold tracking-tight text-white no-underline transition-transform md:hover:scale-105"
-            aria-label="AnimeSparks Home"
-          >
-            <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
-              <Zap className="h-4 w-4" />
-            </div>
-            <span className="hidden sm:inline bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-              AnimeSparks
+    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <section className="mx-auto max-w-5xl px-4 pb-16 pt-14 md:pt-16">
+        <div className="mb-6 flex flex-col gap-3">
+          <span className="text-[11px] font-black uppercase tracking-[0.28em] text-white/50">
+            Search Brief
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-tight">
+            Scan the AnimeSparks archive
+          </h1>
+          <p className="text-sm text-white/60 max-w-3xl">
+            Built for on-the-go readers: search dossiers, lore breakdowns, and
+            character studies without opening the full navigation.
+          </p>
+        </div>
+
+        <SearchPageForm initialQuery={query} />
+
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+            <span className="rounded-full border border-white/15 bg-black/60 px-3 py-1 text-white">
+              {hasQuery ? "Live Results" : "Idle"}
             </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6" aria-label="Main">
-            {navLinks.map(({ href, label }) => {
-              const active = isActive(href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={clsx(
-                    "text-sm font-semibold no-underline transition-colors",
-                    active ? "text-white" : "text-white/70 md:hover:text-white"
-                  )}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <span className="relative">
-                    {label}
-                    {active && (
-                      <span className="absolute -bottom-2 left-0 h-[2px] w-full rounded-full bg-[#ccff00]" />
-                    )}
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Search (unchanged) */}
-          <div className="relative flex-1 max-w-md hidden md:block">
-            <div
-              className={clsx(
-                "relative flex items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200",
-                isFocused
-                  ? "border-[#ccff00]/50 bg-white/5 shadow-lg shadow-[#ccff00]/10"
-                  : "border-white/10 bg-white/[0.03] md:hover:border-white/20 md:hover:bg-white/5"
-              )}
-            >
-              <Search className="h-4 w-4 text-white/40 flex-shrink-0" />
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-                placeholder="Search anime or kdrama"
-                className="bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none w-full"
-                aria-label="Search articles"
-                autoComplete="off"
-                suppressHydrationWarning
-              />
-              {q.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setResults([]);
-                  }}
-                  className="rounded-full p-1 text-white/50 md:hover:text-white md:hover:bg-white/10 transition-colors flex-shrink-0"
-                  aria-label="Clear search"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-
-            {shouldShowDropdown && (
-              <div
-                onMouseDown={stopBlur}
-                className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a]/98 backdrop-blur-xl shadow-2xl shadow-black/40"
-              >
-                <div className="flex items-center justify-between border-b border-white/5 px-4 py-2.5 bg-white/[0.02]">
-                  {isLoading && (
-                    <span className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Searching...
-                    </span>
-                  )}
-                </div>
-
-                <div className="max-h-[420px] overflow-y-auto">
-                  {dropdownItems.length > 0 ? (
-                    dropdownItems.map((item) => (
-                      <Link
-                        key={item._id}
-                        href={`/${item.kind}/${item.slug}`}
-                        onClick={() => closeDropdown()}
-                        className="group block border-b border-white/5 px-4 py-3 transition-colors md:hover:bg-white/5 last:border-b-0"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-semibold text-white md:group-hover:text-[#ccff00] transition-colors line-clamp-1">
-                              <Highlight text={item.title} query={q} />
-                            </h4>
-                            {item.metaDescription && (
-                              <p className="mt-1 text-xs text-white/50 line-clamp-2">
-                                {item.metaDescription}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="px-4 py-8 text-center">
-                      <p className="text-sm text-white/50">
-                        No quick matches. Press{" "}
-                        <kbd className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-xs">
-                          Enter
-                        </kbd>{" "}
-                        to search.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {q.length >= 2 && (
-                  <button
-                    type="button"
-                    onClick={() => goToSearch(q)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#ccff00] md:hover:bg-[#ccff00]/5 transition-colors border-t border-white/10 bg-white/[0.02]"
-                  >
-                    <span>View all results for "{q}"</span>
-                    <span className="text-white/40">→</span>
-                  </button>
-                )}
-              </div>
-            )}
+            <span className="text-white/50">
+              {hasQuery
+                ? `${results.length} file${results.length === 1 ? "" : "s"} matched`
+                : "Type 2+ characters to run a scan"}
+            </span>
+            {hasQuery ? (
+              <span className="ml-auto text-[10px] font-mono uppercase text-[#ccff00]">
+                "{query}"
+              </span>
+            ) : null}
           </div>
 
-          {/* Mobile: search icon -> /search, menu */}
-          <div className="flex items-center gap-2 md:hidden">
-            <button
-              type="button"
-              onClick={() => router.push("/search")}
-              className="inline-flex items-center justify-center rounded-lg p-2.5 text-white transition-colors md:hover:bg-white/10 border border-white/10"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="inline-flex items-center rounded-lg p-2.5 text-white transition-colors md:hover:bg-white/10 border border-white/10"
-              aria-label="Open menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu (fixed z-index so it never goes under header/content) */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-[400] md:hidden"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
-          />
-          <div className="absolute right-0 top-0 z-[110] h-full w-full max-w-sm bg-gradient-to-b from-[#0a0a0a] to-black border-l border-white/10 shadow-2xl animate-in slide-in-from-right duration-300">
-            <div className="flex h-16 items-center justify-between border-b border-white/10 px-6 bg-white/[0.02]">
-              <div className="flex items-center gap-2">
-                <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
-                  <Zap className="h-4 w-4" />
-                </div>
-                <span className="text-base font-bold text-white">
-                  AnimeSparks
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="rounded-lg p-2 text-white/70 md:hover:text-white md:hover:bg-white/10 transition-colors"
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-2 p-6" aria-label="Mobile">
-              {navLinks.map(({ href, label }) => {
-                const active = isActive(href);
-                return (
+          {hasQuery ? (
+            results.length ? (
+              <div className="space-y-3">
+                {results.map((result, index) => (
                   <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={clsx(
-                      "group flex items-center justify-between rounded-xl px-5 py-4 text-sm font-semibold uppercase tracking-widest no-underline transition-all duration-200",
-                      active
-                        ? "text-[#ccff00] bg-[#ccff00]/10 border border-[#ccff00]/20 shadow-lg shadow-[#ccff00]/5"
-                        : "text-white/75 md:hover:bg-white/5 md:hover:text-white border border-transparent"
-                    )}
-                    aria-current={active ? "page" : undefined}
+                    key={result.id}
+                    prefetch={false}
+                    href={`/blog/${result.slug}`}
+                    className="group relative block overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 transition-all duration-200 md:hover:border-[#ccff00]/40 md:hover:-translate-y-1"
                   >
-                    {label}
-                    <span
-                      className={clsx(
-                        "transition-transform duration-200",
-                        active
-                          ? "text-[#ccff00]"
-                          : "text-white/40 md:group-hover:translate-x-1"
-                      )}
-                    >
-                      →
-                    </span>
+                    <div className="absolute -left-3 top-4 h-10 w-10 rotate-12 border border-white/10 bg-white/5" />
+
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#ccff00]/40 bg-[#ccff00]/10 text-[11px] font-black uppercase tracking-[0.2em] text-[#ccff00]">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                          <span className="rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-white">
+                            {result.typeLabel || "Article"}
+                          </span>
+                          {result.publishedAt ? (
+                            <span className="text-white/50">
+                              {formatDate(result.publishedAt)}
+                            </span>
+                          ) : null}
+                          <span className="text-white/40">
+                            Match strength {result.score}%
+                          </span>
+                        </div>
+
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-black leading-tight text-white md:group-hover:text-[#ccff00]">
+                          {result.title}
+                        </h2>
+
+                        {result.metaDescription ? (
+                          <p className="text-sm text-white/65 line-clamp-2">
+                            {result.metaDescription}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <span className="hidden sm:inline text-white/40 transition-transform duration-200 md:group-hover:translate-x-1">
+                        →
+                      </span>
+                    </div>
                   </Link>
-                );
-              })}
-            </nav>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
+                <p className="text-base font-semibold text-white">
+                  No matches for "{query}"
+                </p>
+                <p className="mt-2 text-sm text-white/60">
+                  Try broader terms or check spelling. Categories and tags also
+                  work.
+                </p>
+              </div>
+            )
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-black/60 p-6 text-sm text-white/70">
+              Start with an anime title, character, or theme. The scan runs
+              automatically after 2 characters.
+            </div>
+          )}
         </div>
-      )}
-    </header>
+      </section>
+    </main>
   );
 }
