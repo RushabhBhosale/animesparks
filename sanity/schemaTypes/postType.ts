@@ -91,6 +91,14 @@ export const postType = defineType({
         }),
       ],
     }),
+    defineField({
+      name: "viewCount",
+      title: "View Count",
+      type: "number",
+      readOnly: true,
+      hidden: true,
+      initialValue: 0,
+    }),
   ],
   preview: {
     select: {

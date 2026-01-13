@@ -15,43 +15,33 @@ type AdSlotProps = {
 
 export function AdSlot({ variant, className }: AdSlotProps) {
   const sizeClass = sizeClasses[variant];
+
   return (
     <aside
-      aria-label="Advertisement"
+      aria-label="Advertisement placeholder"
       className={["space-y-2", className].filter(Boolean).join(" ")}
     >
-      <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-        Advertisement
-      </p>
       <div
         className={[
-          "flex flex-col justify-between rounded-sm border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600",
+          "flex flex-col justify-between rounded-sm border border-solid border-gray-300 bg-gray-50 p-4 text-xs text-gray-600",
           sizeClass,
         ].join(" ")}
       >
         <div className="space-y-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-            Sponsored
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Ad Placeholder
           </p>
-          <p className="text-sm font-semibold text-gray-800">
-            Sponsor this spot.
+          <p className="text-sm font-medium text-gray-800">
+            This space is reserved for ads
           </p>
           <p className="text-xs text-gray-600">
-            Promote your brand on AnimeSparks.
-          </p>
-          <p className="text-xs font-semibold text-gray-700">
-            Advertise with us - just 99rs per month.
+            Advertisements will appear here in the future.
           </p>
         </div>
-        <div className="flex items-center justify-between pt-2">
-          <Link
-            href="/advertise"
-            className="inline-flex items-center rounded-sm border border-gray-300 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-600 transition-colors md:hover:border-gray-400 md:hover:text-gray-800"
-          >
-            Advertise
-          </Link>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-            Limited slots
+
+        <div className="flex items-center justify-end pt-2">
+          <span className="text-[11px] uppercase tracking-wider text-gray-400">
+            AnimeSparks
           </span>
         </div>
       </div>

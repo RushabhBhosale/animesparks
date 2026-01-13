@@ -18,6 +18,7 @@ import {
   siteAuthorUrl,
   siteName,
 } from "@/utils/seo";
+import { ViewTracker } from "@/components/analytics/view-tracker";
 import Image from "next/image";
 
 export const revalidate = 60;
@@ -37,6 +38,16 @@ type Post = {
   categories?: { _id: string; title: string; slug: string }[];
   author?: { name?: string; slug?: string };
   faq?: { question?: string; answer?: string }[];
+  viewCount?: number;
+};
+
+type RelatedPost = {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  publishedAt?: string;
+  mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
 const getDescription = (metaDescription?: string, excerpt?: string) => {
@@ -157,18 +168,22 @@ export default async function BlogDetailPage({
   const categoryIds = (post.categories || [])
     .map((c) => c?._id)
     .filter(Boolean);
+  const viewCount = post.viewCount ?? 0;
 
   const related =
     categoryIds.length > 0
-      ? await client.fetch(relatedBlogsQuery, {
+      ? await client.fetch<RelatedPost[]>(relatedBlogsQuery, {
           currentId: post._id,
           categoryIds,
         })
       : [];
+  const nextBlog = related[0];
+  const sidebarRelated = nextBlog ? related.slice(1) : related;
   const bodyWithAds = insertInlineAd(post.body);
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
+      <ViewTracker slug={post.slug} />
       <ArticleJsonLd
         url={canonicalUrl}
         title={seoTitle}
@@ -284,6 +299,10 @@ export default async function BlogDetailPage({
                   </div>
                 </div>
               )}
+              <div className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                <span className="h-2 w-2 rounded-full bg-red-600" aria-hidden="true" />
+                {viewCount.toLocaleString()} views
+              </div>
 
               {/* Social Share Icons */}
               <div className="ml-auto flex items-center gap-2">
@@ -474,19 +493,88 @@ export default async function BlogDetailPage({
                 </div>
               </section>
             ) : null}
+
+            {/* Next Blog */}
+            {nextBlog ? (
+              <section className="mt-14">
+                <div className="overflow-hidden rounded-sm mt-5 border border-anime-muted bg-black text-white shadow-[12px_12px_0px_0px_#f20d0d]">
+                  <div className="grid gap-0 md:grid-cols-5">
+                    <div className="relative h-52 md:col-span-2 md:h-full">
+                      {nextBlog.mainImage?.asset?.url ? (
+                        <Image
+                          src={sanityImageUrl(nextBlog.mainImage, {
+                            width: 1200,
+                            quality: 70,
+                          })}
+                          alt={nextBlog.mainImage.alt || nextBlog.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 720px"
+                          className="object-cover opacity-80"
+                          priority={false}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a]" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                      <div className="absolute bottom-4 left-4">
+                        <span className="inline-flex items-center gap-2 rounded-sm bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
+                          Next in {post.categories?.[0]?.title || "AnimeSparks"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="md:col-span-3 p-6 md:p-8 flex flex-col gap-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f20d0d]">
+                        Next up
+                      </p>
+
+                      <h2 className="text-2xl md:text-3xl font-black leading-tight text-white line-clamp-3">
+                        {nextBlog.title}
+                      </h2>
+
+                      {nextBlog.excerpt ? (
+                        <p className="text-sm leading-relaxed text-gray-300 line-clamp-3">
+                          {nextBlog.excerpt}
+                        </p>
+                      ) : null}
+
+                      <div className="flex items-center gap-3 pt-1 text-xs text-gray-400">
+                        {nextBlog.publishedAt ? (
+                          <span>Filed {formatDate(nextBlog.publishedAt)}</span>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-2">
+                        <Link
+                          href={`/blog/${nextBlog.slug}`}
+                          className="group inline-flex items-center justify-between gap-3 rounded-sm border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wide text-white md:hover:border-[#f20d0d] md:hover:bg-[#f20d0d]/10 transition-colors"
+                        >
+                          <span>Read next</span>
+                          <span
+                            aria-hidden="true"
+                            className="text-[#f20d0d] group-hover:translate-x-0.5 transition-transform"
+                          >
+                            →
+                          </span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : null}
           </article>
 
           {/* Sidebar */}
           <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
               {/* Related Posts */}
-              {related?.length ? (
+              {sidebarRelated.length ? (
                 <section className="rounded-sm border border-gray-200 bg-white p-5">
                   <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900">
                     Related Blogs
                   </h3>
                   <div className="space-y-4">
-                    {related.map((p: any) => (
+                    {sidebarRelated.map((p: RelatedPost) => (
                       <Link
                         key={p._id || p.slug}
                         href={`/blog/${p.slug}`}

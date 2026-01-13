@@ -79,7 +79,8 @@ export const blogBySlugQuery = groq`
   faq[]{
     question,
     answer
-  }
+  },
+  "viewCount": coalesce(viewCount, 0)
 }
 `;
 
@@ -97,6 +98,7 @@ export const relatedBlogsQuery = groq`
 | order(publishedAt desc)[0...3] {
   _id,
   title,
+  "excerpt": pt::text(body),
   "slug": slug.current,
   publishedAt,
   mainImage {
@@ -212,6 +214,7 @@ export const latestBlogsQuery = groq`
     name,
     image
   },
+  "viewCount": coalesce(viewCount, 0),
   mainImage {
     asset->{ url },
     alt
@@ -225,6 +228,61 @@ export const latestBlogsQuery = groq`
 `;
 
 /* ----------------------------------------
+   BLOGS BY SLUGS (Order preserved by input)
+---------------------------------------- */
+export const blogsBySlugsQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  defined(slug.current) &&
+  slug.current in $slugs
+] {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  "excerpt": coalesce(metaDescription, pt::text(body)),
+  author->{
+    name,
+    image
+  },
+  mainImage {
+    asset->{ url },
+    alt
+  },
+  categories[]->{
+    _id,
+    title,
+    "slug": slug.current
+  }
+}
+`;
+
+/* ----------------------------------------
+   HOMEPAGE SETTINGS (Curated blocks)
+---------------------------------------- */
+export const homepageSettingsQuery = groq`
+*[_type == "homepageSettings"][0] {
+  editorsPicks[]->{
+    _id,
+    title,
+    "slug": slug.current,
+    publishedAt,
+    "excerpt": coalesce(metaDescription, pt::text(body)),
+    mainImage {
+      asset->{ url },
+      alt
+    },
+    categories[]->{
+      _id,
+      title,
+      "slug": slug.current
+    }
+  }
+}
+`;
+
+/* ----------------------------------------
    Trending BLOGS (Sidebar / Footer)
 ---------------------------------------- */
 export const trendingBlogsQuery = groq`
@@ -233,7 +291,7 @@ export const trendingBlogsQuery = groq`
   defined(slug.current) &&
   publishedAt <= now()
 ]
-| order(publishedAt desc)[0...8] {
+| order(coalesce(viewCount, 0) desc, publishedAt desc)[0...10] {
   _id,
   title,
   "slug": slug.current,
@@ -244,6 +302,7 @@ export const trendingBlogsQuery = groq`
     title,
     "slug": slug.current
   },
+  "viewCount": coalesce(viewCount, 0),
   mainImage {
     asset-> { url },
     alt

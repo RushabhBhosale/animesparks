@@ -11,6 +11,7 @@ type TrendingPost = {
   slug: string;
   publishedAt?: string;
   excerpt?: string;
+  viewCount?: number;
   mainImage?: {
     asset?: { url?: string };
     alt?: string;

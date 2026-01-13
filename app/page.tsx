@@ -4,7 +4,11 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 
 import { TrendingRail } from "@/components/trending-rail";
-import { latestBlogsQuery } from "@/sanity/blogQueries";
+import {
+  homepageSettingsQuery,
+  latestBlogsQuery,
+  trendingBlogsQuery,
+} from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate, timeAgo } from "@/utils/date";
@@ -51,6 +55,11 @@ type BlogCard = {
     name?: string;
     image?: { asset?: { url?: string }; alt?: string };
   };
+  viewCount?: number;
+};
+
+type HomepageSettings = {
+  editorsPicks?: BlogCard[];
 };
 
 const getExcerpt = (text?: string, limit = 150) => {
@@ -72,23 +81,66 @@ const editorTextHover = [
   "md:group-hover:text-[#ccff00]",
 ];
 
+const takeUniqueById = (posts: BlogCard[], usedIds: Set<string>) => {
+  const output: BlogCard[] = [];
+
+  for (const post of posts) {
+    if (!post?._id || usedIds.has(post._id)) continue;
+    usedIds.add(post._id);
+    output.push(post);
+  }
+
+  return output;
+};
+
 export default async function Home() {
-  const latest = await client.fetch<BlogCard[]>(latestBlogsQuery);
+  const [latest, homepageSettings, trending] = await Promise.all([
+    client.fetch<BlogCard[]>(latestBlogsQuery),
+    client.fetch<HomepageSettings | null>(homepageSettingsQuery),
+    client.fetch<BlogCard[]>(trendingBlogsQuery),
+  ]);
 
-  const latestPosts = latest ?? [];
-  const trendingSource = latestPosts.slice(0, 10);
-  const featured = trendingSource[0] ?? null;
-  const trendingCollage = trendingSource;
+  const latestPosts = Array.isArray(latest) ? latest : [];
+  const trendingViews = Array.isArray(trending) ? trending : [];
+  const editorsConfigured = homepageSettings?.editorsPicks ?? [];
+  const featured =
+    editorsConfigured[0] ?? trendingViews[0] ?? latestPosts[0] ?? null;
 
-  const marqueeTitles =
-    trendingSource.length > 0
-      ? trendingSource.map((post) => post.title).filter(Boolean)
-      : (latest?.map((post) => post.title).filter(Boolean) ?? []);
+  const baseUsed = new Set<string>();
+  if (featured?._id) baseUsed.add(featured._id);
 
-  const mainUpdates = latestPosts.slice(0, 3);
-  const moreUpdates = latestPosts.slice(3, 6);
-  const editorsPicks = latestPosts.slice(1, 4);
-  const mustReads = trendingSource.slice(0, 5);
+  const editorsSource =
+    editorsConfigured.length > 0 ? editorsConfigured : latestPosts;
+  const editorsPicks = takeUniqueById(
+    editorsSource,
+    new Set(baseUsed)
+  ).slice(0, 3);
+
+  const usedForLatest = new Set(baseUsed);
+  editorsPicks.forEach((p) => {
+    if (p?._id) usedForLatest.add(p._id);
+  });
+
+  let mainStream = takeUniqueById(latestPosts, new Set(usedForLatest));
+  let mainUpdates = mainStream.slice(0, 3);
+  let moreUpdates = mainStream.slice(3, 6);
+
+  if (mainUpdates.length === 0) {
+    // fallback: show latest even if duplicates
+    mainUpdates = latestPosts.slice(0, 3);
+    moreUpdates = latestPosts.slice(3, 6);
+  }
+
+  const trendingSource =
+    trendingViews.length > 0 ? trendingViews : latestPosts.slice(0, 10);
+  const trendingPosts = takeUniqueById(trendingSource, new Set());
+
+  const trendingCollage = trendingPosts.slice(0, 10);
+  const mustReads = trendingPosts.slice(0, 5);
+
+  const marqueeTitles = (trendingCollage.length ? trendingCollage : latestPosts)
+    .map((post) => post.title)
+    .filter(Boolean);
 
   return (
     <>
@@ -176,30 +228,6 @@ export default async function Home() {
                     </Link>
                   )}
                 </div>
-
-                {featured?.author?.name && (
-                  <div className="flex items-center gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full w-fit max-w-full">
-                    {featured.author.image?.asset?.url && (
-                      <div className="relative size-9 sm:size-10 overflow-hidden rounded-full border border-white/80 shrink-0">
-                        <Image
-                          src={sanityImageUrl(featured.author.image, {
-                            width: 100,
-                            height: 100,
-                          })}
-                          alt={
-                            featured.author.image.alt || featured.author.name
-                          }
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <span className="text-[11px] sm:text-xs font-bold uppercase text-gray-300 truncate">
-                      By {featured.author.name}
-                    </span>
-                  </div>
-                )}
               </div>
 
               {/* RIGHT IMAGE */}
@@ -266,7 +294,7 @@ export default async function Home() {
               )}
 
               <div className="my-14 sm:my-20 md:my-24 border-t border-[#1f1f1f] relative">
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#050505] px-4 text-gray-500 font-mono text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em]">
+                <span className="absolute top-1/2 left-1/2 whitespace-nowrap -translate-x-1/2 -translate-y-1/2 bg-[#050505] px-4 text-gray-500 font-mono text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em]">
                   Scroll Down for more
                 </span>
               </div>
@@ -306,15 +334,22 @@ export default async function Home() {
                           >
                             {post.mainImage?.asset?.url ? (
                               <div className="relative aspect-video">
-                                <Image
-                                  src={sanityImageUrl(post.mainImage, {
-                                    width: 1200,
-                                  })}
-                                  alt={post.mainImage.alt || post.title}
-                                  fill
-                                  sizes="(max-width: 768px) 100vw, 560px"
-                                  className="object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-500"
-                                />
+                                <Link
+                                  prefetch={false}
+                                  href={`/blog/${post.slug}`}
+                                  className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest md:hover:gap-4 transition-all"
+                                  aria-label={`Read more about ${post.title ?? "this article"}`}
+                                >
+                                  <Image
+                                    src={sanityImageUrl(post.mainImage, {
+                                      width: 1200,
+                                    })}
+                                    alt={post.mainImage.alt || post.title}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 560px"
+                                    className="object-cover transition-all duration-500"
+                                  />
+                                </Link>
                               </div>
                             ) : (
                               <div className="aspect-video bg-[#0c0c0c]" />
@@ -395,7 +430,7 @@ export default async function Home() {
                                     alt={post.mainImage.alt || post.title}
                                     fill
                                     sizes="160px"
-                                    className="object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-500"
+                                    className="object-cover transition-all duration-500"
                                   />
                                 </div>
                               )}
@@ -514,7 +549,7 @@ export default async function Home() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {editorsPicks.slice(0, 3).map((post, idx) => {
+                    {editorsPicks.map((post, idx) => {
                       const accent =
                         ["#f20d0d", "#00f3ff", "#ccff00"][idx] ?? "#f20d0d";
                       const shadowClass =

@@ -5,6 +5,13 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('Blog')
     .items([
+      S.listItem()
+        .title('Homepage Settings')
+        .child(
+          S.document()
+            .schemaType('homepageSettings')
+            .documentId('homepageSettings'),
+        ),
       S.documentTypeListItem('post').title('Posts'),
       S.documentTypeListItem('category').title('Categories'),
       S.documentTypeListItem('author').title('Authors'),
@@ -13,6 +20,8 @@ export const structure: StructureResolver = (S) =>
       ...S.documentTypeListItems().filter(
         (item) =>
           item.getId() &&
-          !['post', 'category', 'author', 'animeEntry'].includes(item.getId()!),
+          !['post', 'category', 'author', 'animeEntry', 'homepageSettings'].includes(
+            item.getId()!,
+          ),
       ),
     ])
