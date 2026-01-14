@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AtSign, Globe2, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -68,45 +68,62 @@ export default function Footer() {
                   Categories
                 </Link>
               </li>
+              <li>
+                <Link
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  href="/privacy"
+                >
+                  Privacy
+                </Link>
+              </li>
             </ul>
           </div>
 
-          <div aria-labelledby="footer-connect-heading">
+          <div aria-labelledby="footer-links-heading">
             <h3
-              id="footer-connect-heading"
+              id="footer-links-heading"
               className="text-[#ccff00] font-bold uppercase mb-4 tracking-widest text-base"
             >
-              Connect
+              Feeds & Legal
             </h3>
-            <div className="flex gap-3">
-              <Link
-                prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
-                href="/"
-                aria-label="Visit AnimeSparks home"
-              >
-                <Globe2 className="h-5 w-5" />
-                <span className="sr-only">AnimeSparks home</span>
-              </Link>
-              <Link
-                prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
-                href="/blogs"
-                aria-label="Browse all AnimeSparks blogs"
-              >
-                <Zap className="h-5 w-5" />
-                <span className="sr-only">Browse all blogs</span>
-              </Link>
-              <Link
-                prefetch={false}
-                className="bg-[#0f0f0f] p-2 rounded border border-[#1f1f1f] md:hover:border-[#ccff00] md:hover:text-[#ccff00] transition-colors inline-flex items-center justify-center"
-                href="/about"
-                aria-label="Learn about AnimeSparks"
-              >
-                <AtSign className="h-5 w-5" />
-                <span className="sr-only">About AnimeSparks</span>
-              </Link>
-            </div>
+            <ul className="space-y-2 text-sm text-gray-400 uppercase">
+              <li>
+                <Link
+                  prefetch={false}
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  href="/rss.xml"
+                >
+                  RSS
+                </Link>
+              </li>
+              <li>
+                <Link
+                  prefetch={false}
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  href="/sitemap"
+                >
+                  Sitemap
+                </Link>
+              </li>
+              <li>
+                <Link
+                  prefetch={false}
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  href="/privacy"
+                >
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  prefetch={false}
+                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
+                  href="/contact"
+                >
+                  Contact
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 

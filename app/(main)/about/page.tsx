@@ -276,7 +276,7 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-anime-red transform translate-x-2 translate-y-2 md:translate-x-3 md:translate-y-3 border-2 border-white/20" />
               <div className="relative bg-anime-panel border-2 border-white/15 p-2 overflow-hidden md:hover:-translate-y-2 transition-transform duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  <div className="md:col-span-6 h-[320px] sm:h-[380px] md:h-[520px] bg-black relative overflow-hidden border border-white/10">
+                  <div className="md:col-span-6 h-[320px] sm:h-[380px] md:h-[420px] bg-black relative overflow-hidden border border-white/10">
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 md:group-hover:scale-105 grayscale md:group-hover:grayscale-0"
                       style={{ backgroundImage: `url(/me.jpeg)` }}
@@ -284,7 +284,7 @@ export default function AboutPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                     <div className="absolute bottom-0 left-0 bg-white text-black font-black uppercase text-base sm:text-lg md:text-xl px-4 py-2 skew-x-12 -ml-2 mb-4 border border-black">
-                      Rushabh_01
+                      Rushabh_Bhosale
                     </div>
 
                     <div className="absolute top-4 left-4 inline-flex items-center gap-2 bg-black/70 border border-white/15 px-3 py-2">

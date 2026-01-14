@@ -14,9 +14,11 @@ import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate, timeAgo } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { bungeeOutline, splineSans } from "@/lib/font";
+import { fetchGaPageViews } from "@/lib/analytics";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import clsx from "clsx";
+import { getTrendingPosts } from "@/lib/trending";
 
 export const revalidate = 60;
 
@@ -94,51 +96,66 @@ const takeUniqueById = (posts: BlogCard[], usedIds: Set<string>) => {
 };
 
 export default async function Home() {
-  const [latest, homepageSettings, trending] = await Promise.all([
+  const [latest, homepageSettings, trendingPack] = await Promise.all([
     client.fetch<BlogCard[]>(latestBlogsQuery),
     client.fetch<HomepageSettings | null>(homepageSettingsQuery),
-    client.fetch<BlogCard[]>(trendingBlogsQuery),
+    getTrendingPosts({ limit: 10 }),
   ]);
 
   const latestPosts = Array.isArray(latest) ? latest : [];
-  const trendingViews = Array.isArray(trending) ? trending : [];
+  const trendingViews: any = Array.isArray([]) ? [] : [];
   const editorsConfigured = homepageSettings?.editorsPicks ?? [];
+
+  const slugSet = new Set<string>();
+  [...latestPosts, ...trendingViews, ...editorsConfigured].forEach((post) => {
+    if (post?.slug) slugSet.add(post.slug);
+  });
+
+  const gaViews = await fetchGaPageViews(Array.from(slugSet));
+  const hasGaViews = Object.keys(gaViews).length > 0;
+  const withViews = (post: BlogCard) => ({
+    ...post,
+    viewCount: hasGaViews ? (gaViews[post.slug] ?? 0) : undefined,
+  });
+
+  const latestWithViews = latestPosts.map(withViews);
+  const trendingWithViews = trendingViews.map(withViews);
+  const editorsWithViews = editorsConfigured.map(withViews);
+
   const featured =
-    editorsConfigured[0] ?? trendingViews[0] ?? latestPosts[0] ?? null;
+    editorsWithViews[0] ?? trendingWithViews[0] ?? latestWithViews[0] ?? null;
 
   const baseUsed = new Set<string>();
   if (featured?._id) baseUsed.add(featured._id);
 
   const editorsSource =
-    editorsConfigured.length > 0 ? editorsConfigured : latestPosts;
-  const editorsPicks = takeUniqueById(
-    editorsSource,
-    new Set(baseUsed)
-  ).slice(0, 3);
+    editorsWithViews.length > 0 ? editorsWithViews : latestWithViews;
+  const editorsPicks = takeUniqueById(editorsSource, new Set(baseUsed)).slice(
+    0,
+    3
+  );
 
   const usedForLatest = new Set(baseUsed);
   editorsPicks.forEach((p) => {
     if (p?._id) usedForLatest.add(p._id);
   });
 
-  let mainStream = takeUniqueById(latestPosts, new Set(usedForLatest));
+  let mainStream = takeUniqueById(latestWithViews, new Set(usedForLatest));
   let mainUpdates = mainStream.slice(0, 3);
   let moreUpdates = mainStream.slice(3, 6);
 
   if (mainUpdates.length === 0) {
     // fallback: show latest even if duplicates
-    mainUpdates = latestPosts.slice(0, 3);
-    moreUpdates = latestPosts.slice(3, 6);
+    mainUpdates = latestWithViews.slice(0, 3);
+    moreUpdates = latestWithViews.slice(3, 6);
   }
 
-  const trendingSource =
-    trendingViews.length > 0 ? trendingViews : latestPosts.slice(0, 10);
-  const trendingPosts = takeUniqueById(trendingSource, new Set());
+  const trendingCollage = trendingPack.collage;
+  const mustReads = trendingPack.mustReads;
 
-  const trendingCollage = trendingPosts.slice(0, 10);
-  const mustReads = trendingPosts.slice(0, 5);
-
-  const marqueeTitles = (trendingCollage.length ? trendingCollage : latestPosts)
+  const marqueeTitles = (
+    trendingCollage.length ? trendingCollage : latestWithViews
+  )
     .map((post) => post.title)
     .filter(Boolean);
 

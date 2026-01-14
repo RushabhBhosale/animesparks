@@ -118,6 +118,24 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                         <span className="text-gray-300 text-xs sm:text-sm font-mono">
                           {formatDate(heroPost.publishedAt)}
                         </span>
+                        {heroPost.viewCount !== undefined ? (
+                          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-white border border-white/20">
+                            <svg
+                              className="h-3.5 w-3.5"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {heroPost.viewCount.toLocaleString()} views
+                          </span>
+                        ) : null}
                       </div>
 
                       <h2 className="text-2xl sm:text-3xl md:text-6xl font-black uppercase leading-[0.95] md:leading-none text-white md:group-hover:text-anime-lime transition-colors mb-3 sm:mb-4">
@@ -211,10 +229,28 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                       {post.title}
                     </h3>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-white/20">
-                      <span className="text-xs font-mono text-gray-500">
-                        {formatDate(post.publishedAt)}
-                      </span>
+                    <div className="flex items-center justify-between pt-3 border-t border-white/20 gap-3">
+                      <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
+                        <span>{formatDate(post.publishedAt)}</span>
+                        {post.viewCount !== undefined ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-200 border border-white/10">
+                            <svg
+                              className="h-3 w-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {post.viewCount.toLocaleString()}
+                          </span>
+                        ) : null}
+                      </div>
                       <span className="text-xs font-black uppercase text-anime-lime">
                         Read →
                       </span>
@@ -267,6 +303,24 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                         <span className="text-xs font-mono text-gray-500">
                           {formatDate(post.publishedAt)}
                         </span>
+                        {post.viewCount !== undefined ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-200 border border-white/10">
+                            <svg
+                              className="h-3 w-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {post.viewCount.toLocaleString()}
+                          </span>
+                        ) : null}
                       </div>
 
                       <h4 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight md:group-hover:text-anime-cyan transition-colors line-clamp-3">

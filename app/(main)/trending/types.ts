@@ -11,6 +11,7 @@ export type BlogPost = {
     title?: string;
     slug?: string;
   }[];
+  viewCount?: number;
   author?: {
     name?: string;
   };

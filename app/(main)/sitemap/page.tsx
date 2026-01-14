@@ -51,6 +51,7 @@ const coreLinks = [
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
   { label: "Advertise", href: "/advertise" },
+  { label: "Contact", href: "/contact" },
   { label: "About", href: "/about" },
   { label: "Privacy", href: "/privacy" },
 ];

@@ -40,6 +40,7 @@ export async function GET() {
     "/my-anime-list",
     "/categories",
     "/trending",
+    "/contact",
     "/about",
     "/privacy",
     "/sitemap",

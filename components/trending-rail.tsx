@@ -125,9 +125,29 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                       </h3>
                       <div className="flex items-center justify-between text-[11px] uppercase text-gray-500 tracking-[0.16em]">
                         <span>{timeAgo(post.publishedAt)}</span>
-                        <span className="inline-flex items-center gap-1 text-white md:group-hover:text-[#ccff00] transition-colors">
-                          Read
-                          <ArrowUpRight className="h-4 w-4" />
+                        <span className="inline-flex items-center gap-2 text-white md:group-hover:text-[#ccff00] transition-colors">
+                          {post.viewCount !== undefined ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#0d0d0d] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-200 border border-[#1f1f1f]">
+                              <svg
+                                className="h-3 w-3"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
+                                <circle cx="12" cy="12" r="3" />
+                              </svg>
+                              {post.viewCount.toLocaleString()}
+                            </span>
+                          ) : null}
+                          <span className="inline-flex items-center gap-1">
+                            Read
+                            <ArrowUpRight className="h-4 w-4" />
+                          </span>
                         </span>
                       </div>
                     </div>

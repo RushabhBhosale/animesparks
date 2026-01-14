@@ -18,8 +18,8 @@ import {
   siteAuthorUrl,
   siteName,
 } from "@/utils/seo";
-import { ViewTracker } from "@/components/analytics/view-tracker";
 import Image from "next/image";
+import { fetchGaPageView } from "@/lib/analytics";
 
 export const revalidate = 60;
 
@@ -38,7 +38,6 @@ type Post = {
   categories?: { _id: string; title: string; slug: string }[];
   author?: { name?: string; slug?: string };
   faq?: { question?: string; answer?: string }[];
-  viewCount?: number;
 };
 
 type RelatedPost = {
@@ -168,7 +167,7 @@ export default async function BlogDetailPage({
   const categoryIds = (post.categories || [])
     .map((c) => c?._id)
     .filter(Boolean);
-  const viewCount = post.viewCount ?? 0;
+  const viewCount = await fetchGaPageView(slug);
 
   const related =
     categoryIds.length > 0
@@ -183,7 +182,6 @@ export default async function BlogDetailPage({
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
-      <ViewTracker slug={post.slug} />
       <ArticleJsonLd
         url={canonicalUrl}
         title={seoTitle}
@@ -300,10 +298,12 @@ export default async function BlogDetailPage({
                 </div>
               )}
               <div className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-                <span className="h-2 w-2 rounded-full bg-red-600" aria-hidden="true" />
+                <span
+                  className="h-2 w-2 rounded-full bg-red-600"
+                  aria-hidden="true"
+                />
                 {viewCount.toLocaleString()} views
               </div>
-
               {/* Social Share Icons */}
               <div className="ml-auto flex items-center gap-2">
                 <span className="text-xs font-semibold text-gray-500 uppercase">

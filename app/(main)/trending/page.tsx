@@ -6,6 +6,7 @@ import { sanityHeroImageUrl } from "@/sanity/lib/image";
 import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
 import { TrendingContent } from "./trending-content";
 import type { BlogPost } from "./types";
+import { fetchGaPageViews } from "@/lib/analytics";
 
 export const revalidate = 60;
 
@@ -45,7 +46,15 @@ export default async function TrendingPage({
   const sort = Array.isArray(params.sort) ? params.sort[0] : params.sort;
   const posts = (await client.fetch<BlogPost[]>(blogsQuery)) ?? [];
 
-  const tagCounts = posts.reduce((acc, post) => {
+  const slugs = posts.map((post) => post.slug).filter(Boolean);
+  const gaViews = await fetchGaPageViews(slugs);
+  const hasGaViews = Object.keys(gaViews).length > 0;
+  const postsWithViews = posts.map((post) => ({
+    ...post,
+    viewCount: hasGaViews ? gaViews[post.slug] ?? 0 : undefined,
+  }));
+
+  const tagCounts = postsWithViews.reduce((acc, post) => {
     (post.tags || []).forEach((tag) => {
       const cleaned = tag?.trim();
       if (!cleaned) return;
@@ -81,13 +90,15 @@ export default async function TrendingPage({
     }
   })();
 
-  const sortByRecent = [...posts].sort(
+  const sortByRecent = [...postsWithViews].sort(
     (a, b) =>
       getTime(b.publishedAt, b._createdAt) -
       getTime(a.publishedAt, a._createdAt)
   );
 
-  const sortByPopularity = [...posts].sort((a, b) => {
+  const sortByPopularity = [...postsWithViews].sort((a, b) => {
+    const viewsDiff = (b.viewCount ?? 0) - (a.viewCount ?? 0);
+    if (viewsDiff !== 0) return viewsDiff;
     const diff = popularityScore(b) - popularityScore(a);
     if (diff !== 0) return diff;
     return (
@@ -96,9 +107,11 @@ export default async function TrendingPage({
     );
   });
 
-  const sortByDiscussed = [...posts].sort((a, b) => {
-    const scoreA = popularityScore(a) + (a.tags?.length ?? 0);
-    const scoreB = popularityScore(b) + (b.tags?.length ?? 0);
+  const sortByDiscussed = [...postsWithViews].sort((a, b) => {
+    const scoreA =
+      (a.viewCount ?? 0) * 0.5 + popularityScore(a) + (a.tags?.length ?? 0);
+    const scoreB =
+      (b.viewCount ?? 0) * 0.5 + popularityScore(b) + (b.tags?.length ?? 0);
     if (scoreB !== scoreA) return scoreB - scoreA;
     return (
       getTime(b.publishedAt, b._createdAt) -
@@ -106,7 +119,7 @@ export default async function TrendingPage({
     );
   });
 
-  const visualPosts = posts.filter((post) =>
+  const visualPosts = postsWithViews.filter((post) =>
     (post.categories || []).some((category) => {
       const label = category?.title?.toLowerCase() || "";
       return (
@@ -124,11 +137,11 @@ export default async function TrendingPage({
         ? sortByPopularity
         : filterValue === "discussed"
           ? sortByDiscussed
-          : filterValue === "visual"
-            ? visualPosts.length
-              ? visualPosts
-              : sortByRecent
-            : posts;
+        : filterValue === "visual"
+          ? visualPosts.length
+            ? visualPosts
+            : sortByRecent
+          : postsWithViews;
 
   if (!sortedPosts.length) {
     return (
