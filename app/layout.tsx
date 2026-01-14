@@ -69,6 +69,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${bungeeOutline.variable} ${splineSans.variable} font-display antialiased bg-[#050505] text-[#f0f0f0]`}
