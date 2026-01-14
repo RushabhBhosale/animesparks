@@ -68,14 +68,6 @@ export default function Footer() {
                   Categories
                 </Link>
               </li>
-              <li>
-                <Link
-                  className="md:hover:text-white md:hover:underline decoration-[#f20d0d] decoration-2 underline-offset-4"
-                  href="/privacy"
-                >
-                  Privacy
-                </Link>
-              </li>
             </ul>
           </div>
 
