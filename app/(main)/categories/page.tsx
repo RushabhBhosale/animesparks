@@ -148,7 +148,7 @@ export default async function CategoriesPage() {
             </div>
 
             {/* Signal Filter (scrollable on mobile) */}
-            <div className="relative w-full md:w-auto p-4 sm:p-6 border-2 border-white/20 bg-black/50 backdrop-blur-sm transform md:-rotate-2 md:hover:rotate-0 transition-transform duration-300">
+            <div className="relative  md:w-[300px] p-4 sm:p-6 border-2 border-white/20 bg-black/50 backdrop-blur-sm transform md:-rotate-2 md:hover:rotate-0 transition-transform duration-300">
               <div className="absolute -top-3 -right-3 size-4 bg-[#f20d0d] animate-pulse" />
               <div className="absolute -bottom-3 -left-3 size-4 bg-[#ccff00]" />
 
@@ -218,14 +218,14 @@ export default async function CategoriesPage() {
                     </span>
                   </div>
 
-                    <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 md:p-12">
-                      <div className="overflow-hidden mb-2">
+                  <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 md:p-12">
+                    <div className="overflow-hidden mb-2">
                       <span className="block text-[#ccff00] font-mono text-[10px] sm:text-xs uppercase tracking-widest transform translate-y-full md:group-hover:translate-y-0 transition-transform duration-300">
                         Category /// {formatCount(c0.postCount)}
                       </span>
-                      </div>
+                    </div>
 
-                      <h2 className="text-4xl sm:text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-white md:group-hover:text-[#f20d0d] transition-colors leading-[0.9] sm:leading-[0.85]">
+                    <h2 className="text-4xl sm:text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-white md:group-hover:text-[#f20d0d] transition-colors leading-[0.9] sm:leading-[0.85]">
                       {c0.title}
                     </h2>
 
@@ -398,12 +398,12 @@ export default async function CategoriesPage() {
             ) : null}
 
             {/* FANDOM STRIP */}
-              <div className="md:col-span-12 mt-6 sm:mt-8">
-                <div className="relative bg-[#050505] border-y-4 border-gray-800 py-10 sm:py-12 group cursor-pointer overflow-hidden">
-                  <div className="max-w-4xl mx-auto relative z-10 text-center px-2">
-                    <h2 className="text-5xl sm:text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ccff00] via-white to-[#00f3ff] uppercase tracking-tighter mix-blend-difference md:group-hover:tracking-wide transition-all duration-500">
-                      Fandom
-                    </h2>
+            <div className="md:col-span-12 mt-6 sm:mt-8">
+              <div className="relative bg-[#050505] border-y-4 border-gray-800 py-10 sm:py-12 group cursor-pointer overflow-hidden">
+                <div className="max-w-4xl mx-auto relative z-10 text-center px-2">
+                  <h2 className="text-5xl sm:text-7xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ccff00] via-white to-[#00f3ff] uppercase tracking-tighter mix-blend-difference md:group-hover:tracking-wide transition-all duration-500">
+                    Fandom
+                  </h2>
 
                   <div className="mt-5 sm:mt-6">
                     <div className="-mx-1 flex gap-3 overflow-x-auto py-2 px-1 justify-start sm:justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
