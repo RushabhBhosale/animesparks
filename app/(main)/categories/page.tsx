@@ -9,14 +9,14 @@ import { splineSans } from "@/lib/font";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Anime Categories Reviews Lists and Genres",
+  title: "Anime Categories & Topics | AnimeSparks",
   description:
-    "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
+    "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
   alternates: { canonical: "/categories" },
   openGraph: {
-    title: "Anime Categories Reviews Lists and Genres",
+    title: "Anime Categories & Topics | AnimeSparks",
     description:
-      "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
+      "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
     url: "/categories",
     type: "website",
     siteName,
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Anime Categories Reviews Lists and Genres",
+    title: "Anime Categories & Topics | AnimeSparks",
     description:
-      "Explore anime articles by category including shounen sports psychological romance and more on AnimeSparks.",
+      "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
     images: [defaultOgImage],
   },
 };

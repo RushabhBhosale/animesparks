@@ -4,14 +4,14 @@ import { PageHero } from "@/components/page-hero";
 import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact AnimeSparks",
   description:
-    "Reach the AnimeSparks editorial desk for pitches, corrections, collaborations, and sponsorships.",
+    "Get in touch with AnimeSparks for questions, feedback, or collaboration inquiries related to anime content and analysis.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact",
+    title: "Contact AnimeSparks",
     description:
-      "Reach the AnimeSparks editorial desk for pitches, corrections, collaborations, and sponsorships.",
+      "Get in touch with AnimeSparks for questions, feedback, or collaboration inquiries related to anime content and analysis.",
     url: "/contact",
     type: "website",
     siteName,
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contact",
+    title: "Contact AnimeSparks",
     description:
-      "Reach the AnimeSparks editorial desk for pitches, corrections, collaborations, and sponsorships.",
+      "Get in touch with AnimeSparks for questions, feedback, or collaboration inquiries related to anime content and analysis.",
     images: [defaultOgImage],
   },
 };

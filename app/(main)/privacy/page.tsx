@@ -4,16 +4,16 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: "Privacy Policy | AnimeSparks",
   description:
-    "Read the AnimeSparks privacy policy and understand how data is handled.",
+    "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
   alternates: {
     canonical: "/privacy",
   },
   openGraph: {
-    title: "Privacy Policy",
+    title: "Privacy Policy | AnimeSparks",
     description:
-      "Read the AnimeSparks privacy policy and understand how data is handled.",
+      "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
     url: "/privacy",
     type: "website",
     siteName,
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy",
+    title: "Privacy Policy | AnimeSparks",
     description:
-      "Read the AnimeSparks privacy policy and understand how data is handled.",
+      "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
     images: [defaultOgImage],
   },
 };

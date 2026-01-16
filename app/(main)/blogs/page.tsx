@@ -17,16 +17,16 @@ import type { BlogCategory, BlogPost } from "./types";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Anime Blog Reviews Lists and Anime News",
+  title: "All Anime Articles & Analysis | AnimeSparks",
   description:
-    "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
+    "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
   alternates: {
     canonical: "/blogs",
   },
   openGraph: {
-    title: "Anime Blog Reviews Lists and Anime News",
+    title: "All Anime Articles & Analysis | AnimeSparks",
     description:
-      "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
+      "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
     url: "/blogs",
     type: "website",
     siteName,
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Anime Blog Reviews Lists and Anime News",
+    title: "All Anime Articles & Analysis | AnimeSparks",
     description:
-      "Browse all anime articles on AnimeSparks including reviews, watchlists, season updates, and in-depth anime analysis.",
+      "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
     images: [defaultOgImage],
   },
 };

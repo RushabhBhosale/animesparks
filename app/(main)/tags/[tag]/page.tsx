@@ -27,6 +27,69 @@ const decodeTag = (value: string) => {
   }
 };
 
+const normalizeKey = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const tagMetaPresets = [
+  {
+    keys: ["anime-reviews", "reviews"],
+    title: "Anime Reviews — Honest Takes on Popular & Underrated Series",
+    description:
+      "In-depth anime reviews focused on story, characters, themes, and execution — covering both mainstream hits and overlooked series.",
+  },
+  {
+    keys: ["anime-opinions", "opinions", "hot-takes"],
+    title: "Anime Opinions & Hot Takes That Go Deeper",
+    description:
+      "Thought-provoking anime opinions exploring themes, character choices, power systems, and storytelling decisions across popular series.",
+  },
+  {
+    keys: ["anime-lists", "lists", "rankings"],
+    title: "Anime Lists — Recommendations, Rankings & Hidden Gems",
+    description:
+      "Curated anime lists featuring recommendations, rankings, underrated picks, and must-watch series across multiple genres.",
+  },
+  {
+    keys: ["anime-news-updates", "anime-news", "news-updates", "news"],
+    title: "Anime News, Release Dates & Updates",
+    description:
+      "Latest anime news, release dates, episode schedules, and confirmed updates — clearly explained without rumors or filler.",
+  },
+  {
+    keys: [
+      "psychological-anime",
+      "dark-anime",
+      "dark-psychological-anime",
+      "psychological",
+    ],
+    title: "Dark & Psychological Anime — Themes That Hit Hard",
+    description:
+      "Anime focused on psychological depth, moral conflict, isolation, and darker storytelling that stays with you long after watching.",
+  },
+  {
+    keys: ["isekai", "isekai-anime"],
+    title: "Isekai Anime — Power Fantasies, Parody & Deconstruction",
+    description:
+      "Explore isekai anime ranging from dark power fantasies to genre-aware parody, with thoughtful breakdowns and comparisons.",
+  },
+];
+
+const resolveTagMeta = (
+  tagValue: string,
+  fallbackTitle: string,
+  fallbackDescription: string
+) => {
+  const preset = tagMetaPresets.find((entry) =>
+    entry.keys.includes(normalizeKey(tagValue))
+  );
+
+  return preset || { title: fallbackTitle, description: fallbackDescription };
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -37,22 +100,26 @@ export async function generateMetadata({
 
   const decodedTag = decodeTag(tag).trim();
   const safeTag = encodeURIComponent(decodedTag);
-  const baseTitle = "Anime Topics and Tags on AnimeSparks";
-  const title = decodedTag ? `${baseTitle}: ${decodedTag}` : baseTitle;
-  const description = decodedTag
-    ? `Browse anime articles by topic on ${siteName}, including ${decodedTag} reviews and lists.`
-    : "Browse anime articles by topic including reviews, seasonal anime, sports anime, and psychological series.";
+  const fallbackTitle = decodedTag
+    ? `Anime Tag: ${decodedTag} | ${siteName}`
+    : `Anime Tags | ${siteName}`;
+  const fallbackDescription = decodedTag
+    ? `Explore anime articles tagged ${decodedTag} — reviews, opinions, lists, and news from ${siteName}.`
+    : "Browse anime articles by tag — reviews, breakdowns, opinions, lists, and news across anime genres.";
   const canonical = `/tags/${safeTag}`;
+  const meta = decodedTag
+    ? resolveTagMeta(decodedTag, fallbackTitle, fallbackDescription)
+    : { title: fallbackTitle, description: fallbackDescription };
 
   return {
-    title,
-    description,
+    title: meta.title,
+    description: meta.description,
     alternates: {
       canonical,
     },
     openGraph: {
-      title,
-      description,
+      title: meta.title,
+      description: meta.description,
       url: canonical,
       type: "website",
       siteName,
@@ -60,8 +127,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: meta.title,
+      description: meta.description,
       images: [defaultOgImage],
     },
   };

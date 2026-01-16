@@ -10,16 +10,16 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "My Anime List | AnimeSparks",
+  title: "My Anime Watchlist & Ratings | AnimeSparks",
   description:
-    "A personal list of anime I have watched so far, with simple scores for each series.",
+    "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
   alternates: {
     canonical: "/my-anime-list",
   },
   openGraph: {
-    title: "My Anime List | AnimeSparks",
+    title: "My Anime Watchlist & Ratings | AnimeSparks",
     description:
-      "A personal list of anime I have watched so far, with simple scores for each series.",
+      "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
     url: "/my-anime-list",
     type: "website",
     siteName,
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "My Anime List | AnimeSparks",
+    title: "My Anime Watchlist & Ratings | AnimeSparks",
     description:
-      "A personal list of anime I have watched so far, with simple scores for each series.",
+      "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
     images: [defaultOgImage],
   },
 };

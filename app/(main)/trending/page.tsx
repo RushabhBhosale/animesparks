@@ -11,16 +11,16 @@ import { fetchGaPageViews } from "@/lib/analytics";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Trending Anime Case Files",
+  title: "Trending Anime Articles Right Now | AnimeSparks",
   description:
-    "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
+    "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
-    title: "Trending Anime Case Files",
+    title: "Trending Anime Articles Right Now | AnimeSparks",
     description:
-      "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
+      "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
     url: "/trending",
     type: "website",
     siteName,
@@ -28,9 +28,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trending Anime Case Files",
+    title: "Trending Anime Articles Right Now | AnimeSparks",
     description:
-      "A curated feed of the top trending anime articles, hot takes, and visual investigations from AnimeSparks.",
+      "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
     images: [defaultOgImage],
   },
 };

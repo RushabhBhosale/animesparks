@@ -23,14 +23,14 @@ import { getTrendingPosts } from "@/lib/trending";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "AnimeSparks Anime Blog Home",
+  title: "AnimeSparks — Deep Anime Analysis, Reviews & Recommendations",
   description:
-    "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest articles, character studies, and shonen breakdowns.",
+    "Thoughtful anime analysis, sharp reviews, and honest opinions on popular and underrated series. Explore anime beyond surface-level hype.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "AnimeSparks Anime Blog Home",
+    title: "AnimeSparks — Deep Anime Analysis, Reviews & Recommendations",
     description:
-      "Deep dives, reviews, and trending anime stories from AnimeSparks. Explore the latest articles, character studies, and shonen breakdowns.",
+      "Thoughtful anime analysis, sharp reviews, and honest opinions on popular and underrated series. Explore anime beyond surface-level hype.",
     url: "/",
     type: "website",
     siteName,
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AnimeSparks Anime Blog Home",
+    title: "AnimeSparks — Deep Anime Analysis, Reviews & Recommendations",
     description:
-      "Deep dives, reviews, and trending anime stories from AnimeSparks.",
+      "Thoughtful anime analysis, sharp reviews, and honest opinions on popular and underrated series. Explore anime beyond surface-level hype.",
     images: [defaultOgImage],
   },
 };

@@ -4,14 +4,14 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 import { ArrowRight, Eye, Brain, Skull, User } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About AnimeSparks A Personal Anime Editorial Blog",
+  title: "About AnimeSparks — Why This Anime Site Exists",
   description:
-    "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
+    "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About AnimeSparks A Personal Anime Editorial Blog",
+    title: "About AnimeSparks — Why This Anime Site Exists",
     description:
-      "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
+      "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
     url: "/about",
     type: "website",
     siteName,
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "About AnimeSparks A Personal Anime Editorial Blog",
+    title: "About AnimeSparks — Why This Anime Site Exists",
     description:
-      "Learn about AnimeSparks a personal anime blog by Rushabh Bhosale focused on reviews lists character analysis and honest anime opinions.",
+      "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
     images: [defaultOgImage],
   },
 };
