@@ -105,6 +105,7 @@ export default async function MyAnimeListPage() {
                           fill
                           sizes="56px"
                           className="object-cover"
+                          unoptimized
                           priority={false}
                         />
                       ) : (

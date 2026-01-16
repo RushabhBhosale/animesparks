@@ -278,356 +278,372 @@ export default async function CategoryDetailPage({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 auto-rows-min">
               {/* FEATURED BIG */}
               {featured && (
-                <article className="lg:col-span-8 group relative min-h-[420px] sm:min-h-[480px] md:min-h-[520px] border-4 border-black md:hover:border-anime-red transition-colors duration-300 overflow-hidden">
-                  <div className="absolute inset-0">
-                    {featured.mainImage?.asset?.url ? (
-                      <Image
-                        src={sanityImageUrl(featured.mainImage, {
-                          width: 1800,
-                        })}
-                        alt={featured.mainImage.alt || featured.title}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 1100px"
-                        className="object-cover transition-transform duration-700 md:group-hover:scale-105"
-                        priority
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(242,13,13,0.25),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(0,243,255,0.18),transparent_55%)]" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                  </div>
-
-                  <div className="absolute top-0 right-0 bg-anime-red text-white font-black px-4 sm:px-6 py-2 text-base sm:text-xl uppercase tracking-widest shadow-hard-white z-20">
-                    Featured
-                  </div>
-
-                  <div className="absolute bottom-0 left-0 p-5 sm:p-7 md:p-8 w-full z-10">
-                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
-                      <span className="bg-anime-cyan text-black font-black text-[10px] sm:text-xs px-2 py-1 uppercase border border-white">
-                        {category.title}
-                      </span>
-                      <span className="text-white/80 font-mono text-[10px] sm:text-xs">
-                        {formatDate(featured.publishedAt)}
-                      </span>
+                <Link
+                  className="lg:col-span-8 group relative min-h-[420px] sm:min-h-[480px] md:min-h-[520px] border-4 border-black md:hover:border-anime-red transition-colors duration-300 overflow-hidden"
+                  href={`/blog/${featured.slug}`}
+                >
+                  <article>
+                    <div className="absolute inset-0">
+                      {featured.mainImage?.asset?.url ? (
+                        <Image
+                          src={sanityImageUrl(featured.mainImage, {
+                            width: 1800,
+                          })}
+                          alt={featured.mainImage.alt || featured.title}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 1100px"
+                          className="object-cover transition-transform duration-700 md:group-hover:scale-105"
+                          priority
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(242,13,13,0.25),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(0,243,255,0.18),transparent_55%)]" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                     </div>
 
-                    <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white uppercase leading-[0.95] sm:leading-[0.88] md:leading-[0.85] mb-4 sm:mb-6 md:group-hover:text-anime-red transition-colors break-words">
-                      {featured.title.split(" ").slice(0, 3).join(" ")}
-                      {featured.title.split(" ").length > 3 ? (
-                        <>
-                          <br />
-                          <span className="text-outline">
-                            {featured.title.split(" ").slice(3).join(" ")}
-                          </span>
-                        </>
-                      ) : null}
-                    </h2>
+                    <div className="absolute top-0 right-0 bg-anime-red text-white font-black px-4 sm:px-6 py-2 text-base sm:text-xl uppercase tracking-widest shadow-hard-white z-20">
+                      Featured
+                    </div>
 
-                    <p className="max-w-xl text-white/70 text-sm sm:text-base md:text-lg mb-5 sm:mb-6 line-clamp-3">
-                      {featured.excerpt ||
-                        "A featured read from this category. Tap in for the full breakdown."}
-                    </p>
+                    <div className="absolute bottom-0 left-0 p-5 sm:p-7 md:p-8 w-full z-10">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
+                        <span className="bg-anime-cyan text-black font-black text-[10px] sm:text-xs px-2 py-1 uppercase border border-white">
+                          {category.title}
+                        </span>
+                        <span className="text-white/80 font-mono text-[10px] sm:text-xs">
+                          {formatDate(featured.publishedAt)}
+                        </span>
+                      </div>
 
-                    <Link
-                      href={`/blog/${featured.slug}`}
-                      className="inline-flex items-center gap-2 bg-white text-black font-black uppercase px-5 sm:px-6 py-3 text-xs sm:text-sm md:hover:bg-anime-red md:hover:text-white transition-all shadow-hard-green"
-                    >
-                      Jack In <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </article>
+                      <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white uppercase leading-[0.95] sm:leading-[0.88] md:leading-[0.85] mb-4 sm:mb-6 md:group-hover:text-anime-red transition-colors break-words">
+                        {featured.title.split(" ").slice(0, 3).join(" ")}
+                        {featured.title.split(" ").length > 3 ? (
+                          <>
+                            <br />
+                            <span className="text-outline">
+                              {featured.title.split(" ").slice(3).join(" ")}
+                            </span>
+                          </>
+                        ) : null}
+                      </h2>
+
+                      <p className="max-w-xl text-white/70 text-sm sm:text-base md:text-lg mb-5 sm:mb-6 line-clamp-3">
+                        {featured.excerpt ||
+                          "A featured read from this category. Tap in for the full breakdown."}
+                      </p>
+
+                      <div className="inline-flex items-center gap-2 bg-white text-black font-black uppercase px-5 sm:px-6 py-3 text-xs sm:text-sm md:hover:bg-anime-red md:hover:text-white transition-all shadow-hard-green">
+                        Jack In <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </article>
+                </Link>
               )}
 
               {/* FEATURED SIDE (not row-span on mobile) */}
               {rest[0] && (
-                <article className="lg:col-span-4 group relative min-h-[420px] sm:min-h-[520px] lg:min-h-[520px]">
-                  <div className="h-full bg-anime-panel border border-white/15 p-2 flex flex-col relative overflow-hidden md:group-hover:border-anime-lime transition-colors">
-                    <div className="absolute top-4 right-4 z-20 bg-black/80 backdrop-blur text-white border border-white/15 size-11 sm:size-12 rounded-full flex items-center justify-center">
-                      <Star className="h-5 w-5 text-anime-lime animate-bounce" />
-                    </div>
-
-                    <div className="relative h-52 sm:h-3/5 overflow-hidden mb-4 border border-white/10">
-                      {rest[0].mainImage?.asset?.url ? (
-                        <Image
-                          src={sanityImageUrl(rest[0].mainImage, {
-                            width: 1200,
-                          })}
-                          alt={rest[0].mainImage.alt || rest[0].title}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 520px"
-                          className="object-cover transition-transform duration-500 md:group-hover:scale-110 md:group-hover:rotate-2"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.18),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.18),transparent_55%)]" />
-                      )}
-                    </div>
-
-                    <div className="flex-grow flex flex-col justify-between p-4 bg-anime-ink border-t border-white/10">
-                      <div>
-                        <span className="text-anime-lime font-mono text-[10px] sm:text-xs uppercase mb-2 block">
-                          &gt; Essay
-                        </span>
-                        <h3 className="text-2xl sm:text-3xl font-black uppercase leading-none text-white mb-4 md:group-hover:text-anime-lime transition-colors">
-                          {rest[0].title}
-                        </h3>
-                        <p className="text-white/45 text-xs sm:text-sm line-clamp-3">
-                          {rest[0].excerpt ||
-                            "A sharp read from this category. No fluff, just the point."}
-                        </p>
+                <Link
+                  href={`/blog/${rest[0].slug}`}
+                  className="lg:col-span-4 group relative min-h-[420px] sm:min-h-[520px] lg:min-h-[520px]"
+                >
+                  <article className="h-full">
+                    <div className="h-full bg-anime-panel border border-white/15 p-2 flex flex-col relative overflow-hidden md:group-hover:border-anime-lime transition-colors">
+                      <div className="absolute top-4 right-4 z-20 bg-black/80 backdrop-blur text-white border border-white/15 size-11 sm:size-12 rounded-full flex items-center justify-center">
+                        <Star className="h-5 w-5 text-anime-lime animate-bounce" />
                       </div>
 
-                      <div className="flex justify-between items-center mt-6 border-t border-dashed border-white/10 pt-4">
-                        <div className="flex items-center gap-2">
-                          <div className="size-6 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
-                            <Circle className="h-3 w-3 text-white/50" />
+                      <div className="relative h-52 sm:h-3/5 overflow-hidden mb-4 border border-white/10">
+                        {rest[0].mainImage?.asset?.url ? (
+                          <Image
+                            src={sanityImageUrl(rest[0].mainImage, {
+                              width: 1200,
+                            })}
+                            alt={rest[0].mainImage.alt || rest[0].title}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 520px"
+                            className="object-cover transition-transform duration-500 md:group-hover:scale-110 md:group-hover:rotate-2"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.18),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.18),transparent_55%)]" />
+                        )}
+                      </div>
+
+                      <div className="flex-grow flex flex-col justify-between p-4 bg-anime-ink border-t border-white/10">
+                        <div>
+                          <span className="text-anime-lime font-mono text-[10px] sm:text-xs uppercase mb-2 block">
+                            &gt; Essay
+                          </span>
+                          <h3 className="text-2xl sm:text-3xl font-black uppercase leading-none text-white mb-4 md:group-hover:text-anime-lime transition-colors">
+                            {rest[0].title}
+                          </h3>
+                          <p className="text-white/45 text-xs sm:text-sm line-clamp-3">
+                            {rest[0].excerpt ||
+                              "A sharp read from this category. No fluff, just the point."}
+                          </p>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-6 border-t border-dashed border-white/10 pt-4">
+                          <div className="flex items-center gap-2">
+                            <div className="size-6 bg-white/10 rounded-full flex items-center justify-center border border-white/10">
+                              <Circle className="h-3 w-3 text-white/50" />
+                            </div>
+                            <span className="text-xs font-black text-white/55">
+                              Rushabh
+                            </span>
                           </div>
-                          <span className="text-xs font-black text-white/55">
-                            Rushabh
+                          <span className="text-[10px] sm:text-xs font-mono text-white/35">
+                            {formatDate(rest[0].publishedAt)}
                           </span>
                         </div>
-                        <span className="text-[10px] sm:text-xs font-mono text-white/35">
-                          {formatDate(rest[0].publishedAt)}
-                        </span>
-                      </div>
 
-                      <div className="mt-4">
-                        <Link
-                          href={`/blog/${rest[0].slug}`}
-                          className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-lime md:hover:underline underline-offset-4"
-                        >
-                          Read Now <ArrowRight className="h-4 w-4" />
-                        </Link>
+                        <div className="mt-4">
+                          <div className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-lime md:hover:underline underline-offset-4">
+                            Read Now <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               )}
 
               {/* 2 SMALL CARDS */}
               {rest.slice(1, 3).map((p, idx) => (
-                <article key={p._id} className="lg:col-span-4 group">
-                  <div className="bg-black border-2 border-white/15 p-1 transform transition-all duration-300 md:hover:-translate-y-2 shadow-hard-blue">
-                    <div className="aspect-video relative overflow-hidden bg-black mb-4 border border-white/10">
-                      {p.mainImage?.asset?.url ? (
-                        <Image
-                          src={sanityImageUrl(p.mainImage, { width: 1200 })}
-                          alt={p.mainImage.alt || p.title}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 520px"
-                          className="object-cover grayscale md:group-hover:grayscale-0 transition-all duration-500"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(242,13,13,0.25),transparent_60%),linear-gradient(315deg,rgba(0,243,255,0.18),transparent_60%)]" />
-                      )}
+                <Link
+                  key={p._id}
+                  href={`/blog/${p.slug}`}
+                  className="lg:col-span-4 group"
+                >
+                  <article>
+                    <div className="bg-black border-2 border-white/15 p-1 transform transition-all duration-300 md:hover:-translate-y-2 shadow-hard-blue">
+                      <div className="aspect-video relative overflow-hidden bg-black mb-4 border border-white/10">
+                        {p.mainImage?.asset?.url ? (
+                          <Image
+                            src={sanityImageUrl(p.mainImage, { width: 1200 })}
+                            alt={p.mainImage.alt || p.title}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 520px"
+                            className="object-cover transition-all duration-500"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(242,13,13,0.25),transparent_60%),linear-gradient(315deg,rgba(0,243,255,0.18),transparent_60%)]" />
+                        )}
 
-                      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-2">
-                        <span
-                          className={
-                            idx % 2 === 0
-                              ? "bg-anime-red text-white text-[10px] font-black px-1 uppercase"
-                              : "bg-anime-cyan text-black text-[10px] font-black px-1 uppercase"
-                          }
-                        >
-                          {idx % 2 === 0 ? "News" : "Review"}
-                        </span>
+                        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-2">
+                          <span
+                            className={
+                              idx % 2 === 0
+                                ? "bg-anime-red text-white text-[10px] font-black px-1 uppercase"
+                                : "bg-anime-cyan text-black text-[10px] font-black px-1 uppercase"
+                            }
+                          >
+                            {idx % 2 === 0 ? "News" : "Review"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="px-2 pb-2">
+                        <h3 className="text-lg sm:text-xl font-black uppercase leading-tight text-white mb-2 md:group-hover:text-anime-cyan break-words">
+                          {p.title}
+                        </h3>
+                        <p className="text-xs text-white/50 mb-3 line-clamp-2">
+                          {p.excerpt || "Quick hit from the category feed."}
+                        </p>
+                        <div className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4">
+                          Read Now
+                        </div>
                       </div>
                     </div>
-
-                    <div className="px-2 pb-2">
-                      <h3 className="text-lg sm:text-xl font-black uppercase leading-tight text-white mb-2 md:group-hover:text-anime-cyan break-words">
-                        {p.title}
-                      </h3>
-                      <p className="text-xs text-white/50 mb-3 line-clamp-2">
-                        {p.excerpt || "Quick hit from the category feed."}
-                      </p>
-                      <Link
-                        className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4"
-                        href={`/blog/${p.slug}`}
-                      >
-                        Read Now
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               ))}
 
               {/* QUOTE CARD */}
               {rest[3] && (
-                <article className="lg:col-span-4 group relative z-10">
-                  <div className="bg-anime-lime p-1 transform rotate-1 sm:rotate-2 md:hover:rotate-0 transition-all duration-300 shadow-lg md:hover:z-20">
-                    <div className="bg-black p-4 h-full flex flex-col">
-                      <div className="flex justify-between items-start mb-4">
-                        <Quote className="h-9 w-9 sm:h-10 sm:w-10 text-anime-lime" />
-                        <span className="font-mono text-[10px] sm:text-xs text-white/40">
-                          {formatDate(rest[3].publishedAt)}
-                        </span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-black uppercase leading-tight text-white mb-4 line-clamp-4">
-                        “{rest[3].title}”
-                      </h3>
-                      <div className="mt-auto pt-4 border-t border-white/10">
-                        <p className="font-black text-anime-lime text-sm uppercase">
-                          - From this category
-                        </p>
-                        <p className="text-white/45 text-xs uppercase">
-                          Tap it, read the full thing
-                        </p>
+                <Link
+                  href={`/blog/${rest[3].slug}`}
+                  className="lg:col-span-4 group relative z-10"
+                >
+                  <article>
+                    <div className="bg-anime-lime p-1 transform rotate-1 sm:rotate-2 md:hover:rotate-0 transition-all duration-300 shadow-lg md:hover:z-20">
+                      <div className="bg-black p-4 h-full flex flex-col">
+                        <div className="flex justify-between items-start mb-4">
+                          <Quote className="h-9 w-9 sm:h-10 sm:w-10 text-anime-lime" />
+                          <span className="font-mono text-[10px] sm:text-xs text-white/40">
+                            {formatDate(rest[3].publishedAt)}
+                          </span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black uppercase leading-tight text-white mb-4 line-clamp-4">
+                          “{rest[3].title}”
+                        </h3>
+                        <div className="mt-auto pt-4 border-t border-white/10">
+                          <p className="font-black text-anime-lime text-sm uppercase">
+                            - From this category
+                          </p>
+                          <p className="text-white/45 text-xs uppercase">
+                            Tap it, read the full thing
+                          </p>
 
-                        <Link
-                          href={`/blog/${rest[3].slug}`}
-                          className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors"
-                        >
-                          Open <ArrowRight className="h-4 w-4" />
-                        </Link>
+                          <div className="mt-4 inline-flex items-center gap-2 text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors">
+                            Open <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               )}
 
               {/* BIG HORIZONTAL BREAKING */}
               {rest[4] && (
-                <article className="lg:col-span-12 group mt-2">
-                  <div className="relative bg-anime-panel border-y-4 border-anime-red overflow-hidden md:hover:bg-black/40 transition-colors">
-                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-black to-transparent z-10 hidden md:block" />
-                    <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-center p-6 sm:p-8 relative z-20">
-                      <div className="order-2 md:order-1">
-                        <div className="flex items-center gap-4 mb-4">
-                          <span className="size-3 bg-anime-red rounded-full animate-ping" />
-                          <span className="font-black text-anime-red uppercase tracking-[0.2em] text-xs sm:text-sm">
-                            Breaking
-                          </span>
+                <Link
+                  href={`/blog/${rest[4].slug}`}
+                  className="lg:col-span-12 group mt-2"
+                >
+                  <article>
+                    <div className="relative bg-anime-panel border-y-4 border-anime-red overflow-hidden md:hover:bg-black/40 transition-colors">
+                      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-black to-transparent z-10 hidden md:block" />
+                      <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-center p-6 sm:p-8 relative z-20">
+                        <div className="order-2 md:order-1">
+                          <div className="flex items-center gap-4 mb-4">
+                            <span className="size-3 bg-anime-red rounded-full animate-ping" />
+                            <span className="font-black text-anime-red uppercase tracking-[0.2em] text-xs sm:text-sm">
+                              Breaking
+                            </span>
+                          </div>
+
+                          <h3 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase italic text-white mb-4 break-words">
+                            {rest[4].title.split(" ").slice(0, 2).join(" ")}
+                            <br />
+                            <span className="text-white/30">
+                              {rest[4].title.split(" ").slice(2).join(" ")}
+                            </span>
+                          </h3>
+
+                          <p className="text-white/55 mb-6 max-w-md text-sm sm:text-base line-clamp-3">
+                            {rest[4].excerpt ||
+                              "A longer breakdown built for a full read. Grab context first, then opinions."}
+                          </p>
+
+                          <div className="inline-block border-2 border-white text-white px-6 sm:px-8 py-3 text-xs sm:text-sm font-black uppercase md:hover:bg-white md:hover:text-black transition-colors">
+                            Full Breakdown
+                          </div>
                         </div>
 
-                        <h3 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase italic text-white mb-4 break-words">
-                          {rest[4].title.split(" ").slice(0, 2).join(" ")}
-                          <br />
-                          <span className="text-white/30">
-                            {rest[4].title.split(" ").slice(2).join(" ")}
-                          </span>
-                        </h3>
-
-                        <p className="text-white/55 mb-6 max-w-md text-sm sm:text-base line-clamp-3">
-                          {rest[4].excerpt ||
-                            "A longer breakdown built for a full read. Grab context first, then opinions."}
-                        </p>
-
-                        <Link
-                          className="inline-block border-2 border-white text-white px-6 sm:px-8 py-3 text-xs sm:text-sm font-black uppercase md:hover:bg-white md:hover:text-black transition-colors"
-                          href={`/blog/${rest[4].slug}`}
-                        >
-                          Full Breakdown
-                        </Link>
-                      </div>
-
-                      <div className="order-1 md:order-2 h-56 sm:h-64 md:h-full relative border border-white/10 overflow-hidden">
-                        {rest[4].mainImage?.asset?.url ? (
-                          <Image
-                            src={sanityImageUrl(rest[4].mainImage, {
-                              width: 1400,
-                            })}
-                            alt={rest[4].mainImage.alt || rest[4].title}
-                            fill
-                            sizes="(max-width: 1024px) 100vw, 700px"
-                            className="object-cover opacity-75"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(242,13,13,0.22),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(0,243,255,0.16),transparent_55%)]" />
-                        )}
+                        <div className="order-1 md:order-2 h-56 sm:h-64 md:h-full relative border border-white/10 overflow-hidden">
+                          {rest[4].mainImage?.asset?.url ? (
+                            <Image
+                              src={sanityImageUrl(rest[4].mainImage, {
+                                width: 1400,
+                              })}
+                              alt={rest[4].mainImage.alt || rest[4].title}
+                              fill
+                              sizes="(max-width: 1024px) 100vw, 700px"
+                              className="object-cover opacity-75"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(242,13,13,0.22),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(0,243,255,0.16),transparent_55%)]" />
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               )}
 
               {/* LIST ROW of SMALL BOOKMARK CARDS */}
               {rest.slice(5, 8).map((p) => (
-                <article key={p._id} className="lg:col-span-4 group">
-                  <div className="bg-white/5 border border-white/15 md:hover:border-white transition-all p-4 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2">
-                      <Bookmark className="h-5 w-5 text-white/25 md:group-hover:text-white transition-colors" />
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0 relative border border-white/15 bg-black overflow-hidden">
-                        {p.mainImage?.asset?.url ? (
-                          <Image
-                            src={sanityImageUrl(p.mainImage, { width: 600 })}
-                            alt={p.mainImage.alt || p.title}
-                            fill
-                            sizes="96px"
-                            className="object-cover"
-                          />
-                        ) : null}
+                <Link
+                  href={`/blog/${p.slug}`}
+                  className="lg:col-span-4 group"
+                  key={p._id}
+                >
+                  <article>
+                    <div className="bg-white/5 border border-white/15 md:hover:border-white transition-all p-4 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-2">
+                        <Bookmark className="h-5 w-5 text-white/25 md:group-hover:text-white transition-colors" />
                       </div>
-                      <div className="min-w-0">
-                        <span className="text-[10px] font-black text-anime-red uppercase mb-1 block">
-                          {category.title}
-                        </span>
-                        <h4 className="font-black text-white uppercase leading-tight mb-2 md:group-hover:underline underline-offset-4 break-words">
-                          {p.title}
-                        </h4>
-                        <span className="text-xs text-white/40">
-                          {formatDate(p.publishedAt)}
-                        </span>
+                      <div className="flex gap-4">
+                        <div className="w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0 relative border border-white/15 bg-black overflow-hidden">
+                          {p.mainImage?.asset?.url ? (
+                            <Image
+                              src={sanityImageUrl(p.mainImage, { width: 600 })}
+                              alt={p.mainImage.alt || p.title}
+                              fill
+                              sizes="96px"
+                              className="object-cover"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-black text-anime-red uppercase mb-1 block">
+                            {category.title}
+                          </span>
+                          <h4 className="font-black text-white uppercase leading-tight mb-2 md:group-hover:underline underline-offset-4 break-words">
+                            {p.title}
+                          </h4>
+                          <span className="text-xs text-white/40">
+                            {formatDate(p.publishedAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <div className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4">
+                          Read Now
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-3">
-                      <Link
-                        href={`/blog/${p.slug}`}
-                        className="text-anime-cyan text-xs font-black uppercase tracking-widest md:hover:underline underline-offset-4"
-                      >
-                        Read Now
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               ))}
 
               {/* WIDE ESSAY */}
               {rest[8] && (
-                <article className="lg:col-span-8 group relative mt-2">
-                  <div className="flex flex-col md:flex-row h-full bg-black border-2 border-white/15 md:hover:shadow-hard-green transition-all overflow-hidden">
-                    <div className="md:w-1/2 relative min-h-[220px] sm:min-h-[280px] md:min-h-[300px]">
-                      {rest[8].mainImage?.asset?.url ? (
-                        <Image
-                          src={sanityImageUrl(rest[8].mainImage, {
-                            width: 1400,
-                          })}
-                          alt={rest[8].mainImage.alt || rest[8].title}
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 760px"
-                          className="object-cover grayscale md:group-hover:grayscale-0 transition-all duration-500"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.15),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.2),transparent_55%)]" />
-                      )}
-                      <div className="absolute inset-0 opacity-30 [background-size:40px_40px] [background-image:linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)]" />
-                    </div>
+                <Link
+                  href={`/blog/${rest[8].slug}`}
+                  className="lg:col-span-8 group relative mt-2"
+                >
+                  <article>
+                    <div className="flex flex-col md:flex-row h-full bg-black border-2 border-white/15 md:hover:shadow-hard-green transition-all overflow-hidden">
+                      <div className="md:w-1/2 relative min-h-[220px] sm:min-h-[280px] md:min-h-[300px]">
+                        {rest[8].mainImage?.asset?.url ? (
+                          <Image
+                            src={sanityImageUrl(rest[8].mainImage, {
+                              width: 1400,
+                            })}
+                            alt={rest[8].mainImage.alt || rest[8].title}
+                            fill
+                            sizes="(max-width: 1024px) 100vw, 760px"
+                            className="object-cover transition-all duration-500"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.15),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.2),transparent_55%)]" />
+                        )}
+                        <div className="absolute inset-0 opacity-30 [background-size:40px_40px] [background-image:linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)]" />
+                      </div>
 
-                    <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center relative">
-                      <div className="absolute -left-3 top-8 size-6 bg-anime-lime rotate-45 border-2 border-black z-10 hidden md:block" />
+                      <div className="md:w-1/2 p-6 sm:p-8 flex flex-col justify-center relative">
+                        <div className="absolute -left-3 top-8 size-6 bg-anime-lime rotate-45 border-2 border-black z-10 hidden md:block" />
 
-                      <h3 className="text-2xl sm:text-3xl font-black uppercase text-white mb-4 md:group-hover:text-anime-lime transition-colors break-words">
-                        {rest[8].title}
-                      </h3>
+                        <h3 className="text-2xl sm:text-3xl font-black uppercase text-white mb-4 md:group-hover:text-anime-lime transition-colors break-words">
+                          {rest[8].title}
+                        </h3>
 
-                      <p className="text-white/55 text-sm mb-6 line-clamp-3">
-                        {rest[8].excerpt ||
-                          "A focused essay from this category. Built to be read slowly."}
-                      </p>
+                        <p className="text-white/55 text-sm mb-6 line-clamp-3">
+                          {rest[8].excerpt ||
+                            "A focused essay from this category. Built to be read slowly."}
+                        </p>
 
-                      <div className="flex items-center gap-3">
-                        <div className="h-px bg-white/15 flex-grow" />
-                        <Link
-                          className="text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors"
-                          href={`/blog/${rest[8].slug}`}
-                        >
-                          Read Essay
-                        </Link>
+                        <div className="flex items-center gap-3">
+                          <div className="h-px bg-white/15 flex-grow" />
+                          <div className="text-xs font-black uppercase text-white border border-white px-3 py-2 md:hover:bg-white md:hover:text-black transition-colors">
+                            Read Essay
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               )}
             </div>
           ) : (

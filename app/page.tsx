@@ -262,6 +262,7 @@ export default async function Home() {
                           alt={featured.mainImage.alt || featured.title}
                           fill
                           priority
+                          fetchPriority="high"
                           sizes="(max-width: 768px) 100vw, 620px"
                           className="object-cover"
                         />

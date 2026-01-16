@@ -160,6 +160,21 @@ export const categoriesWithCountsQuery = groq`
 }
 `;
 
+export const categoriesWithCoversQuery = groq`
+*[_type=="category"]|order(title asc){
+  _id,
+  title,
+  "slug": slug.current,
+  "postCount": count(*[_type=="post" && references(^._id)]),
+  "cover": *[_type=="post" && references(^._id) && defined(mainImage.asset)]|order(publishedAt desc)[0]{
+    title,
+    "slug": slug.current,
+    publishedAt,
+    mainImage
+  }
+}
+`;
+
 /* ----------------------------------------
    CATEGORY BY SLUG
 ---------------------------------------- */
