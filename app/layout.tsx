@@ -8,7 +8,6 @@ import {
   siteDescription,
   siteName,
 } from "@/utils/seo";
-import Script from "next/script";
 import { bungeeOutline, splineSans } from "@/lib/font";
 
 const geistSans = Geist({
@@ -24,7 +23,6 @@ const geistMono = Geist_Mono({
 });
 
 const baseUrl = getBaseUrl();
-const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -69,18 +67,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
           crossOrigin="anonymous"
         ></script>
+
         <GoogleAnalytics gaId="G-KDR02DTGWC" />
       </head>
+
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${bungeeOutline.variable} ${splineSans.variable} font-display antialiased bg-[#050505] text-[#f0f0f0]`}
+        className={[
+          geistSans.variable,
+          geistMono.variable,
+          bungeeOutline.variable,
+          splineSans.variable,
+          "font-display antialiased bg-[#050505] text-[#f0f0f0]",
+        ].join(" ")}
       >
         {children}
       </body>

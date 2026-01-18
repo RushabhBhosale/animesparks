@@ -177,9 +177,9 @@ export default async function Home() {
               ANIME
             </div>
 
-            <div className="relative z-10 mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+            <div className="relative z-10 mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 lg:gap-8 items-center">
               {/* LEFT */}
-              <div className="lg:col-span-7 flex flex-col gap-5 sm:gap-6 relative">
+              <div className="md:col-span-7 lg:col-span-7 flex flex-col gap-5 sm:gap-6 relative">
                 <div className="absolute -left-12 -top-12 size-24 border-4 border-dashed border-[#2f2f2f] rounded-full animate-[spin_10s_linear_infinite] opacity-40 hidden lg:block" />
 
                 {featured?.categories?.[0]?.title && (
@@ -250,13 +250,17 @@ export default async function Home() {
               {/* RIGHT IMAGE */}
               {featured?.mainImage?.asset?.url && (
                 <div
-                  className="lg:col-span-5 relative mt-2 sm:mt-6 lg:mt-0 group"
+                  className="md:col-span-5 lg:col-span-5 relative mt-2 sm:mt-6 lg:mt-0 group"
                   style={{ perspective: "1200px" }}
                 >
-                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10">
+                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10 overflow-hidden">
                     {/* keep a solid aspect on mobile, not too tall */}
                     <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-[#0c0c0c] md:grayscale lg:group-hover:grayscale-0 transition-all duration-500">
-                      <Link prefetch={false} href={`/blog/${featured.slug}`}>
+                      <Link
+                        prefetch={false}
+                        href={`/blog/${featured.slug}`}
+                        className="relative block h-full w-full"
+                      >
                         <Image
                           src={sanityHeroImageUrl(featured.mainImage)}
                           alt={featured.mainImage.alt || featured.title}
@@ -282,7 +286,7 @@ export default async function Home() {
                   </div>
 
                   {/* offset border: reduce on mobile */}
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-full h-full border-4 border-[#f20d0d] z-10 -translate-x-3 translate-y-3 sm:-translate-x-4 sm:translate-y-4" />
+                  <div className="pointer-events-none absolute inset-0 border-4 border-[#f20d0d] z-10 translate-x-3 translate-y-3 sm:translate-x-4 sm:translate-y-4" />
                 </div>
               )}
             </div>
@@ -290,7 +294,7 @@ export default async function Home() {
 
           {/* Marquee */}
           {marqueeTitles.length > 0 && (
-            <div className="bg-[#f20d0d] overflow-hidden py-3 transform -rotate-1 origin-left w-[105%] -ml-2 border-y-4 border-black z-20 relative">
+            <div className="bg-[#f20d0d] overflow-hidden py-3 transform -rotate-1 origin-left w-[105%] max-w-full -ml-2 border-y-4 border-black z-20 relative">
               <div className="whitespace-nowrap flex gap-10 marquee-track">
                 {marqueeTitles.concat(marqueeTitles).map((title, idx) => (
                   <span
@@ -355,12 +359,12 @@ export default async function Home() {
                                 <Link
                                   prefetch={false}
                                   href={`/blog/${post.slug}`}
-                                  className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest md:hover:gap-4 transition-all"
-                                  aria-label={`Read more about ${post.title ?? "this article"}`}
+                                  className="relative block h-full w-full"
+                                  aria-label={`Read ${post.title ?? "this article"}`}
                                 >
                                   <Image
                                     src={sanityImageUrl(post.mainImage, {
-                                      width: 1200,
+                                      width: 900,
                                     })}
                                     alt={post.mainImage.alt || post.title}
                                     fill
@@ -418,9 +422,13 @@ export default async function Home() {
                               prefetch={false}
                               href={`/blog/${post.slug}`}
                               className="inline-flex items-center gap-2 text-[#f20d0d] font-bold uppercase text-xs tracking-widest md:hover:gap-4 transition-all"
-                              aria-label={`Read more about ${post.title ?? "this article"}`}
+                              aria-label={`Read ${post.title ?? "this article"}`}
                             >
-                              Read More <ArrowUpRight className="h-4 w-4" />
+                              <span aria-hidden="true">Read More</span>
+                              <span className="sr-only">
+                                {`Read ${post.title ?? "this article"}`}
+                              </span>
+                              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                             </Link>
                           </div>
                         </div>
@@ -435,6 +443,7 @@ export default async function Home() {
                           prefetch={false}
                           href={`/blog/${post.slug}`}
                           key={post._id}
+                          aria-label={`Read ${post.title ?? "this article"}`}
                         >
                           <article className="group relative pl-6 border-l-2 border-[#1f1f1f] md:hover:border-[#00f3ff] transition-colors">
                             <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] md:group-hover:border-[#00f3ff] md:group-hover:bg-[#00f3ff] transition-colors rounded-full" />
@@ -443,7 +452,7 @@ export default async function Home() {
                                 <div className="relative h-20 w-28 sm:h-24 sm:w-32 overflow-hidden border border-[#2a2a2a] shrink-0">
                                   <Image
                                     src={sanityImageUrl(post.mainImage, {
-                                      width: 600,
+                                      width: 500,
                                     })}
                                     alt={post.mainImage.alt || post.title}
                                     fill
@@ -516,6 +525,7 @@ export default async function Home() {
                               key={post._id}
                               href={`/blog/${post.slug}`}
                               className="flex gap-4 items-start group"
+                              aria-label={`Read ${post.title ?? "this article"}`}
                             >
                               <span className="text-3xl sm:text-4xl font-black text-[#2c2c2c] md:group-hover:text-[#f20d0d] transition-colors italic shrink-0 leading-none">
                                 {idx + 1}
