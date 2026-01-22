@@ -72,7 +72,7 @@ export default async function CategoriesPage() {
 
   try {
     categories = await client.fetch<CategoryWithCover[]>(
-      categoriesWithCoversQuery
+      categoriesWithCoversQuery,
     );
   } catch {
     const basic = await client.fetch<Category[]>(categoriesWithCountsQuery);
@@ -148,7 +148,7 @@ export default async function CategoriesPage() {
             </div>
 
             {/* Signal Filter (scrollable on mobile) */}
-            <div className="relative  md:w-[300px] p-4 sm:p-6 border-2 border-white/20 bg-black/50 backdrop-blur-sm transform md:-rotate-2 md:hover:rotate-0 transition-transform duration-300">
+            <div className="relative  md:w-[400px] p-4 sm:p-6 border-2 border-white/20 bg-black/50 backdrop-blur-sm transform md:-rotate-2 md:hover:rotate-0 transition-transform duration-300">
               <div className="absolute -top-3 -right-3 size-4 bg-[#f20d0d] animate-pulse" />
               <div className="absolute -bottom-3 -left-3 size-4 bg-[#ccff00]" />
 
