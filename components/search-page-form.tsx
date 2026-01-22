@@ -21,7 +21,11 @@ export function SearchPageForm({ initialQuery }: Props) {
 
   useEffect(() => {
     setValue(initialQuery);
-  }, [initialQuery]);
+    lastSent.current =
+      initialQuery.trim().length >= 2
+        ? `${pathname}?q=${encodeURIComponent(initialQuery.trim())}`
+        : pathname;
+  }, [initialQuery, pathname]);
 
   const trimmed = useMemo(() => value.trim(), [value]);
 

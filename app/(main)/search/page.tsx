@@ -146,7 +146,7 @@ export default async function SearchPage({
           </p>
         </div>
 
-        <SearchPageForm initialQuery={query} />
+        <SearchPageForm key={query} initialQuery={query} />
 
         <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
           <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">

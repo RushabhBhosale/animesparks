@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 export const revalidate = 60;
+const PAGE_SIZE = 12;
 
 type Category = {
   _id: string;
@@ -44,7 +45,7 @@ type CategoryPost = {
 };
 
 const getCategory = cache(async (slug: string) =>
-  client.fetch<Category | null>(categoryBySlugQuery, { slug })
+  client.fetch<Category | null>(categoryBySlugQuery, { slug }),
 );
 
 const getDescription = (category: Category) =>
@@ -104,11 +105,11 @@ const categoryMetaPresets = [
 const resolveCategoryMeta = (
   category: Category,
   fallbackTitle: string,
-  fallbackDescription: string
+  fallbackDescription: string,
 ) => {
   const keys = [category.title, category.slug].filter(Boolean);
   const preset = categoryMetaPresets.find((entry) =>
-    keys.some((key) => entry.keys.includes(normalizeKey(key)))
+    keys.some((key) => entry.keys.includes(normalizeKey(key))),
   );
 
   return preset || { title: fallbackTitle, description: fallbackDescription };
@@ -131,7 +132,7 @@ export async function generateMetadata({
   const meta = resolveCategoryMeta(
     category,
     `Category: ${category.title}`,
-    description
+    description,
   );
 
   return {
@@ -173,11 +174,16 @@ export default async function CategoryDetailPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ sort?: string | string[] }>;
+  searchParams?: Promise<{
+    sort?: string | string[];
+    page?: string | string[];
+  }>;
 }) {
   const { slug } = await params;
   const sp = (await searchParams) || {};
   const sortParam = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
+  const pageParam = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+  const pageNumber = Math.max(1, Number.parseInt(pageParam || "1", 10) || 1);
 
   if (!slug) return notFound();
 
@@ -207,8 +213,25 @@ export default async function CategoryDetailPage({
     );
   });
 
-  const featured = sorted[0] || null;
-  const rest = sorted.slice(1);
+  const visibleLimit = pageNumber * PAGE_SIZE;
+  const visibleSorted = sorted.slice(0, visibleLimit);
+  const hasMore = sorted.length > visibleLimit;
+
+  const featured = visibleSorted[0] || null;
+  const rest = visibleSorted.slice(1);
+  const additional = rest.slice(10);
+
+  const buildPageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (sortParam) params.set("sort", sortParam);
+    if (page > 1) params.set("page", String(page));
+    const suffix = params.toString();
+    return suffix
+      ? `/categories/${category.slug}?${suffix}`
+      : `/categories/${category.slug}`;
+  };
+
+  const nextPageHref = buildPageHref(pageNumber + 1);
 
   const manifestTags =
     (featured?.tags?.slice(0, 3) && featured.tags.slice(0, 3)) ||
@@ -344,7 +367,7 @@ export default async function CategoryDetailPage({
 
         {/* GRID */}
         <div className="max-w-[1600px] mx-auto px-4 lg:px-8 relative z-10 pb-20">
-          {posts.length ? (
+          {visibleSorted.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 auto-rows-min">
               {/* FEATURED BIG */}
               {featured && (
@@ -715,6 +738,87 @@ export default async function CategoryDetailPage({
                   </article>
                 </Link>
               )}
+
+              {rest[9] && (
+                <Link
+                  href={`/blog/${rest[9].slug}`}
+                  className="lg:col-span-4 group relative mt-2"
+                >
+                  <article className="h-full bg-black border-2 border-white/15 hover:shadow-hard-green transition-all overflow-hidden flex flex-col">
+                    <div className="relative min-h-[100px]">
+                      {rest[9].mainImage?.asset?.url ? (
+                        <Image
+                          src={sanityImageUrl(rest[9].mainImage, {
+                            width: 800,
+                          })}
+                          alt={rest[9].mainImage.alt || rest[9].title}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 380px"
+                          className="object-cover transition-all duration-500"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.15),transparent_55%)]" />
+                      )}
+                      <div className="absolute inset-0 opacity-30 [background-size:40px_40px] [background-image:linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)]" />
+                    </div>
+
+                    <div className="p-6 flex flex-col justify-between flex-grow">
+                      <h3 className="text-xl font-black uppercase text-white mb-3 group-hover:text-anime-lime transition-colors break-words">
+                        {rest[9].title}
+                      </h3>
+
+                      <p className="text-white/55 text-sm line-clamp-3 mb-6">
+                        {rest[9].excerpt ||
+                          "A focused essay exploring pressure, effort, and consequence."}
+                      </p>
+
+                      <div className="text-xs font-black uppercase text-white border border-white px-3 py-2 self-start hover:bg-white hover:text-black transition-colors">
+                        Read Essay
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              )}
+
+              {/* ADDITIONAL FILES */}
+              {additional.length ? (
+                <div className="lg:col-span-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 mt-4">
+                    {additional.map((p) => (
+                      <Link
+                        key={p._id}
+                        href={`/blog/${p.slug}`}
+                        className="group block h-full"
+                      >
+                        <article className="h-full border border-white/10 bg-black/50 p-4 sm:p-5 flex flex-col gap-3 transition-colors md:hover:border-anime-lime/60">
+                          <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-white/50">
+                            <span className="bg-anime-red text-white px-2 py-1 border border-white/10">
+                              File
+                            </span>
+                            <span className="text-white/40">
+                              {formatDate(p.publishedAt)}
+                            </span>
+                          </div>
+
+                          <h4 className="text-lg sm:text-xl font-black uppercase leading-tight text-white md:group-hover:text-anime-lime break-words">
+                            {p.title}
+                          </h4>
+
+                          <p className="text-xs sm:text-sm text-white/55 line-clamp-3">
+                            {p.excerpt ||
+                              "Filed in this category. Open for the full brief."}
+                          </p>
+
+                          <div className="mt-auto inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-cyan">
+                            Continue
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </article>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -735,9 +839,13 @@ export default async function CategoryDetailPage({
           )}
 
           {/* LOAD MORE (UI only) */}
-          {posts.length > 10 ? (
+          {hasMore ? (
             <div className="mt-12 sm:mt-20 flex justify-center px-4">
-              <button className="relative group overflow-hidden w-full sm:w-auto px-7 sm:px-12 py-4 sm:py-6 bg-transparent border-2 border-white/15 md:hover:border-anime-red transition-colors">
+              <Link
+                href={nextPageHref}
+                scroll={false}
+                className="relative group overflow-hidden w-full sm:w-auto px-7 sm:px-12 py-4 sm:py-6 bg-transparent border-2 border-white/15 md:hover:border-anime-red transition-colors"
+              >
                 <span className="absolute top-0 left-0 w-full h-full bg-anime-red -translate-x-full md:group-hover:translate-x-0 transition-transform duration-300 ease-in-out z-0" />
                 <span className="relative z-10 text-base sm:text-xl font-black uppercase tracking-[0.22em] sm:tracking-[0.3em] text-white md:group-hover:text-black">
                   Load More Data
@@ -745,7 +853,7 @@ export default async function CategoryDetailPage({
                 <span className="absolute -bottom-2 -right-2 text-6xl text-white/10 md:group-hover:text-black/20 font-black z-0 transition-colors">
                   <Plus className="h-10 w-10" />
                 </span>
-              </button>
+              </Link>
             </div>
           ) : null}
         </div>
