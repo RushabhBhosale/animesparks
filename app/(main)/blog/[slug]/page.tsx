@@ -57,7 +57,7 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
 };
 
 const getPost = cache(async (slug: string) =>
-  client.fetch<Post | null>(blogBySlugQuery, { slug })
+  client.fetch<Post | null>(blogBySlugQuery, { slug }),
 );
 
 export async function generateMetadata({
@@ -150,12 +150,8 @@ export default async function BlogDetailPage({
           categoryIds,
         })
       : [];
-<<<<<<< Updated upstream
   const nextBlog = related[0];
   const sidebarRelated = nextBlog ? related.slice(1) : related;
-  const bodyWithAds = insertInlineAd(post.body);
-=======
->>>>>>> Stashed changes
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
@@ -267,7 +263,7 @@ export default async function BlogDetailPage({
                             year: "numeric",
                             month: "long",
                             day: "numeric",
-                          }
+                          },
                         )}
                       </time>
                     )}

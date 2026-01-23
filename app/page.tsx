@@ -132,7 +132,7 @@ export default async function Home() {
     editorsWithViews.length > 0 ? editorsWithViews : latestWithViews;
   const editorsPicks = takeUniqueById(editorsSource, new Set(baseUsed)).slice(
     0,
-    3
+    3,
   );
 
   const usedForLatest = new Set(baseUsed);
@@ -341,7 +341,7 @@ export default async function Home() {
                         key={post._id}
                         className={clsx(
                           "group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] transition-colors md:hover:border-[#f20d0d] min-w-0",
-                          alignReverse ? "md:text-right" : ""
+                          alignReverse ? "md:text-right" : "",
                         )}
                       >
                         <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] md:group-hover:border-[#f20d0d] md:group-hover:bg-[#f20d0d] transition-colors rounded-full" />
@@ -351,7 +351,7 @@ export default async function Home() {
                           <div
                             className={clsx(
                               "relative overflow-hidden border border-[#2a2a2a] md:group-hover:border-[#f20d0d]/60 transition-colors",
-                              alignReverse ? "md:order-2" : ""
+                              alignReverse ? "md:order-2" : "",
                             )}
                           >
                             {post.mainImage?.asset?.url ? (
@@ -381,7 +381,7 @@ export default async function Home() {
                           <div
                             className={clsx(
                               "flex flex-col justify-center min-w-0",
-                              alignReverse ? "md:order-1" : ""
+                              alignReverse ? "md:order-1" : "",
                             )}
                           >
                             <div
@@ -389,7 +389,7 @@ export default async function Home() {
                                 "flex flex-wrap gap-2 mb-3",
                                 alignReverse
                                   ? "justify-start md:justify-end"
-                                  : "justify-start"
+                                  : "justify-start",
                               )}
                             >
                               {post.categories?.[0]?.title && (
@@ -428,7 +428,10 @@ export default async function Home() {
                               <span className="sr-only">
                                 {`Read ${post.title ?? "this article"}`}
                               </span>
-                              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                              <ArrowUpRight
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
                             </Link>
                           </div>
                         </div>
@@ -492,7 +495,7 @@ export default async function Home() {
                 <aside className="lg:col-span-4 space-y-10 lg:space-y-12 relative min-w-0">
                   <div className="lg:sticky lg:top-24 space-y-8">
                     {/* Merch */}
-                    <div className="bg-[#f20d0d] p-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,0.7)] lg:hover:translate-x-1 lg:hover:translate-y-1 lg:hover:shadow-none transition-all cursor-pointer group">
+                    {/* <div className="bg-[#f20d0d] p-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,0.7)] lg:hover:translate-x-1 lg:hover:translate-y-1 lg:hover:shadow-none transition-all cursor-pointer group">
                       <div className="bg-black p-6 h-56 sm:h-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
                         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#2d2d2d_1px,transparent_1px)] [background-size:14px_14px]" />
                         <h4 className="text-2xl font-black text-white uppercase italic z-10">
@@ -507,7 +510,7 @@ export default async function Home() {
                           Shop Now
                         </button>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Must Reads */}
                     {mustReads.length > 0 && (
