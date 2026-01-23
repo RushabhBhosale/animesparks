@@ -7,7 +7,6 @@ import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
-import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { formatDate } from "@/utils/date";
@@ -55,31 +54,6 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
   const trimmed = source.replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
-};
-
-const insertInlineAd = (blocks: any) => {
-  if (!Array.isArray(blocks)) return blocks;
-  let paragraphCount = 0;
-  const insertAfter = new Set([2, 6]);
-  const output: any[] = [];
-
-  for (const block of blocks) {
-    output.push(block);
-    if (
-      block?._type === "block" &&
-      (block.style === "normal" || !block.style)
-    ) {
-      paragraphCount += 1;
-      if (insertAfter.has(paragraphCount)) {
-        output.push({
-          _type: "adSlot",
-          _key: `ad-inline-${paragraphCount}`,
-        });
-      }
-    }
-  }
-
-  return output;
 };
 
 const getPost = cache(async (slug: string) =>
@@ -176,9 +150,12 @@ export default async function BlogDetailPage({
           categoryIds,
         })
       : [];
+<<<<<<< Updated upstream
   const nextBlog = related[0];
   const sidebarRelated = nextBlog ? related.slice(1) : related;
   const bodyWithAds = insertInlineAd(post.body);
+=======
+>>>>>>> Stashed changes
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
@@ -341,17 +318,9 @@ export default async function BlogDetailPage({
             {/* Article Body */}
             <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 md:hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
-                value={bodyWithAds}
+                value={post.body}
                 components={{
                   types: {
-                    adSlot: () => (
-                      <div
-                        className="my-10 not-prose"
-                        aria-label="Advertisement"
-                      >
-                        <AdSlot variant="inline" className="min-h-62.5" />
-                      </div>
-                    ),
                     image: ({ value }) => {
                       if (!value?.asset) return null;
                       const src = sanityImageUrl(value, { width: 1200 });
@@ -452,8 +421,6 @@ export default async function BlogDetailPage({
                 </div>
               </section>
             ) : null}
-
-            <AdSlot variant="full" className="mt-12 not-prose" />
 
             {/* FAQ */}
             {post.faq?.length ? (
@@ -611,8 +578,6 @@ export default async function BlogDetailPage({
                   </div>
                 </section>
               ) : null}
-
-              <AdSlot variant="sidebar" />
 
               {/* Newsletter Signup */}
               <div className="rounded-sm border-2 border-red-600 bg-white p-6">

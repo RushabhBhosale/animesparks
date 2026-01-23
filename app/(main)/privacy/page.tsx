@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
 
@@ -65,8 +64,6 @@ export default function PrivacyPage() {
             </div>
           </div>
 
-          <AdSlot variant="full" />
-
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1">
             <div>
               <h2 className="text-2xl font-black uppercase tracking-tight text-white">
@@ -90,8 +87,6 @@ export default function PrivacyPage() {
               </p>
             </div>
           </div>
-
-          <AdSlot variant="full" />
         </section>
       </div>
     </main>

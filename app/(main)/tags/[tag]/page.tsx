@@ -2,7 +2,6 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { blogsByTagQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
-import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { sanityImageUrl } from "@/sanity/lib/image";
@@ -159,8 +158,6 @@ export default async function TagPage({
       />
 
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 space-y-8">
-        <AdSlot variant="full" className="mb-8" />
-
         <section className="space-y-6">
           <div className="flex items-center gap-3">
             <div className="h-2 w-2 rounded-full bg-[#ccff00]" />
@@ -213,8 +210,6 @@ export default async function TagPage({
             </p>
           )}
         </section>
-
-        <AdSlot variant="full" className="mt-6" />
       </div>
     </main>
   );

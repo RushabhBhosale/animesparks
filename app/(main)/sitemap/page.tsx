@@ -2,7 +2,6 @@ import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { categoriesQuery, sitemapPageBlogsQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
-import { AdSlot } from "@/components/ads/ad-slot";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
@@ -53,8 +52,11 @@ const coreLinks = [
   { label: "My Anime List", href: "/my-anime-list" },
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
+<<<<<<< Updated upstream
   { label: "Advertise", href: "/advertise" },
   { label: "Contact", href: "/contact" },
+=======
+>>>>>>> Stashed changes
   { label: "About", href: "/about" },
   { label: "Privacy", href: "/privacy" },
 ];
@@ -101,8 +103,6 @@ export default async function SitemapPage() {
           </div>
         </section>
 
-        <AdSlot variant="full" className="mb-10" />
-
         {categories?.length ? (
           <section className="space-y-6">
             <div className="flex items-center gap-3">
@@ -120,12 +120,10 @@ export default async function SitemapPage() {
                 >
                   {category.title}
                 </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <AdSlot variant="full" className="mb-10" />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
         {posts?.length ? (
           <section className="space-y-6">

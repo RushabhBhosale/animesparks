@@ -7,7 +7,6 @@ import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl } from "@/sanity/lib/image";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
 import { BlogListContent } from "./blog-list-content";
@@ -329,8 +328,6 @@ export default async function AllBlogsPage({
                 posts={allPosts}
                 initialVisible={featured ? 9 : 10}
               />
-
-              <AdSlot variant="inline" className="mt-8" />
             </section>
           </div>
 
@@ -362,8 +359,6 @@ export default async function AllBlogsPage({
                 </section>
               )}
 
-              <AdSlot variant="sidebar" />
-
               <section className="relative ob-panel border-2 border-white/10 bg-anime-panel p-6 shadow-hard-white">
                 <div className="pointer-events-none absolute -top-3 right-6 h-6 w-20 rotate-10 bg-white/10 border border-white/10" />
                 <h3 className="text-lg font-black uppercase text-white">
@@ -390,8 +385,6 @@ export default async function AllBlogsPage({
                   Zero spam. Only the stories worth reading.
                 </p>
               </section>
-
-              <AdSlot variant="sidebar" />
 
               {popularTags.length > 0 && (
                 <section className="relative ob-panel border-2 border-white/10 bg-anime-panel p-5 shadow-hard-white">

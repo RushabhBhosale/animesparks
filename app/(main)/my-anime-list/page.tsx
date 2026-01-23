@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { PageHero } from "@/components/page-hero";
 import { client } from "@/sanity/lib/client";
 import { animeListQuery } from "@/sanity/blogQueries";
@@ -86,8 +85,6 @@ export default async function MyAnimeListPage() {
           </div>
         </div>
 
-        <AdSlot variant="full" className="my-8" />
-
         {animeList.length ? (
           <div className="rounded-sm border border-[#1f1f1f] bg-[#0b0b0b]">
             <ul className="divide-y divide-[#1f1f1f]">
@@ -141,8 +138,6 @@ export default async function MyAnimeListPage() {
             No anime entries yet. Add your list in the Sanity Studio.
           </div>
         )}
-
-        <AdSlot variant="full" className="mt-10" />
       </div>
     </main>
   );
