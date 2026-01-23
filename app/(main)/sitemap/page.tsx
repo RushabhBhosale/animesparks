@@ -52,11 +52,6 @@ const coreLinks = [
   { label: "My Anime List", href: "/my-anime-list" },
   { label: "Categories", href: "/categories" },
   { label: "Trending", href: "/trending" },
-<<<<<<< Updated upstream
-  { label: "Advertise", href: "/advertise" },
-  { label: "Contact", href: "/contact" },
-=======
->>>>>>> Stashed changes
   { label: "About", href: "/about" },
   { label: "Privacy", href: "/privacy" },
 ];
@@ -120,10 +115,10 @@ export default async function SitemapPage() {
                 >
                   {category.title}
                 </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {posts?.length ? (
           <section className="space-y-6">
