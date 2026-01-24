@@ -87,6 +87,21 @@ export default function PrivacyPage() {
               </p>
             </div>
           </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-1">
+            <div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                Advertising Cookies (Google AdSense)
+              </h2>
+              <p className="mt-3">
+                Third-party vendors, including Google, may use cookies to serve
+                ads based on a user’s prior visits to this website or other
+                websites. Google’s use of advertising cookies enables it and its
+                partners to serve ads based on your visit to AnimeSparks and/or
+                other sites on the internet. Users may opt out of personalized
+                advertising by visiting Google’s Ads Settings.
+              </p>
+            </div>
+          </div>
         </section>
       </div>
     </main>
