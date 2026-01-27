@@ -15,17 +15,19 @@ import type { BlogCategory, BlogPost } from "./types";
 
 export const revalidate = 60;
 
+const metaTitle = "All Anime Articles & Analysis";
+const metaDescription =
+  "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.";
+
 export const metadata: Metadata = {
-  title: "All Anime Articles & Analysis | AnimeSparks",
-  description:
-    "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: {
     canonical: "/blogs",
   },
   openGraph: {
-    title: "All Anime Articles & Analysis | AnimeSparks",
-    description:
-      "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/blogs",
     type: "website",
     siteName,
@@ -33,9 +35,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "All Anime Articles & Analysis | AnimeSparks",
-    description:
-      "Browse all anime articles on AnimeSparks — reviews, breakdowns, opinions, and deep dives into storytelling, characters, and themes.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };
@@ -100,7 +101,7 @@ export default async function AllBlogsPage({
         ? [...posts].sort(
             (a, b) =>
               getTime(b.publishedAt, b._createdAt) -
-              getTime(a.publishedAt, a._createdAt)
+              getTime(a.publishedAt, a._createdAt),
           )
         : posts;
 
@@ -110,7 +111,7 @@ export default async function AllBlogsPage({
   const popularTags = Array.from(tagCounts.entries())
     .sort(
       ([tagA, countA], [tagB, countB]) =>
-        countB - countA || tagA.localeCompare(tagB)
+        countB - countA || tagA.localeCompare(tagB),
     )
     .slice(0, 16)
     .map(([tag]) => tag);
@@ -281,7 +282,7 @@ export default async function AllBlogsPage({
                     "px-6 py-3 font-black uppercase tracking-[0.18em] text-sm border-2 transition-all",
                     activeSort === "all"
                       ? "bg-anime-lime text-black border-white shadow-hard"
-                      : "bg-black text-white border-white/20 md:hover:border-anime-lime md:hover:text-anime-lime"
+                      : "bg-black text-white border-white/20 md:hover:border-anime-lime md:hover:text-anime-lime",
                   )}
                 >
                   All Posts
@@ -421,7 +422,7 @@ export default async function AllBlogsPage({
                       >
                         {label}
                       </a>
-                    )
+                    ),
                   )}
                 </div>
               </section>

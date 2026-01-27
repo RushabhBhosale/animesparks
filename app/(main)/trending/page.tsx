@@ -10,17 +10,19 @@ import { fetchGaPageViews } from "@/lib/analytics";
 
 export const revalidate = 60;
 
+const metaTitle = "Trending Anime Articles Right Now";
+const metaDescription =
+  "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.";
+
 export const metadata: Metadata = {
-  title: "Trending Anime Articles Right Now | AnimeSparks",
-  description:
-    "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: {
     canonical: "/trending",
   },
   openGraph: {
-    title: "Trending Anime Articles Right Now | AnimeSparks",
-    description:
-      "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/trending",
     type: "website",
     siteName,
@@ -28,9 +30,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trending Anime Articles Right Now | AnimeSparks",
-    description:
-      "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };

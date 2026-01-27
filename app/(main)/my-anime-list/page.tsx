@@ -8,17 +8,19 @@ import { defaultOgImage, siteName } from "@/utils/seo";
 
 export const revalidate = 60;
 
+const metaTitle = "My Anime Watchlist & Ratings";
+const metaDescription =
+  "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.";
+
 export const metadata: Metadata = {
-  title: "My Anime Watchlist & Ratings | AnimeSparks",
-  description:
-    "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: {
     canonical: "/my-anime-list",
   },
   openGraph: {
-    title: "My Anime Watchlist & Ratings | AnimeSparks",
-    description:
-      "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/my-anime-list",
     type: "website",
     siteName,
@@ -26,9 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "My Anime Watchlist & Ratings | AnimeSparks",
-    description:
-      "A personal anime watchlist with ratings and thoughts on every series watched — from mainstream hits to overlooked gems.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };

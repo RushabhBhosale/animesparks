@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { PageHero } from "@/components/page-hero";
 
+const metaTitle = "Privacy Policy";
+const metaDescription =
+  "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.";
+
 export const metadata: Metadata = {
-  title: "Privacy Policy | AnimeSparks",
-  description:
-    "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: {
     canonical: "/privacy",
   },
   openGraph: {
-    title: "Privacy Policy | AnimeSparks",
-    description:
-      "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/privacy",
     type: "website",
     siteName,
@@ -20,9 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy | AnimeSparks",
-    description:
-      "Read AnimeSparks’ privacy policy explaining how data is handled, stored, and protected when you browse the website.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };

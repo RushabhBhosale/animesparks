@@ -8,15 +8,17 @@ import { splineSans } from "@/lib/font";
 
 export const revalidate = 60;
 
+const metaTitle = "Anime Categories & Topics";
+const metaDescription =
+  "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.";
+
 export const metadata: Metadata = {
-  title: "Anime Categories & Topics | AnimeSparks",
-  description:
-    "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: { canonical: "/categories" },
   openGraph: {
-    title: "Anime Categories & Topics | AnimeSparks",
-    description:
-      "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/categories",
     type: "website",
     siteName,
@@ -24,9 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Anime Categories & Topics | AnimeSparks",
-    description:
-      "Explore anime by category — reviews, opinions, lists, and news covering shonen, psychological anime, isekai, and more.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };

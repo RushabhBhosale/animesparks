@@ -88,7 +88,7 @@ export async function generateMetadata({
   const baseUrl = getBaseUrl();
   const title = query
     ? `Search results for "${query}"`
-    : "Search AnimeSparks archive";
+    : "Search the archive";
   const description = query
     ? `Live results for "${query}" across AnimeSparks analyses, dossiers, and breakdowns.`
     : "Search the AnimeSparks archive of analyses, lore breakdowns, and character studies.";

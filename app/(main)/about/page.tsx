@@ -3,15 +3,17 @@ import Link from "next/link";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { ArrowRight, Eye, Brain, Skull, User } from "lucide-react";
 
+const metaTitle = "About — Why This Anime Site Exists";
+const metaDescription =
+  "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.";
+
 export const metadata: Metadata = {
-  title: "About AnimeSparks — Why This Anime Site Exists",
-  description:
-    "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About AnimeSparks — Why This Anime Site Exists",
-    description:
-      "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/about",
     type: "website",
     siteName,
@@ -19,9 +21,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "About AnimeSparks — Why This Anime Site Exists",
-    description:
-      "AnimeSparks explores anime through deeper analysis, honest opinions, and storytelling breakdowns for viewers who want more than hype.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };

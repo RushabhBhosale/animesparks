@@ -8,17 +8,19 @@ import { PageHero } from "@/components/page-hero";
 
 export const revalidate = 60;
 
+const metaTitle = "Sitemap";
+const metaDescription =
+  "A complete sitemap of AnimeSparks to help users and search engines navigate all pages and anime content easily.";
+
 export const metadata: Metadata = {
-  title: "AnimeSparks Sitemap",
-  description:
-    "A complete sitemap of AnimeSparks to help users and search engines navigate all pages and anime content easily.",
+  title: metaTitle,
+  description: metaDescription,
   alternates: {
     canonical: "/sitemap",
   },
   openGraph: {
-    title: "AnimeSparks Sitemap",
-    description:
-      "A complete sitemap of AnimeSparks to help users and search engines navigate all pages and anime content easily.",
+    title: metaTitle,
+    description: metaDescription,
     url: "/sitemap",
     type: "website",
     siteName,
@@ -26,9 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AnimeSparks Sitemap",
-    description:
-      "A complete sitemap of AnimeSparks to help users and search engines navigate all pages and anime content easily.",
+    title: metaTitle,
+    description: metaDescription,
     images: [defaultOgImage],
   },
 };
