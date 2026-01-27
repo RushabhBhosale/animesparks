@@ -8,13 +8,21 @@ import clsx from "clsx";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate } from "@/utils/date";
 
-import type { BlogPost } from "./types";
+import type { BlogPost, TrendingRange } from "./types";
+
+type FilterValue = "recent" | "popular" | "discussed" | "visual" | "all";
 
 type TrendingContentProps = {
   posts: BlogPost[];
+  range: TrendingRange;
+  currentSort?: FilterValue;
 };
 
-export function TrendingContent({ posts }: TrendingContentProps) {
+export function TrendingContent({
+  posts,
+  range,
+  currentSort = "popular",
+}: TrendingContentProps) {
   // start smaller on mobile, keep 10 on md+
   const [visibleCount, setVisibleCount] = useState(10);
 
@@ -41,6 +49,41 @@ export function TrendingContent({ posts }: TrendingContentProps) {
     };
   }, []);
 
+  const rangeOptions: {
+    value: TrendingRange;
+    label: string;
+    meta: string;
+    tone: string;
+  }[] = [
+    {
+      value: "week",
+      label: "This Week",
+      meta: "Last 7 days",
+      tone: "bg-anime-lime text-black border-black shadow-hard",
+    },
+    {
+      value: "month",
+      label: "This Month",
+      meta: "Last 30 days",
+      tone: "bg-anime-red text-white border-black shadow-hard-white",
+    },
+    {
+      value: "year",
+      label: "This Year",
+      meta: "Last 12 months",
+      tone: "bg-anime-cyan text-black border-white shadow-hard",
+    },
+  ];
+
+  const buildRangeHref = (value: TrendingRange) => {
+    const params = new URLSearchParams();
+    if (value !== "month") params.set("range", value);
+    if (currentSort && currentSort !== "popular")
+      params.set("sort", currentSort);
+    const qs = params.toString();
+    return qs ? `/trending?${qs}` : "/trending";
+  };
+
   return (
     <section className="relative w-full pt-10 md:pt-28 pb-16 md:pb-20">
       {/* Background decorative text (lighter + safer on mobile) */}
@@ -61,21 +104,46 @@ export function TrendingContent({ posts }: TrendingContentProps) {
             </span>
           </h1>
 
-          {/* Filters: visible on mobile as horizontal scroll, stays on right on md+ */}
-          <div className="hidden lg:block md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 md:w-[28%] z-20 pointer-events-auto">
+          {/* Range controls: visible on all screens, scrollable on small */}
+          <div className="md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 md:w-[32%] z-20 pointer-events-auto">
             <div className="flex md:flex-wrap gap-3 md:gap-4 overflow-x-auto md:overflow-visible -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0">
-              <button className="shrink-0 bg-anime-lime text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-3 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
-                🔥 This Week
-              </button>
-              <button className="shrink-0 bg-anime-red text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-2 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-black shadow-hard-white cursor-pointer">
-                📈 Popular Now
-              </button>
-              <button className="shrink-0 bg-anime-cyan text-black font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:-rotate-2 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard cursor-pointer">
-                💬 Most Discussed
-              </button>
-              <button className="shrink-0 bg-black text-white font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform md:rotate-3 md:hover:rotate-0 md:hover:scale-[1.03] transition-all border-2 border-white shadow-hard-green cursor-pointer">
-                👁️ Visuals
-              </button>
+              {rangeOptions.map((option) => {
+                const active = range === option.value;
+                return (
+                  <Link
+                    key={option.value}
+                    href={buildRangeHref(option.value)}
+                    scroll={false}
+                    className={clsx(
+                      "shrink-0 font-black uppercase text-xs sm:text-sm md:text-base px-4 sm:px-6 py-3 transform transition-all border-2",
+                      option.tone,
+                      active
+                        ? "md:rotate-0 scale-[1.04] ring-4 ring-white/20"
+                        : "md:hover:rotate-0 md:hover:scale-[1.03] opacity-90 md:hover:opacity-100",
+                      option.value === "week"
+                        ? "md:-rotate-3"
+                        : option.value === "month"
+                          ? "md:rotate-2"
+                          : "md:-rotate-2",
+                    )}
+                    aria-label={`Show trending ${option.meta.toLowerCase()}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {option.value === "week"
+                          ? "🔥"
+                          : option.value === "month"
+                            ? "📈"
+                            : "🗓️"}
+                      </span>
+                      {option.label}
+                    </div>
+                    <span className="block text-[10px] font-mono uppercase tracking-[0.14em] mt-1">
+                      {option.meta}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </header>
@@ -188,20 +256,20 @@ export function TrendingContent({ posts }: TrendingContentProps) {
                   href={`/blog/${post.slug}`}
                   className={clsx(
                     "group block relative transform transition-all md:hover:rotate-0 md:hover:-translate-y-2",
-                    rotation
+                    rotation,
                   )}
                 >
                   <div
                     className={clsx(
                       "relative bg-black p-4 border-2",
                       color.border,
-                      "shadow-hard-white"
+                      "shadow-hard-white",
                     )}
                   >
                     <div
                       className={clsx(
                         "absolute -top-4 -left-4 font-black text-base sm:text-lg px-3 py-2 border-2 border-black shadow-hard z-10",
-                        color.badge
+                        color.badge,
                       )}
                     >
                       0{idx + 2}

@@ -5,7 +5,7 @@ import { blogsQuery } from "@/sanity/blogQueries";
 import { sanityHeroImageUrl } from "@/sanity/lib/image";
 import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
 import { TrendingContent } from "./trending-content";
-import type { BlogPost } from "./types";
+import type { BlogPost, TrendingRange } from "./types";
 import { fetchGaPageViews } from "@/lib/analytics";
 
 export const revalidate = 60;
@@ -36,14 +36,29 @@ export const metadata: Metadata = {
 };
 
 type FilterValue = "recent" | "popular" | "discussed" | "visual" | "all";
+const DAY_MS = 1000 * 60 * 60 * 24;
 
 export default async function TrendingPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ sort?: string | string[] }>;
+  searchParams?: Promise<{ sort?: string | string[]; range?: string | string[] }>;
 }) {
   const params = (await searchParams) ?? {};
   const sort = Array.isArray(params.sort) ? params.sort[0] : params.sort;
+  const rangeParam = Array.isArray(params.range)
+    ? params.range[0]
+    : params.range;
+  const rangeValue: TrendingRange = (() => {
+    switch ((rangeParam || "").toLowerCase()) {
+      case "week":
+        return "week";
+      case "year":
+        return "year";
+      case "month":
+      default:
+        return "month";
+    }
+  })();
   const posts = (await client.fetch<BlogPost[]>(blogsQuery)) ?? [];
 
   const slugs = posts.map((post) => post.slug).filter(Boolean);
@@ -75,6 +90,17 @@ export default async function TrendingPage({
       return score + (tagCounts.get(cleaned) || 0);
     }, 0);
 
+  const filterByRange = (list: BlogPost[]) => {
+    const windowDays = rangeValue === "week" ? 7 : rangeValue === "year" ? 365 : 30;
+    const cutoff = Date.now() - windowDays * DAY_MS;
+    const scoped = list.filter(
+      (post) => getTime(post.publishedAt, post._createdAt) >= cutoff
+    );
+    return scoped.length ? scoped : list;
+  };
+
+  const postsInRange = filterByRange(postsWithViews);
+
   const filterValue: FilterValue = (() => {
     switch ((sort || "").toLowerCase()) {
       case "recent":
@@ -90,13 +116,13 @@ export default async function TrendingPage({
     }
   })();
 
-  const sortByRecent = [...postsWithViews].sort(
+  const sortByRecent = [...postsInRange].sort(
     (a, b) =>
       getTime(b.publishedAt, b._createdAt) -
       getTime(a.publishedAt, a._createdAt)
   );
 
-  const sortByPopularity = [...postsWithViews].sort((a, b) => {
+  const sortByPopularity = [...postsInRange].sort((a, b) => {
     const viewsDiff = (b.viewCount ?? 0) - (a.viewCount ?? 0);
     if (viewsDiff !== 0) return viewsDiff;
     const diff = popularityScore(b) - popularityScore(a);
@@ -107,7 +133,7 @@ export default async function TrendingPage({
     );
   });
 
-  const sortByDiscussed = [...postsWithViews].sort((a, b) => {
+  const sortByDiscussed = [...postsInRange].sort((a, b) => {
     const scoreA =
       (a.viewCount ?? 0) * 0.5 + popularityScore(a) + (a.tags?.length ?? 0);
     const scoreB =
@@ -119,7 +145,7 @@ export default async function TrendingPage({
     );
   });
 
-  const visualPosts = postsWithViews.filter((post) =>
+  const visualPosts = postsInRange.filter((post) =>
     (post.categories || []).some((category) => {
       const label = category?.title?.toLowerCase() || "";
       return (
@@ -136,12 +162,12 @@ export default async function TrendingPage({
       : filterValue === "popular"
         ? sortByPopularity
         : filterValue === "discussed"
-          ? sortByDiscussed
-        : filterValue === "visual"
-          ? visualPosts.length
-            ? visualPosts
-            : sortByRecent
-          : postsWithViews;
+      ? sortByDiscussed
+      : filterValue === "visual"
+        ? visualPosts.length
+          ? visualPosts
+          : sortByRecent
+          : postsInRange;
 
   if (!sortedPosts.length) {
     return (
@@ -217,7 +243,7 @@ export default async function TrendingPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listSchema) }}
       />
 
-      <TrendingContent posts={sortedPosts} />
+      <TrendingContent posts={sortedPosts} range={rangeValue} currentSort={filterValue} />
     </main>
   );
 }

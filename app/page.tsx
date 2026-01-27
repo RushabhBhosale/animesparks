@@ -99,7 +99,11 @@ export default async function Home() {
   const [latest, homepageSettings, trendingPack] = await Promise.all([
     client.fetch<BlogCard[]>(latestBlogsQuery),
     client.fetch<HomepageSettings | null>(homepageSettingsQuery),
-    getTrendingPosts({ limit: 10 }),
+    getTrendingPosts({
+      limit: 10,
+      collageWindowDays: 30, // Trending Now window: 30 days
+      mustReadsWindowDays: 7, // Popular This Week window: 7 days
+    }),
   ]);
 
   const latestPosts = Array.isArray(latest) ? latest : [];
@@ -169,7 +173,7 @@ export default async function Home() {
         {/* fix any accidental horizontal overflow from rotated/marquee */}
         <div className="relative min-h-screen overflow-x-hidden">
           {/* Hero */}
-          <header className="relative w-full pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 md:px-8 overflow-hidden">
+          <div className="relative w-full pt-24 md:pt-12 pb-12 sm:pb-16 md:pb-20 px-4 md:px-8 overflow-hidden">
             <div className="absolute top-0 right-0 w-2/3 h-full bg-[#f20d0d0d] -skew-x-12 z-0 pointer-events-none" />
 
             {/* decorative ANIME - smaller on mobile */}
@@ -236,7 +240,7 @@ export default async function Home() {
                   {featured?.categories?.[0]?.slug && (
                     <Link
                       href={`/categories/${featured.categories[0].slug}`}
-                      className="w-full sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full"
+                      className="w-full mt-4 sm:mt-0 sm:w-auto flex items-center justify-center sm:justify-start gap-2 px-4 py-3 border border-[#2f2f2f] bg-black/60 backdrop-blur-sm rounded-full"
                     >
                       <span className="text-xs font-bold uppercase text-gray-300">
                         {featured.categories[0].title}
@@ -250,10 +254,10 @@ export default async function Home() {
               {/* RIGHT IMAGE */}
               {featured?.mainImage?.asset?.url && (
                 <div
-                  className="md:col-span-5 lg:col-span-5 relative mt-2 sm:mt-6 lg:mt-0 group"
+                  className="hidden md:block md:col-span-5 lg:col-span-5 relative mt-2 sm:mt-6 lg:mt-0 group"
                   style={{ perspective: "1200px" }}
                 >
-                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10 overflow-hidden">
+                  <div className="relative z-20 bg-black p-2 transform transition-transform duration-500 lg:group-hover:rotate-2 lg:group-hover:scale-105 border-2 border-white/10 overflow-visible">
                     {/* keep a solid aspect on mobile, not too tall */}
                     <div className="relative aspect-[4/5] sm:aspect-square w-full overflow-hidden bg-[#0c0c0c] md:grayscale lg:group-hover:grayscale-0 transition-all duration-500">
                       <Link
@@ -290,7 +294,7 @@ export default async function Home() {
                 </div>
               )}
             </div>
-          </header>
+          </div>
 
           {/* Marquee */}
           {marqueeTitles.length > 0 && (

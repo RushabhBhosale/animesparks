@@ -20,3 +20,5 @@ export type BlogPost = {
     alt?: string;
   };
 };
+
+export type TrendingRange = "week" | "month" | "year";
