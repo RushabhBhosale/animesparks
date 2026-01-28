@@ -5,6 +5,7 @@ import { sanityImageUrl } from "@/sanity/lib/image";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { splineSans } from "@/lib/font";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 export const revalidate = 60;
 
@@ -398,6 +399,20 @@ export default async function CategoriesPage() {
               </Link>
             ) : null}
 
+            {/* Ad: above Fandom strip */}
+            <div className="md:col-span-12 mt-6 sm:mt-8">
+              <div className="relative bg-black border border-white/10 p-4 sm:p-5 md:p-6">
+                <div className="border border-white/10 bg-[#0b0b0b] p-2 sm:p-3 flex justify-center">
+                  <AdSlot
+                    variant="inline"
+                    slot="6734179013"
+                    insClassName="min-h-[200px] sm:min-h-[240px]"
+                    className="my-0 w-full"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* FANDOM STRIP */}
             <div className="md:col-span-12 mt-6 sm:mt-8">
               <div className="relative bg-[#050505] border-y-4 border-gray-800 py-10 sm:py-12 group cursor-pointer overflow-hidden">
@@ -444,6 +459,20 @@ export default async function CategoriesPage() {
                   <span className="text-5xl sm:text-6xl text-[#ccff00] drop-shadow-[2px_2px_0_rgba(255,255,255,0.5)]">
                     🙂
                   </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Ad: below Fandom strip */}
+            <div className="md:col-span-12 mt-6 sm:mt-8">
+              <div className="relative bg-black border border-white/10 p-4 sm:p-5 md:p-6">
+                <div className="border border-white/10 bg-[#0b0b0b] p-2 sm:p-3 flex justify-center">
+                  <AdSlot
+                    variant="inline"
+                    slot="4108015676"
+                    insClassName="min-h-[200px] sm:min-h-[240px]"
+                    className="my-0 w-full"
+                  />
                 </div>
               </div>
             </div>

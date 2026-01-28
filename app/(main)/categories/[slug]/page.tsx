@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { client } from "@/sanity/lib/client";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import {
@@ -367,6 +368,20 @@ export default async function CategoryDetailPage({
 
         {/* GRID */}
         <div className="max-w-[1600px] mx-auto px-4 lg:px-8 relative z-10 pb-20">
+          {/* Ad slot above grid */}
+          <div className="mb-8 sm:mb-10">
+            <div className="relative bg-black border border-white/10 p-4 sm:p-5 md:p-6">
+              <div className="border border-white/10 bg-[#0b0b0b] p-2 sm:p-3 flex justify-center">
+                <AdSlot
+                  variant="inline"
+                  slot="9168770663"
+                  insClassName="min-h-[200px] sm:min-h-[240px]"
+                  className="my-0 w-full"
+                />
+              </div>
+            </div>
+          </div>
+
           {visibleSorted.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 auto-rows-min">
               {/* FEATURED BIG */}
@@ -783,33 +798,50 @@ export default async function CategoryDetailPage({
               {/* ADDITIONAL FILES */}
               {additional.length ? (
                 <div className="lg:col-span-12">
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 mt-4">
                     {additional.map((p) => (
                       <Link
                         key={p._id}
                         href={`/blog/${p.slug}`}
                         className="group block h-full"
                       >
-                        <article className="h-full border border-white/10 bg-black/50 p-4 sm:p-5 flex flex-col gap-3 transition-colors md:hover:border-anime-lime/60">
-                          <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-white/50">
-                            <span className="bg-anime-red text-white px-2 py-1 border border-white/10">
-                              File
+                        <article className="h-full border border-white/10 bg-black/50 p-3 sm:p-4 flex flex-col gap-2.5 transition-colors md:hover:border-anime-lime/60">
+                          {p.mainImage?.asset?.url ? (
+                            <div className="relative aspect-video w-full overflow-hidden border border-white/10">
+                              <Image
+                                src={sanityImageUrl(p.mainImage, {
+                                  width: 700,
+                                })}
+                                alt={p.mainImage.alt || p.title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 520px"
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                            </div>
+                          ) : (
+                            <div className="aspect-video w-full bg-[radial-gradient(circle_at_30%_20%,rgba(204,255,0,0.15),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(242,13,13,0.15),transparent_55%)] border border-white/10" />
+                          )}
+
+                          <div className="flex items-center gap-2.5 text-[10px] uppercase font-black tracking-[0.2em] text-white/60">
+                            <span className="bg-anime-red text-white px-2 py-0.5 border border-white/10">
+                              {p.categories?.[0]?.title || category.title}
                             </span>
                             <span className="text-white/40">
                               {formatDate(p.publishedAt)}
                             </span>
                           </div>
 
-                          <h4 className="text-lg sm:text-xl font-black uppercase leading-tight text-white md:group-hover:text-anime-lime break-words">
+                          <h4 className="text-base sm:text-lg font-black uppercase leading-tight text-white md:group-hover:text-anime-lime break-words">
                             {p.title}
                           </h4>
 
-                          <p className="text-xs sm:text-sm text-white/55 line-clamp-3">
+                          <p className="text-[11px] sm:text-sm text-white/55 line-clamp-3">
                             {p.excerpt ||
                               "Filed in this category. Open for the full brief."}
                           </p>
 
-                          <div className="mt-auto inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-cyan">
+                          <div className="mt-auto inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase text-anime-cyan">
                             Continue
                             <ArrowRight className="h-4 w-4" />
                           </div>
@@ -837,6 +869,20 @@ export default async function CategoryDetailPage({
               </div>
             </div>
           )}
+
+          {/* Ad slot below grid */}
+          <div className="mt-10 sm:mt-14">
+            <div className="relative bg-black border border-white/10 p-4 sm:p-5 md:p-6 ">
+              <div className="border border-white/10 bg-[#0b0b0b] p-2 sm:p-3 flex justify-center">
+                <AdSlot
+                  variant="inline"
+                  slot="6542607320"
+                  insClassName="min-h-[200px] sm:min-h-[240px]"
+                  className="my-0 w-full"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* LOAD MORE (UI only) */}
           {hasMore ? (

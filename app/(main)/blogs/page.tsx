@@ -12,6 +12,7 @@ import { PageHero } from "@/components/page-hero";
 import { BlogListContent } from "./blog-list-content";
 import { canonicalizeSearchValue } from "@/utils/search-index";
 import type { BlogCategory, BlogPost } from "./types";
+import { AdSlot } from "@/components/ads/ad-slot";
 
 export const revalidate = 60;
 
@@ -206,17 +207,19 @@ export default async function AllBlogsPage({
                 <div className="grid gap-6 md:grid-cols-12">
                   <div className="md:col-span-7 relative bg-black border border-white/10">
                     {featured.mainImage?.asset?.url && (
-                      <div className="relative h-64 w-full md:h-full overflow-hidden">
-                        <Image
-                          src={sanityHeroImageUrl(featured.mainImage)}
-                          alt={featured.mainImage.alt || featured.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 960px"
-                          className="object-cover transition-transform duration-500 md:hover:scale-105"
-                          priority
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-                      </div>
+                      <Link href={`/blog/${featured.slug}`}>
+                        <div className="relative h-64 w-full md:h-full overflow-hidden">
+                          <Image
+                            src={sanityHeroImageUrl(featured.mainImage)}
+                            alt={featured.mainImage.alt || featured.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 960px"
+                            className="object-cover transition-transform duration-500 md:hover:scale-105"
+                            priority
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                        </div>
+                      </Link>
                     )}
 
                     <div className="pointer-events-none absolute -top-3 right-6 h-6 w-20 rotate-[10deg] bg-white/10 border border-white/10" />
@@ -335,6 +338,17 @@ export default async function AllBlogsPage({
           {/* RIGHT */}
           <aside className="md:col-span-4">
             <div className="md:sticky md:top-24 space-y-6">
+              <section className="relative ob-panel border-2 border-white/10 bg-anime-panel p-5 shadow-hard-white">
+                <div className="border border-white/10 bg-black/70 p-3 flex justify-center">
+                  <AdSlot
+                    variant="sidebar"
+                    slot="8047260683"
+                    insClassName="min-h-[250px]"
+                    className="my-0"
+                  />
+                </div>
+              </section>
+
               {categories.length > 0 && (
                 <section className="relative ob-panel border-2 border-white/10 bg-anime-panel p-5 shadow-hard-white">
                   <div className="pointer-events-none absolute -top-3 right-6 h-6 w-20 rotate-[10deg] bg-white/10 border border-white/10" />
