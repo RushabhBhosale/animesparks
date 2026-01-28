@@ -19,12 +19,10 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import clsx from "clsx";
 import { getTrendingPosts } from "@/lib/trending";
-import { AdSlot } from "@/components/ads/ad-slot";
 
 export const revalidate = 60;
 
-const metaTitle =
-  "AnimeSparks — Deep Anime Analysis, Reviews & Recommendations";
+const metaTitle = "AnimeSparks — Deep Anime Analysis, Reviews & Recommendations";
 const metaDescription =
   "Thoughtful anime analysis, sharp reviews, and honest opinions on popular and underrated series. Explore anime beyond surface-level hype.";
 
@@ -339,13 +337,13 @@ export default async function Home() {
                     </span>
                   </h3>
 
-                  {mainUpdates.flatMap((post, idx) => {
+                  {mainUpdates.map((post, idx) => {
                     const badgeColors = ["#f20d0d", "#00f3ff", "#ccff00"];
                     const alignReverse = idx === 1;
 
-                    const nodes = [
+                    return (
                       <article
-                        key={post._id ?? idx}
+                        key={post._id}
                         className={clsx(
                           "group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] transition-colors md:hover:border-[#f20d0d] min-w-0",
                           alignReverse ? "md:text-right" : "",
@@ -442,29 +440,8 @@ export default async function Home() {
                             </Link>
                           </div>
                         </div>
-                      </article>,
-                    ];
-
-                    if (idx === 1) {
-                      nodes.push(
-                        <div
-                          key="latest-ad-slot"
-                          className="group relative pl-6 sm:pl-8 border-l-2 border-[#1f1f1f] md:hover:border-[#00f3ff]/60 transition-colors py-5 sm:py-6 min-h-[220px] md:min-h-[270px]"
-                        >
-                          <div className="absolute -left-2 top-0 size-4 bg-[#050505] border-2 border-[#3b3b3b] md:group-hover:border-[#00f3ff] md:group-hover:bg-[#00f3ff] transition-colors rounded-full" />
-                          <div className="border border-[#2a2a2a]  md:hover:border-[#00f3ff]/40 transition-colors h-full flex items-center justify-center">
-                            <AdSlot
-                              variant="inline"
-                              slot="7832811727"
-                              insClassName="min-h-[260px] md:min-h-[320px]"
-                              className="my-0 w-full"
-                            />
-                          </div>
-                        </div>,
-                      );
-                    }
-
-                    return nodes;
+                      </article>
+                    );
                   })}
 
                   {moreUpdates.length > 0 && (
@@ -523,7 +500,22 @@ export default async function Home() {
                 <aside className="lg:col-span-4 space-y-10 lg:space-y-12 relative min-w-0">
                   <div className="lg:sticky lg:top-24 space-y-8">
                     {/* Merch */}
-                    <AdSlot variant="inline" slot="1720691334" />
+                    {/* <div className="bg-[#f20d0d] p-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,0.7)] lg:hover:translate-x-1 lg:hover:translate-y-1 lg:hover:shadow-none transition-all cursor-pointer group">
+                      <div className="bg-black p-6 h-56 sm:h-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#2d2d2d_1px,transparent_1px)] [background-size:14px_14px]" />
+                        <h4 className="text-2xl font-black text-white uppercase italic z-10">
+                          Anime
+                          <br />
+                          Merch
+                        </h4>
+                        <p className="text-gray-400 text-xs mb-4 z-10">
+                          Limited Edition Drops
+                        </p>
+                        <button className="bg-white text-black text-xs font-bold uppercase px-4 py-2 z-10 md:group-hover:bg-[#f20d0d] md:group-hover:text-white transition-colors">
+                          Shop Now
+                        </button>
+                      </div>
+                    </div> */}
 
                     {/* Must Reads */}
                     {mustReads.length > 0 && (
@@ -575,9 +567,6 @@ export default async function Home() {
                         Subscribe
                       </button>
                     </div>
-                  </div>
-                  <div className="border border-white">
-                    <AdSlot variant="vertical" slot="1315504838" />
                   </div>
                 </aside>
               </div>

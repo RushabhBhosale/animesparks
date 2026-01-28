@@ -4,11 +4,9 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
-import type { ReactNode } from "react";
 
 import { sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate } from "@/utils/date";
-import { AdSlot } from "@/components/ads/ad-slot";
 
 import type { BlogPost, TrendingRange } from "./types";
 
@@ -341,110 +339,78 @@ export function TrendingContent({
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-            {gridPosts.flatMap((post, idx) => {
-              const blocks: ReactNode[] = [];
+            {gridPosts.map((post, idx) => (
+              <article key={post._id}>
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="group block relative transition-all md:hover:-translate-y-2"
+                >
+                  <div className="relative bg-anime-panel border-2 border-white/20 p-4 sm:p-6 shadow-hard-white">
+                    <div className="absolute -top-4 -left-4 bg-white text-black font-black text-base sm:text-lg px-3 py-2 border-2 border-black shadow-hard z-10">
+                      {String(idx + 5).padStart(2, "0")}
+                    </div>
 
-              blocks.push(
-                <article key={post._id}>
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="group block relative transition-all md:hover:-translate-y-2"
-                  >
-                    <div className="relative bg-anime-panel border-2 border-white/20 p-4 sm:p-6 shadow-hard-white">
-                      <div className="absolute -top-4 -left-4 bg-white text-black font-black text-base sm:text-lg px-3 py-2 border-2 border-black shadow-hard z-10">
-                        {String(idx + 5).padStart(2, "0")}
+                    {post.mainImage ? (
+                      <div className="relative h-44 sm:h-48 mb-4 overflow-hidden border border-white/10">
+                        <Image
+                          src={sanityImageUrl(post.mainImage, { width: 900 })}
+                          alt={post.mainImage.alt || post.title}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 650px"
+                          className="object-cover transition-transform duration-500 md:group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      </div>
+                    ) : null}
+
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-anime-red text-white text-[10px] font-black uppercase px-2 py-1">
+                          {post.categories?.[0]?.title ?? "News"}
+                        </span>
+                        <span className="text-xs font-mono text-gray-500">
+                          {formatDate(post.publishedAt)}
+                        </span>
+                        {post.viewCount !== undefined ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-200 border border-white/10">
+                            <svg
+                              className="h-3 w-3"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {post.viewCount.toLocaleString()}
+                          </span>
+                        ) : null}
                       </div>
 
-                      {post.mainImage ? (
-                        <div className="relative h-44 sm:h-48 mb-4 overflow-hidden border border-white/10">
-                          <Image
-                            src={sanityImageUrl(post.mainImage, { width: 900 })}
-                            alt={post.mainImage.alt || post.title}
-                            fill
-                            sizes="(max-width: 1024px) 100vw, 650px"
-                            className="object-cover transition-transform duration-500 md:group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                        </div>
+                      <h4 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight md:group-hover:text-anime-cyan transition-colors line-clamp-3">
+                        {post.title}
+                      </h4>
+
+                      {post.excerpt ? (
+                        <p className="text-sm text-gray-400 line-clamp-3">
+                          {post.excerpt}
+                        </p>
                       ) : null}
 
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="bg-anime-red text-white text-[10px] font-black uppercase px-2 py-1">
-                            {post.categories?.[0]?.title ?? "News"}
-                          </span>
-                          <span className="text-xs font-mono text-gray-500">
-                            {formatDate(post.publishedAt)}
-                          </span>
-                          {post.viewCount !== undefined ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-200 border border-white/10">
-                              <svg
-                                className="h-3 w-3"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.6"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                              >
-                                <path d="M2.1 12S5.4 5 12 5s9.9 7 9.9 7-3.3 7-9.9 7S2.1 12 2.1 12Z" />
-                                <circle cx="12" cy="12" r="3" />
-                              </svg>
-                              {post.viewCount.toLocaleString()}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <h4 className="text-xl sm:text-2xl font-black uppercase text-white leading-tight md:group-hover:text-anime-cyan transition-colors line-clamp-3">
-                          {post.title}
-                        </h4>
-
-                        {post.excerpt ? (
-                          <p className="text-sm text-gray-400 line-clamp-3">
-                            {post.excerpt}
-                          </p>
-                        ) : null}
-
-                        <div className="pt-1">
-                          <span className="text-xs font-black uppercase text-white/60 md:group-hover:text-anime-lime transition-colors">
-                            Continue Reading →
-                          </span>
-                        </div>
+                      <div className="pt-1">
+                        <span className="text-xs font-black uppercase text-white/60 md:group-hover:text-anime-lime transition-colors">
+                          Continue Reading →
+                        </span>
                       </div>
                     </div>
-                  </Link>
-                </article>,
-              );
-              const TRENDING_AD_SLOTS = ["4975548249", "9842723932"];
-
-              if (idx === 0 || idx === 2) {
-                const adSlot =
-                  idx === 0 ? TRENDING_AD_SLOTS[0] : TRENDING_AD_SLOTS[1];
-
-                blocks.push(
-                  <article
-                    key={`trending-ad-${idx}`}
-                    className="relative bg-anime-panel border-2 border-white/15 p-4 sm:p-6 shadow-hard-white"
-                  >
-                    <div className="absolute -top-4 -left-4 bg-[#ccff00] text-black font-black text-base sm:text-lg px-3 py-2 border-2 border-black shadow-hard z-10">
-                      AD
-                    </div>
-
-                    <div className="border border-white/10 bg-black/70 p-2 sm:p-3 flex justify-center overflow-hidden max-h-[260px] sm:max-h-[270px]">
-                      <AdSlot
-                        variant="inline"
-                        slot={adSlot}
-                        insClassName="min-h-[160px] sm:min-h-[200px] w-full"
-                        className="my-0 w-full"
-                      />
-                    </div>
-                  </article>,
-                );
-              }
-
-              return blocks;
-            })}
+                  </div>
+                </Link>
+              </article>
+            ))}
           </div>
 
           {hasMore ? (

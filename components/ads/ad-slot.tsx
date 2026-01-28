@@ -1,55 +1,50 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect } from "react";
-
-type AdSlotVariant = "sidebar" | "inline" | "full" | "vertical";
+type AdSlotVariant = "sidebar" | "inline" | "full";
 
 const sizeClasses: Record<AdSlotVariant, string> = {
   sidebar: "min-h-[250px] w-full sm:w-[300px]",
   inline: "min-h-[220px] w-full",
   full: "min-h-[220px] w-full",
-  vertical: "min-h-[400px]! w-full",
 };
 
 type AdSlotProps = {
   variant: AdSlotVariant;
   className?: string;
-  insClassName?: string;
-  slot: string; // AdSense ad slot ID
 };
 
-export function AdSlot({
-  variant,
-  className,
-  insClassName,
-  slot,
-}: AdSlotProps) {
+export function AdSlot({ variant, className }: AdSlotProps) {
   const sizeClass = sizeClasses[variant];
-
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.warn("AdSense error", e);
-    }
-  }, []);
 
   return (
     <aside
-      aria-label="Advertisement"
-      className={["my-6", className].filter(Boolean).join(" ")}
+      aria-label="Advertisement placeholder"
+      className={["space-y-2", className].filter(Boolean).join(" ")}
     >
-      <ins
-        className={["adsbygoogle", sizeClass, insClassName]
-          .filter(Boolean)
-          .join(" ")}
-        style={{ display: "block" }}
-        data-ad-client="ca-pub-1425611919231559"
-        data-ad-slot={slot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      <div
+        className={[
+          "flex flex-col justify-between rounded-sm border border-solid border-gray-300 bg-gray-50 p-4 text-xs text-gray-600",
+          sizeClass,
+        ].join(" ")}
+      >
+        <div className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Ad Placeholder
+          </p>
+          <p className="text-sm font-medium text-gray-800">
+            This space is reserved for ads
+          </p>
+          <p className="text-xs text-gray-600">
+            Advertisements will appear here in the future.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-end pt-2">
+          <span className="text-[11px] uppercase tracking-wider text-gray-400">
+            AnimeSparks
+          </span>
+        </div>
+      </div>
     </aside>
   );
 }

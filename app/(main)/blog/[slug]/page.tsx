@@ -1,22 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { cache } from "react";
 import { PortableText } from "@portabletext/react";
-import type {
-  PortableTextComponents,
-  PortableTextBlockComponent,
-} from "@portabletext/react";
-import type { Metadata } from "next";
-
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
-
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
-
+import type { Metadata } from "next";
+import { cache } from "react";
 import { formatDate } from "@/utils/date";
 import {
   defaultOgImage,
@@ -25,8 +17,8 @@ import {
   siteAuthorUrl,
   siteName,
 } from "@/utils/seo";
+import Image from "next/image";
 import { fetchGaPageView } from "@/lib/analytics";
-import { AdSlot } from "@/components/ads/ad-slot";
 
 export const revalidate = 60;
 
@@ -56,10 +48,6 @@ type RelatedPost = {
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
-const SIDEBAR_SLOT = "8439909280";
-const INLINE_SLOT_1 = "2056567409";
-const INLINE_SLOT_2 = "2540956591";
-
 const getDescription = (metaDescription?: string, excerpt?: string) => {
   const source = metaDescription || excerpt;
   if (!source) return undefined;
@@ -72,103 +60,6 @@ const getPost = cache(async (slug: string) =>
   client.fetch<Post | null>(blogBySlugQuery, { slug }),
 );
 
-const makePortableTextComponents = (
-  inlineSlot1: string,
-  inlineSlot2: string,
-): PortableTextComponents => {
-  let pCount = 0;
-
-  const normal: PortableTextBlockComponent = ({ children }) => {
-    pCount += 1;
-
-    return (
-      <>
-        <p className="mb-6 text-lg leading-relaxed text-gray-800">{children}</p>
-
-        {pCount === 3 ? <AdSlot variant="inline" slot={inlineSlot1} /> : null}
-        {pCount === 7 ? <AdSlot variant="inline" slot={inlineSlot2} /> : null}
-      </>
-    );
-  };
-
-  return {
-    types: {
-      image: ({ value }) => {
-        if (!value?.asset) return null;
-        const src = sanityImageUrl(value, { width: 1200 });
-
-        return (
-          <figure className="my-8">
-            <div className="relative aspect-video w-full overflow-hidden rounded-sm">
-              <Image
-                src={src}
-                alt={value.alt || ""}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
-                className="object-cover"
-                loading="lazy"
-                quality={75}
-              />
-            </div>
-            {value.alt && (
-              <figcaption className="mt-2 text-center text-sm text-gray-500">
-                {value.alt}
-              </figcaption>
-            )}
-          </figure>
-        );
-      },
-    },
-    block: {
-      h2: ({ children }) => (
-        <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
-          {children}
-        </h2>
-      ),
-      h3: ({ children }) => (
-        <h3 className="mt-10 mb-3 text-2xl font-black text-gray-900">
-          {children}
-        </h3>
-      ),
-      h4: ({ children }) => (
-        <h4 className="mt-8 mb-2 text-xl font-bold text-gray-900">
-          {children}
-        </h4>
-      ),
-      normal,
-      blockquote: ({ children }) => (
-        <blockquote className="my-8 border-l-4 border-red-600 bg-gray-50 pl-6 py-4 italic text-gray-700">
-          {children}
-        </blockquote>
-      ),
-    },
-    list: {
-      bullet: ({ children }) => (
-        <ul className="my-6 list-disc list-outside space-y-2 pl-6">
-          {children}
-        </ul>
-      ),
-      number: ({ children }) => (
-        <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
-          {children}
-        </ol>
-      ),
-    },
-    listItem: {
-      bullet: ({ children }) => (
-        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-          {children}
-        </li>
-      ),
-      number: ({ children }) => (
-        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-          {children}
-        </li>
-      ),
-    },
-  };
-};
-
 export async function generateMetadata({
   params,
 }: {
@@ -178,7 +69,9 @@ export async function generateMetadata({
   if (!slug) return {};
 
   const post = await getPost(slug);
-  if (!post?._id) return { title: "Post Not Found" };
+  if (!post?._id) {
+    return { title: "Post Not Found" };
+  }
 
   const baseUrl = getBaseUrl();
   const seoTitle = (post.metaTitle || "").trim() || post.title;
@@ -196,7 +89,9 @@ export async function generateMetadata({
   return {
     title: seoTitle,
     description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+    },
     robots: { index: true, follow: true },
     openGraph: {
       title: seoTitle,
@@ -223,6 +118,7 @@ export default async function BlogDetailPage({
   const { slug } = await params;
 
   const post = await getPost(slug);
+
   if (!post?._id) return notFound();
 
   const baseUrl = getBaseUrl();
@@ -231,11 +127,9 @@ export default async function BlogDetailPage({
   const description =
     getDescription(post.metaDescription, post.excerpt) ||
     `Read ${post.title} on ${siteName}.`;
-
   const mainImageUrl = post.mainImage?.asset
     ? sanityHeroImageUrl(post.mainImage)
     : undefined;
-
   const faqItems =
     post.faq
       ?.map((item) => ({
@@ -247,7 +141,6 @@ export default async function BlogDetailPage({
   const categoryIds = (post.categories || [])
     .map((c) => c?._id)
     .filter(Boolean);
-
   const viewCount = await fetchGaPageView(slug);
 
   const related =
@@ -257,7 +150,6 @@ export default async function BlogDetailPage({
           categoryIds,
         })
       : [];
-
   const nextBlog = related[0];
   const sidebarRelated = nextBlog ? related.slice(1) : related;
 
@@ -273,7 +165,6 @@ export default async function BlogDetailPage({
         authorName={post.author?.name || siteAuthorName}
         authorUrl={siteAuthorUrl}
       />
-
       <BreadcrumbsJsonLd
         items={[
           { name: "Home", item: `${baseUrl}/home` },
@@ -281,10 +172,9 @@ export default async function BlogDetailPage({
           { name: post.title, item: canonicalUrl },
         ]}
       />
-
       {faqItems.length ? <FaqJsonLd items={faqItems} /> : null}
-
-      {mainImageUrl ? (
+      {/* Featured Image Hero */}
+      {mainImageUrl && (
         <div className="relative h-100 w-full overflow-hidden bg-black lg:h-125">
           <Image
             src={mainImageUrl}
@@ -298,57 +188,62 @@ export default async function BlogDetailPage({
           />
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
         </div>
-      ) : null}
+      )}
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
+        {/* Breadcrumb */}
         <div className="border-b border-gray-200 py-4">
           <div className="flex items-center gap-2 text-sm">
             <Link
               href="/"
-              className="font-semibold text-gray-600 transition-colors md:hover:text-red-600"
+              className="font-semibold text-gray-600 md:hover:text-red-600 transition-colors"
             >
               Home
             </Link>
             <span className="text-gray-400">/</span>
-            {post.categories?.[0] ? (
+            {post.categories?.[0] && (
               <>
                 <Link
                   href={`/categories/${post.categories[0].slug}`}
-                  className="text-nowrap font-semibold text-gray-600 transition-colors md:hover:text-red-600"
+                  className="font-semibold text-gray-600 md:hover:text-red-600 transition-colors text-nowrap"
                 >
                   {post.categories[0].title}
                 </Link>
                 <span className="text-gray-400">/</span>
               </>
-            ) : null}
-            <span className="truncate text-gray-400">{post.title}</span>
+            )}
+            <span className="text-gray-400 truncate">{post.title}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-12 md:gap-10 lg:gap-12">
+          {/* Main Content */}
           <article className="md:col-span-8 lg:col-span-8">
+            {/* Category Tags */}
             <div className="mb-4 flex flex-wrap gap-2">
               {(post.categories || []).slice(0, 3).map((c) => (
                 <Link
                   key={c.slug}
                   href={`/categories/${c.slug}`}
-                  className="inline-flex self-start -rotate-2 border border-[#f20d0d] bg-black px-3 py-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,1)]"
+                  className="inline-flex self-start bg-black border border-[#f20d0d] px-3 py-1 -rotate-2 shadow-[8px_8px_0px_0px_rgba(242,13,13,1)]"
                 >
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-[#f20d0d]">
+                  <span className="text-[#f20d0d] font-black uppercase text-xs tracking-[0.2em]">
                     {c.title}
                   </span>
                 </Link>
               ))}
             </div>
 
+            {/* Title */}
             <h1 className="text-3xl font-black leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
               {post.title}
             </h1>
 
+            {/* Meta Info */}
             <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-gray-200 pb-4">
-              {post.author?.name ? (
+              {post.author?.name && (
                 <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
+                  <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                     <span className="text-sm font-bold text-gray-600">
                       {post.author.name.charAt(0).toUpperCase()}
                     </span>
@@ -357,7 +252,7 @@ export default async function BlogDetailPage({
                     <p className="text-sm font-bold text-gray-900">
                       {post.author.name}
                     </p>
-                    {post.publishedAt ? (
+                    {post.publishedAt && (
                       <time
                         dateTime={post.publishedAt}
                         className="text-xs text-gray-500"
@@ -371,11 +266,10 @@ export default async function BlogDetailPage({
                           },
                         )}
                       </time>
-                    ) : null}
+                    )}
                   </div>
                 </div>
-              ) : null}
-
+              )}
               <div className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
                 <span
                   className="h-2 w-2 rounded-full bg-red-600"
@@ -383,15 +277,14 @@ export default async function BlogDetailPage({
                 />
                 {viewCount.toLocaleString()} views
               </div>
-
+              {/* Social Share Icons */}
               <div className="ml-auto flex items-center gap-2">
-                <span className="text-xs font-semibold uppercase text-gray-500">
+                <span className="text-xs font-semibold text-gray-500 uppercase">
                   Share:
                 </span>
-
                 <button
                   type="button"
-                  className="rounded-sm bg-gray-100 p-2 transition-colors md:hover:bg-gray-200"
+                  className="rounded-sm bg-gray-100 p-2 md:hover:bg-gray-200 transition-colors"
                   aria-label="Share on Facebook"
                 >
                   <svg
@@ -402,10 +295,9 @@ export default async function BlogDetailPage({
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </button>
-
                 <button
                   type="button"
-                  className="rounded-sm bg-gray-100 p-2 transition-colors md:hover:bg-gray-200"
+                  className="rounded-sm bg-gray-100 p-2 md:hover:bg-gray-200 transition-colors"
                   aria-label="Share on Twitter/X"
                 >
                   <svg
@@ -419,16 +311,94 @@ export default async function BlogDetailPage({
               </div>
             </div>
 
-            <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:rounded-sm prose-a:px-0.5 prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:transition-colors md:hover:prose-a:bg-red-50 md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 prose-strong:font-bold prose-strong:text-gray-900">
+            {/* Article Body */}
+            <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 md:hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
                 value={post.body}
-                components={makePortableTextComponents(
-                  INLINE_SLOT_1,
-                  INLINE_SLOT_2,
-                )}
+                components={{
+                  types: {
+                    image: ({ value }) => {
+                      if (!value?.asset) return null;
+                      const src = sanityImageUrl(value, { width: 1200 });
+
+                      return (
+                        <figure className="my-8">
+                          <div className="relative aspect-video w-full overflow-hidden rounded-sm">
+                            <Image
+                              src={src}
+                              alt={value.alt || ""}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
+                              className="object-cover"
+                              loading="lazy"
+                              quality={75}
+                            />
+                          </div>
+                          {value.alt && (
+                            <figcaption className="mt-2 text-center text-sm text-gray-500">
+                              {value.alt}
+                            </figcaption>
+                          )}
+                        </figure>
+                      );
+                    },
+                  },
+                  block: {
+                    h2: ({ children }) => (
+                      <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
+                        {children}
+                      </h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="mt-10 mb-3 text-2xl font-black text-gray-900">
+                        {children}
+                      </h3>
+                    ),
+                    h4: ({ children }) => (
+                      <h4 className="mt-8 mb-2 text-xl font-bold text-gray-900">
+                        {children}
+                      </h4>
+                    ),
+                    normal: ({ children }) => (
+                      <p className="mb-6 text-lg leading-relaxed text-gray-800">
+                        {children}
+                      </p>
+                    ),
+                    blockquote: ({ children }) => (
+                      <blockquote className="my-8 border-l-4 border-red-600 bg-gray-50 pl-6 py-4 italic text-gray-700">
+                        {children}
+                      </blockquote>
+                    ),
+                  },
+                  list: {
+                    bullet: ({ children }) => (
+                      <ul className="my-6 list-disc list-outside space-y-2 pl-6">
+                        {children}
+                      </ul>
+                    ),
+                    number: ({ children }) => (
+                      <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
+                        {children}
+                      </ol>
+                    ),
+                  },
+                  listItem: {
+                    bullet: ({ children }) => (
+                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+                        {children}
+                      </li>
+                    ),
+                    number: ({ children }) => (
+                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+                        {children}
+                      </li>
+                    ),
+                  },
+                }}
               />
             </div>
 
+            {/* Tags */}
             {post.tags?.length ? (
               <section className="mt-12 border-t border-gray-200 pt-6">
                 <h3 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-900">
@@ -439,7 +409,7 @@ export default async function BlogDetailPage({
                     <Link
                       key={t}
                       href={`/tags/${encodeURIComponent(t)}`}
-                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors md:hover:border-red-600 md:hover:bg-gray-50 md:hover:text-red-600"
+                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 md:hover:bg-gray-50 md:hover:border-red-600 md:hover:text-red-600 transition-colors"
                     >
                       #{t}
                     </Link>
@@ -448,6 +418,7 @@ export default async function BlogDetailPage({
               </section>
             ) : null}
 
+            {/* FAQ */}
             {post.faq?.length ? (
               <section className="mt-12 rounded-sm border border-gray-200 bg-gray-50 p-6">
                 <h2 className="mb-6 text-2xl font-black text-gray-900">
@@ -459,7 +430,7 @@ export default async function BlogDetailPage({
                       key={`${item.question}-${idx}`}
                       className="group rounded-sm border border-gray-200 bg-white p-5"
                     >
-                      <summary className="flex cursor-pointer items-start justify-between text-base font-bold text-gray-900">
+                      <summary className="cursor-pointer text-base font-bold text-gray-900 flex items-start justify-between">
                         <span className="pr-4">{item.question}</span>
                         <svg
                           className="h-5 w-5 shrink-0 text-red-600 transition-transform group-open:rotate-180"
@@ -475,20 +446,21 @@ export default async function BlogDetailPage({
                           />
                         </svg>
                       </summary>
-                      {item.answer ? (
+                      {item.answer && (
                         <p className="mt-4 leading-relaxed text-gray-700">
                           {item.answer}
                         </p>
-                      ) : null}
+                      )}
                     </details>
                   ))}
                 </div>
               </section>
             ) : null}
 
+            {/* Next Blog */}
             {nextBlog ? (
               <section className="mt-14">
-                <div className="mt-5 overflow-hidden rounded-sm border border-anime-muted bg-black text-white shadow-[12px_12px_0px_0px_#f20d0d]">
+                <div className="overflow-hidden rounded-sm mt-5 border border-anime-muted bg-black text-white shadow-[12px_12px_0px_0px_#f20d0d]">
                   <div className="grid gap-0 md:grid-cols-5">
                     <div className="relative h-52 md:col-span-2 md:h-full">
                       {nextBlog.mainImage?.asset?.url ? (
@@ -513,23 +485,22 @@ export default async function BlogDetailPage({
                         </span>
                       </div>
                     </div>
-
-                    <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
+                    <div className="md:col-span-3 p-6 md:p-8 flex flex-col gap-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f20d0d]">
                         Next up
                       </p>
 
-                      <h2 className="line-clamp-3 text-2xl font-black leading-tight text-white md:text-3xl">
+                      <h2 className="text-2xl md:text-3xl font-black leading-tight text-white line-clamp-3">
                         {nextBlog.title}
                       </h2>
 
                       {nextBlog.excerpt ? (
-                        <p className="line-clamp-3 text-sm leading-relaxed text-gray-300">
+                        <p className="text-sm leading-relaxed text-gray-300 line-clamp-3">
                           {nextBlog.excerpt}
                         </p>
                       ) : null}
 
-                      <div className="pt-1 text-xs text-gray-400">
+                      <div className="flex items-center gap-3 pt-1 text-xs text-gray-400">
                         {nextBlog.publishedAt ? (
                           <span>Filed {formatDate(nextBlog.publishedAt)}</span>
                         ) : null}
@@ -538,12 +509,12 @@ export default async function BlogDetailPage({
                       <div className="mt-2">
                         <Link
                           href={`/blog/${nextBlog.slug}`}
-                          className="group inline-flex items-center justify-between gap-3 rounded-sm border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wide text-white transition-colors md:hover:border-[#f20d0d] md:hover:bg-[#f20d0d]/10"
+                          className="group inline-flex items-center justify-between gap-3 rounded-sm border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wide text-white md:hover:border-[#f20d0d] md:hover:bg-[#f20d0d]/10 transition-colors"
                         >
                           <span>Read next</span>
                           <span
                             aria-hidden="true"
-                            className="text-[#f20d0d] transition-transform group-hover:translate-x-0.5"
+                            className="text-[#f20d0d] group-hover:translate-x-0.5 transition-transform"
                           >
                             →
                           </span>
@@ -556,8 +527,10 @@ export default async function BlogDetailPage({
             ) : null}
           </article>
 
+          {/* Sidebar */}
           <aside className="md:col-span-4 lg:col-span-4">
             <div className="sticky top-8 space-y-8">
+              {/* Related Posts */}
               {sidebarRelated.length ? (
                 <section className="rounded-sm border border-gray-200 bg-white p-5">
                   <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900">
@@ -571,7 +544,7 @@ export default async function BlogDetailPage({
                         className="group block border-b border-gray-100 pb-4 last:border-0 last:pb-0"
                       >
                         <div className="flex gap-3">
-                          {p.mainImage?.asset?.url ? (
+                          {p.mainImage?.asset?.url && (
                             <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
                               <Image
                                 src={sanityImageUrl(p.mainImage, {
@@ -584,16 +557,16 @@ export default async function BlogDetailPage({
                                 className="object-cover transition-transform duration-300 md:group-hover:scale-110"
                               />
                             </div>
-                          ) : null}
-                          <div className="min-w-0 flex-1">
-                            <h4 className="line-clamp-3 text-sm font-bold leading-tight text-gray-900 transition-colors md:group-hover:text-red-600">
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold leading-tight text-gray-900 line-clamp-3 md:group-hover:text-red-600 transition-colors">
                               {p.title}
                             </h4>
-                            {p.publishedAt ? (
+                            {p.publishedAt && (
                               <p className="mt-1 text-xs text-gray-500">
                                 {formatDate(p.publishedAt)}
                               </p>
-                            ) : null}
+                            )}
                           </div>
                         </div>
                       </Link>
@@ -602,8 +575,7 @@ export default async function BlogDetailPage({
                 </section>
               ) : null}
 
-              <AdSlot variant="sidebar" slot={SIDEBAR_SLOT} />
-
+              {/* Newsletter Signup */}
               <div className="rounded-sm border-2 border-red-600 bg-white p-6">
                 <h3 className="text-lg font-black text-gray-900">
                   Subscribe to Our Newsletter
@@ -619,7 +591,7 @@ export default async function BlogDetailPage({
                   />
                   <button
                     type="submit"
-                    className="w-full rounded-sm bg-red-600 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors md:hover:bg-red-700"
+                    className="w-full rounded-sm bg-red-600 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white md:hover:bg-red-700 transition-colors"
                   >
                     Subscribe
                   </button>
