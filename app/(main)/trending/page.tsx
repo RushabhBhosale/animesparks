@@ -199,7 +199,7 @@ export default async function TrendingPage({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${baseUrl}/home`,
+        item: `${baseUrl}/`,
       },
       {
         "@type": "ListItem",

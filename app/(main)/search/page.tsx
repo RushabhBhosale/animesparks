@@ -67,7 +67,7 @@ async function getResults(query: string): Promise<RankedResult[]> {
   }));
 
   const publishedAtById = new Map(
-    (fetched ?? []).map((doc) => [doc._id, doc.publishedAt])
+    (fetched ?? []).map((doc) => [doc._id, doc.publishedAt]),
   );
 
   return runFuzzySearch(q, docs, SEARCH_RESULT_LIMIT).map((result) => ({
@@ -86,9 +86,7 @@ export async function generateMetadata({
   const query = rawQuery?.trim() ?? "";
 
   const baseUrl = getBaseUrl();
-  const title = query
-    ? `Search results for "${query}"`
-    : "Search the archive";
+  const title = query ? `Search results for "${query}"` : "Search the archive";
   const description = query
     ? `Live results for "${query}" across AnimeSparks analyses, dossiers, and breakdowns.`
     : "Search the AnimeSparks archive of analyses, lore breakdowns, and character studies.";
@@ -168,21 +166,15 @@ export default async function SearchPage({
           {hasQuery ? (
             results.length ? (
               <div className="space-y-3">
-                {results.map((result, index) => (
+                {results.map((result) => (
                   <Link
                     key={result.id}
                     prefetch={false}
                     href={`/blog/${result.slug}`}
-                    className="group relative block overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 transition-all duration-200 md:hover:border-[#ccff00]/40 md:hover:-translate-y-1"
+                    className="group relative block overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-3 sm:p-4 transition-all duration-200 md:hover:border-[#ccff00]/40 md:hover:-translate-y-1"
                   >
-                    <div className="absolute -left-3 top-4 h-10 w-10 rotate-12 border border-white/10 bg-white/5" />
-
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-[#ccff00]/40 bg-[#ccff00]/10 text-[11px] font-black uppercase tracking-[0.2em] text-[#ccff00]">
-                        {String(index + 1).padStart(2, "0")}
-                      </div>
-
-                      <div className="flex-1 space-y-2">
+                    <div className="flex items-start gap-3 sm:gap-3">
+                      <div className="flex-1 space-y-2 sm:space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">
                           <span className="rounded-full border border-white/15 bg-black/50 px-2.5 py-1 text-white">
                             {result.typeLabel || "Article"}
@@ -192,12 +184,9 @@ export default async function SearchPage({
                               {formatDate(result.publishedAt)}
                             </span>
                           ) : null}
-                          <span className="text-white/40">
-                            Match strength {result.score}%
-                          </span>
                         </div>
 
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-black leading-tight text-white md:group-hover:text-[#ccff00]">
+                        <h2 className="text-lg sm:text-xl font-black leading-tight text-white md:group-hover:text-[#ccff00]">
                           {result.title}
                         </h2>
 

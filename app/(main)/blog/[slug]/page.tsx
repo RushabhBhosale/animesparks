@@ -167,7 +167,7 @@ export default async function BlogDetailPage({
       />
       <BreadcrumbsJsonLd
         items={[
-          { name: "Home", item: `${baseUrl}/home` },
+          { name: "Home", item: `${baseUrl}/` },
           { name: "Blog", item: `${baseUrl}/blog` },
           { name: post.title, item: canonicalUrl },
         ]}
