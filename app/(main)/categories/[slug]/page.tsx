@@ -653,9 +653,6 @@ export default async function CategoryDetailPage({
                 >
                   <article>
                     <div className="bg-white/5 border border-white/15 md:hover:border-white transition-all p-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-2">
-                        <Bookmark className="h-5 w-5 text-white/25 md:group-hover:text-white transition-colors" />
-                      </div>
                       <div className="flex gap-4">
                         <div className="w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0 relative border border-white/15 bg-black overflow-hidden">
                           {p.mainImage?.asset?.url ? (
@@ -783,35 +780,47 @@ export default async function CategoryDetailPage({
               {/* ADDITIONAL FILES */}
               {additional.length ? (
                 <div className="lg:col-span-12">
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-4">
                     {additional.map((p) => (
                       <Link
                         key={p._id}
                         href={`/blog/${p.slug}`}
                         className="group block h-full"
                       >
-                        <article className="h-full border border-white/10 bg-black/50 p-4 sm:p-5 flex flex-col gap-3 transition-colors md:hover:border-anime-lime/60">
-                          <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-white/50">
-                            <span className="bg-anime-red text-white px-2 py-1 border border-white/10">
-                              File
-                            </span>
-                            <span className="text-white/40">
-                              {formatDate(p.publishedAt)}
-                            </span>
+                        <article className="relative h-full border border-white/10 overflow-hidden transition-colors md:hover:border-anime-lime/60">
+                          <div className="absolute inset-0">
+                            {p.mainImage?.asset?.url ? (
+                              <Image
+                                src={sanityImageUrl(p.mainImage, {
+                                  width: 1200,
+                                })}
+                                alt={p.mainImage.alt || p.title}
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 560px"
+                                className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(242,13,13,0.22),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(0,243,255,0.2),transparent_55%)]" />
+                            )}
+                            <div className="absolute inset-0 opacity-75 bg-black" />
                           </div>
 
-                          <h4 className="text-lg sm:text-xl font-black uppercase leading-tight text-white md:group-hover:text-anime-lime break-words">
-                            {p.title}
-                          </h4>
+                          <div className="relative z-10 h-full p-4 sm:p-5 flex flex-col gap-3 backdrop-blur-[1px]">
+                            <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-white/70">
+                              <span className="bg-anime-red text-white px-1 py-1 border border-white/10"></span>
+                              <span className="text-white/60">
+                                {formatDate(p.publishedAt)}
+                              </span>
+                            </div>
 
-                          <p className="text-xs sm:text-sm text-white/55 line-clamp-3">
-                            {p.excerpt ||
-                              "Filed in this category. Open for the full brief."}
-                          </p>
+                            <h4 className="text-lg sm:text-xl font-black uppercase leading-tight text-white md:group-hover:text-anime-lime break-words">
+                              {p.title}
+                            </h4>
 
-                          <div className="mt-auto inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-cyan">
-                            Continue
-                            <ArrowRight className="h-4 w-4" />
+                            <div className="mt-auto inline-flex items-center gap-2 text-[11px] sm:text-xs font-black uppercase text-anime-cyan">
+                              Continue
+                              <ArrowRight className="h-4 w-4" />
+                            </div>
                           </div>
                         </article>
                       </Link>
