@@ -19,16 +19,33 @@ export const homepageSettingsType = defineType({
       of: [{ type: "reference", to: [{ type: "post" }] }],
       validation: (Rule) => Rule.max(6),
     }),
+    defineField({
+      name: "moreBlogs",
+      title: "More Blogs Rail",
+      description:
+        "Curate posts for the horizontal More Blogs section on the homepage.",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "post" }] }],
+      validation: (Rule) => Rule.max(12),
+    }),
   ],
   preview: {
     select: {
       title: "title",
-      count: "editorsPicks.length",
+      editorsCount: "editorsPicks.length",
+      moreBlogsCount: "moreBlogs.length",
     },
-    prepare({ title, count }) {
+    prepare({ title, editorsCount, moreBlogsCount }) {
+      const editorsLabel = editorsCount
+        ? `${editorsCount} editors picks`
+        : "0 editors picks";
+      const moreBlogsLabel = moreBlogsCount
+        ? `${moreBlogsCount} more blogs`
+        : "0 more blogs";
+
       return {
         title: title || "Homepage Settings",
-        subtitle: count ? `${count} editors picks configured` : "No picks yet",
+        subtitle: `${editorsLabel} • ${moreBlogsLabel}`,
       };
     },
   },

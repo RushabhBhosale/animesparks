@@ -7,7 +7,6 @@ import { TrendingRail } from "@/components/trending-rail";
 import {
   homepageSettingsQuery,
   latestBlogsQuery,
-  trendingBlogsQuery,
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
@@ -63,6 +62,7 @@ type BlogCard = {
 
 type HomepageSettings = {
   editorsPicks?: BlogCard[];
+  moreBlogs?: BlogCard[];
 };
 
 const getExcerpt = (text?: string, limit = 150) => {
@@ -82,6 +82,32 @@ const editorTextHover = [
   "md:group-hover:text-[#f20d0d]",
   "md:group-hover:text-[#00f3ff]",
   "md:group-hover:text-[#ccff00]",
+];
+
+const moreBlogsCardBorders = [
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
+  "md:hover:border-[#f20d0d]",
+  "md:hover:border-[#00f3ff]",
+  "md:hover:border-[#ccff00]",
+  "md:hover:border-[#f20d0d]",
+];
+
+const moreBlogsTitleHover = [
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
+  "md:group-hover:text-[#00f3ff]",
+  "md:group-hover:text-[#ccff00]",
+  "md:group-hover:text-[#f20d0d]",
 ];
 
 const takeUniqueById = (posts: BlogCard[], usedIds: Set<string>) => {
@@ -108,11 +134,17 @@ export default async function Home() {
   ]);
 
   const latestPosts = Array.isArray(latest) ? latest : [];
-  const trendingViews: any = Array.isArray([]) ? [] : [];
+  const trendingViews: BlogCard[] = [];
   const editorsConfigured = homepageSettings?.editorsPicks ?? [];
+  const moreBlogsConfigured = homepageSettings?.moreBlogs ?? [];
 
   const slugSet = new Set<string>();
-  [...latestPosts, ...trendingViews, ...editorsConfigured].forEach((post) => {
+  [
+    ...latestPosts,
+    ...trendingViews,
+    ...editorsConfigured,
+    ...moreBlogsConfigured,
+  ].forEach((post) => {
     if (post?.slug) slugSet.add(post.slug);
   });
 
@@ -126,6 +158,7 @@ export default async function Home() {
   const latestWithViews = latestPosts.map(withViews);
   const trendingWithViews = trendingViews.map(withViews);
   const editorsWithViews = editorsConfigured.map(withViews);
+  const moreBlogsConfiguredWithViews = moreBlogsConfigured.map(withViews);
 
   const featured =
     editorsWithViews[0] ?? trendingWithViews[0] ?? latestWithViews[0] ?? null;
@@ -145,7 +178,7 @@ export default async function Home() {
     if (p?._id) usedForLatest.add(p._id);
   });
 
-  let mainStream = takeUniqueById(latestWithViews, new Set(usedForLatest));
+  const mainStream = takeUniqueById(latestWithViews, new Set(usedForLatest));
   let mainUpdates = mainStream.slice(0, 3);
   let moreUpdates = mainStream.slice(3, 6);
 
@@ -157,6 +190,22 @@ export default async function Home() {
 
   const trendingCollage = trendingPack.collage;
   const mustReads = trendingPack.mustReads;
+  const latestUpdatesIds = new Set<string>();
+  [...mainUpdates, ...moreUpdates].forEach((post) => {
+    if (post?._id) latestUpdatesIds.add(post._id);
+  });
+
+  const moreBlogsUsedIds = new Set<string>(latestUpdatesIds);
+  const curatedMoreBlogs = takeUniqueById(
+    moreBlogsConfiguredWithViews,
+    moreBlogsUsedIds,
+  );
+  const fallbackMoreBlogs = takeUniqueById(latestWithViews, moreBlogsUsedIds);
+  const moreBlogs = (
+    curatedMoreBlogs.length > 0
+      ? [...curatedMoreBlogs, ...fallbackMoreBlogs]
+      : fallbackMoreBlogs
+  ).slice(0, 10);
 
   const marqueeTitles = (
     trendingCollage.length ? trendingCollage : latestWithViews
@@ -571,6 +620,94 @@ export default async function Home() {
                 </aside>
               </div>
             </div>
+
+            {/* More Blogs */}
+            {moreBlogs.length > 0 && (
+              <section className="mx-auto max-w-7xl px-4 sm:px-6 pb-16 sm:pb-20 md:pb-24">
+                <div className="mb-8 sm:mb-10 md:mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-5 border-t border-[#1f1f1f] pt-10">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-gray-500 mb-3">
+                      Archive Strip
+                    </p>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase leading-[0.95]">
+                      More <span className="text-[#00f3ff]">Blogs</span>
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-gray-400">
+                    <span className="inline-block h-1 w-9 bg-[#ccff00]" />
+                    Slide to browse
+                  </div>
+                </div>
+
+                <div className="-mx-2 sm:-mx-3">
+                  <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-2 sm:pb-3 px-2 sm:px-3 snap-x snap-mandatory hide-scrollbar">
+                    {moreBlogs.map((post, idx) => {
+                      const borderHover =
+                        moreBlogsCardBorders[idx] ?? "md:hover:border-[#f20d0d]";
+                      const titleHover =
+                        moreBlogsTitleHover[idx] ?? "md:group-hover:text-[#f20d0d]";
+
+                      return (
+                        <article
+                          key={post._id}
+                          className="snap-start shrink-0 w-[18rem] sm:w-[20rem] md:w-[21rem]"
+                        >
+                          <Link
+                            prefetch={false}
+                            href={`/blog/${post.slug}`}
+                            className="group block h-full"
+                            aria-label={`Read ${post.title ?? "this article"}`}
+                          >
+                            <div
+                              className={clsx(
+                                "h-full border-2 border-[#242424] bg-[#111111] p-2 transition-all duration-300 md:hover:-translate-y-1",
+                                borderHover,
+                              )}
+                            >
+                              <div className="relative aspect-[16/10] bg-black overflow-hidden border border-[#1f1f1f]">
+                                {post.mainImage?.asset?.url ? (
+                                  <Image
+                                    src={sanityImageUrl(post.mainImage, {
+                                      width: 900,
+                                    })}
+                                    alt={post.mainImage.alt || post.title}
+                                    fill
+                                    sizes="(max-width: 640px) 90vw, 360px"
+                                    className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                                  />
+                                ) : null}
+                                {post.categories?.[0]?.title && (
+                                  <span className="absolute top-2 left-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 uppercase border border-white/20 tracking-wider">
+                                    {post.categories[0].title}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="pt-4 pb-2 px-1 space-y-3">
+                                <h3
+                                  className={clsx(
+                                    "text-lg sm:text-xl font-black uppercase leading-tight line-clamp-2 transition-colors",
+                                    titleHover,
+                                  )}
+                                >
+                                  {post.title}
+                                </h3>
+                                <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.16em] text-gray-500">
+                                  <span>{timeAgo(post.publishedAt)}</span>
+                                  <span className="inline-flex items-center gap-1 text-white">
+                                    Read <ArrowUpRight className="h-4 w-4" />
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            )}
 
             {/* Editor Picks */}
             {editorsPicks.length > 0 && (

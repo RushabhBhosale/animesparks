@@ -85,7 +85,7 @@ export const blogBySlugQuery = groq`
 `;
 
 /* ----------------------------------------
-   RELATED BLOGS (Same category)
+   RELATED BLOGS (Category + tag relevance)
 ---------------------------------------- */
 export const relatedBlogsQuery = groq`
 *[
@@ -93,12 +93,21 @@ export const relatedBlogsQuery = groq`
   publishedAt <= now() &&
   defined(slug.current) &&
   _id != $currentId &&
-  count(categories[@._ref in $categoryIds]) > 0
+  (
+    count(categories[@._ref in $categoryIds]) > 0 ||
+    count(tags[@ in $tags]) > 0
+  )
 ]
-| order(publishedAt desc)[0...3] {
+| order(
+    (
+      count(categories[@._ref in $categoryIds]) * 3 +
+      count(tags[@ in $tags])
+    ) desc,
+    publishedAt desc
+  )[0...8] {
   _id,
   title,
-  "excerpt": pt::text(body),
+  "excerpt": coalesce(metaDescription, pt::text(body)),
   "slug": slug.current,
   publishedAt,
   mainImage {
@@ -279,6 +288,22 @@ export const blogsBySlugsQuery = groq`
 export const homepageSettingsQuery = groq`
 *[_type == "homepageSettings"][0] {
   editorsPicks[]->{
+    _id,
+    title,
+    "slug": slug.current,
+    publishedAt,
+    "excerpt": coalesce(metaDescription, pt::text(body)),
+    mainImage {
+      asset->{ url },
+      alt
+    },
+    categories[]->{
+      _id,
+      title,
+      "slug": slug.current
+    }
+  },
+  moreBlogs[]->{
     _id,
     title,
     "slug": slug.current,

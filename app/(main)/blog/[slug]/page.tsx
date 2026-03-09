@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { client } from "@/sanity/lib/client";
 import { blogBySlugQuery, relatedBlogsQuery } from "@/sanity/blogQueries";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
@@ -29,7 +29,7 @@ type Post = {
   metaTitle?: string;
   metaDescription?: string;
   excerpt?: string;
-  body: any;
+  body?: PortableTextBlock[];
   tags?: string[];
   publishedAt?: string;
   _updatedAt?: string;
@@ -48,12 +48,73 @@ type RelatedPost = {
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
+type PortableTextSpan = {
+  _type: string;
+  text?: string;
+};
+
+type PortableTextBlock = {
+  _type: string;
+  style?: string;
+  children?: PortableTextSpan[];
+  [key: string]: unknown;
+};
+
 const getDescription = (metaDescription?: string, excerpt?: string) => {
   const source = metaDescription || excerpt;
   if (!source) return undefined;
   const trimmed = source.replace(/\s+/g, " ").trim();
   if (!trimmed) return undefined;
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
+};
+
+const getInlineInsertIndex = (
+  body: PortableTextBlock[],
+  minParagraphs = 4,
+  preferredParagraphs = 5,
+) => {
+  let totalParagraphs = 0;
+
+  for (const block of body) {
+    if (
+      block?._type === "block" &&
+      (!block.style || block.style === "normal") &&
+      Array.isArray(block.children)
+    ) {
+      const text = block.children
+        .map((child) => (typeof child?.text === "string" ? child.text : ""))
+        .join(" ")
+        .trim();
+      if (text) totalParagraphs += 1;
+    }
+  }
+
+  if (totalParagraphs < minParagraphs) return null;
+
+  const targetParagraph =
+    totalParagraphs >= preferredParagraphs ? preferredParagraphs : minParagraphs;
+
+  let seenParagraphs = 0;
+  for (let i = 0; i < body.length; i += 1) {
+    const block = body[i];
+    if (
+      block?._type === "block" &&
+      (!block.style || block.style === "normal") &&
+      Array.isArray(block.children)
+    ) {
+      const text = block.children
+        .map((child) => (typeof child?.text === "string" ? child.text : ""))
+        .join(" ")
+        .trim();
+      if (text) seenParagraphs += 1;
+    }
+
+    if (seenParagraphs === targetParagraph) {
+      return i + 1;
+    }
+  }
+
+  return null;
 };
 
 const getPost = cache(async (slug: string) =>
@@ -141,17 +202,112 @@ export default async function BlogDetailPage({
   const categoryIds = (post.categories || [])
     .map((c) => c?._id)
     .filter(Boolean);
+  const postTags = (post.tags || []).map((tag) => tag?.trim()).filter(Boolean);
   const viewCount = await fetchGaPageView(slug);
 
   const related =
-    categoryIds.length > 0
+    categoryIds.length > 0 || postTags.length > 0
       ? await client.fetch<RelatedPost[]>(relatedBlogsQuery, {
           currentId: post._id,
           categoryIds,
+          tags: postTags,
         })
       : [];
-  const nextBlog = related[0];
-  const sidebarRelated = nextBlog ? related.slice(1) : related;
+  const inlineRelated = related.slice(0, 1);
+  const inlineRelatedIds = new Set(inlineRelated.map((item) => item._id));
+  const nextBlog = related.find((item) => !inlineRelatedIds.has(item._id));
+  const sidebarRelated = related.filter(
+    (item) => item._id !== nextBlog?._id && !inlineRelatedIds.has(item._id),
+  );
+
+  const bodyBlocks = Array.isArray(post.body) ? post.body : [];
+  const inlineInsertIndex = getInlineInsertIndex(bodyBlocks);
+  const showInlineRelated =
+    inlineInsertIndex !== null && inlineRelated.length > 0;
+  const bodyBeforeInline = showInlineRelated
+    ? bodyBlocks.slice(0, inlineInsertIndex ?? bodyBlocks.length)
+    : bodyBlocks;
+  const bodyAfterInline =
+    showInlineRelated && inlineInsertIndex !== null
+      ? bodyBlocks.slice(inlineInsertIndex)
+      : [];
+
+  const portableTextComponents: PortableTextComponents = {
+    types: {
+      image: ({ value }) => {
+        if (!value?.asset) return null;
+        const src = sanityImageUrl(value, { width: 1200 });
+
+        return (
+          <figure className="my-8">
+            <div className="relative aspect-video w-full overflow-hidden rounded-sm">
+              <Image
+                src={src}
+                alt={typeof value.alt === "string" ? value.alt : ""}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
+                className="object-cover"
+                loading="lazy"
+                quality={75}
+              />
+            </div>
+            {typeof value.alt === "string" && value.alt ? (
+              <figcaption className="mt-2 text-center text-sm text-gray-500">
+                {value.alt}
+              </figcaption>
+            ) : null}
+          </figure>
+        );
+      },
+    },
+    block: {
+      h2: ({ children }) => (
+        <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
+          {children}
+        </h2>
+      ),
+      h3: ({ children }) => (
+        <h3 className="mt-10 mb-3 text-2xl font-black text-gray-900">
+          {children}
+        </h3>
+      ),
+      h4: ({ children }) => (
+        <h4 className="mt-8 mb-2 text-xl font-bold text-gray-900">
+          {children}
+        </h4>
+      ),
+      normal: ({ children }) => (
+        <p className="mb-6 text-lg leading-relaxed text-gray-800">{children}</p>
+      ),
+      blockquote: ({ children }) => (
+        <blockquote className="my-8 border-l-4 border-red-600 bg-gray-50 pl-6 py-4 italic text-gray-700">
+          {children}
+        </blockquote>
+      ),
+    },
+    list: {
+      bullet: ({ children }) => (
+        <ul className="my-6 list-disc list-outside space-y-2 pl-6">{children}</ul>
+      ),
+      number: ({ children }) => (
+        <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
+          {children}
+        </ol>
+      ),
+    },
+    listItem: {
+      bullet: ({ children }) => (
+        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+          {children}
+        </li>
+      ),
+      number: ({ children }) => (
+        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
+          {children}
+        </li>
+      ),
+    },
+  };
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
@@ -314,88 +470,67 @@ export default async function BlogDetailPage({
             {/* Article Body */}
             <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 md:hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
               <PortableText
-                value={post.body}
-                components={{
-                  types: {
-                    image: ({ value }) => {
-                      if (!value?.asset) return null;
-                      const src = sanityImageUrl(value, { width: 1200 });
-
-                      return (
-                        <figure className="my-8">
-                          <div className="relative aspect-video w-full overflow-hidden rounded-sm">
-                            <Image
-                              src={src}
-                              alt={value.alt || ""}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
-                              className="object-cover"
-                              loading="lazy"
-                              quality={75}
-                            />
-                          </div>
-                          {value.alt && (
-                            <figcaption className="mt-2 text-center text-sm text-gray-500">
-                              {value.alt}
-                            </figcaption>
-                          )}
-                        </figure>
-                      );
-                    },
-                  },
-                  block: {
-                    h2: ({ children }) => (
-                      <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="mt-10 mb-3 text-2xl font-black text-gray-900">
-                        {children}
-                      </h3>
-                    ),
-                    h4: ({ children }) => (
-                      <h4 className="mt-8 mb-2 text-xl font-bold text-gray-900">
-                        {children}
-                      </h4>
-                    ),
-                    normal: ({ children }) => (
-                      <p className="mb-6 text-lg leading-relaxed text-gray-800">
-                        {children}
-                      </p>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="my-8 border-l-4 border-red-600 bg-gray-50 pl-6 py-4 italic text-gray-700">
-                        {children}
-                      </blockquote>
-                    ),
-                  },
-                  list: {
-                    bullet: ({ children }) => (
-                      <ul className="my-6 list-disc list-outside space-y-2 pl-6">
-                        {children}
-                      </ul>
-                    ),
-                    number: ({ children }) => (
-                      <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
-                        {children}
-                      </ol>
-                    ),
-                  },
-                  listItem: {
-                    bullet: ({ children }) => (
-                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-                        {children}
-                      </li>
-                    ),
-                    number: ({ children }) => (
-                      <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-                        {children}
-                      </li>
-                    ),
-                  },
-                }}
+                value={bodyBeforeInline}
+                components={portableTextComponents}
               />
+
+              {showInlineRelated ? (
+                <section className="my-10 border border-gray-200 bg-gray-50 p-4 sm:p-5">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900 m-0">
+                      More Blogs Like This
+                    </h2>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+                      Related files
+                    </span>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {inlineRelated.map((item) => (
+                      <Link
+                        key={item._id}
+                        href={`/blog/${item.slug}`}
+                        className="group block border border-gray-200 bg-white p-2.5 sm:p-3 no-underline md:hover:border-red-600 transition-colors max-w-xl"
+                      >
+                        <div className="flex items-start gap-3">
+                          {item.mainImage?.asset?.url ? (
+                            <div className="relative h-18 w-28 sm:h-20 sm:w-32 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                              <Image
+                                src={sanityImageUrl(item.mainImage, {
+                                  width: 420,
+                                  quality: 65,
+                                })}
+                                alt={item.mainImage.alt || item.title}
+                                fill
+                                sizes="(max-width: 768px) 120px, 140px"
+                                className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                              />
+                            </div>
+                          ) : null}
+
+                          <div className="min-w-0">
+                            <h3 className="m-0 text-sm sm:text-base font-black leading-snug text-gray-900 line-clamp-2 md:group-hover:text-red-600 transition-colors">
+                              {item.title}
+                            </h3>
+                            {item.publishedAt ? (
+                              <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                                {formatDate(item.publishedAt)}
+                              </p>
+                            ) : null}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {showInlineRelated && bodyAfterInline.length > 0 ? (
+                <PortableText
+                  value={bodyAfterInline}
+                  components={portableTextComponents}
+                />
+              ) : null}
             </div>
 
             {/* Tags */}
