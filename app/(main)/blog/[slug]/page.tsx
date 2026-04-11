@@ -7,8 +7,9 @@ import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
+import { AdBlock } from "@/components/ads/ad-block";
 import type { Metadata } from "next";
-import { cache } from "react";
+import { cache, type ReactNode } from "react";
 import { formatDate } from "@/utils/date";
 import {
   defaultOgImage,
@@ -60,6 +61,11 @@ type PortableTextBlock = {
   [key: string]: unknown;
 };
 
+type RenderedBodyMarker = {
+  index: number;
+  type: "after-first-paragraph" | "mid-content" | "inline-related";
+};
+
 const getDescription = (metaDescription?: string, excerpt?: string) => {
   const source = metaDescription || excerpt;
   if (!source) return undefined;
@@ -68,24 +74,33 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
   return trimmed.length > 160 ? `${trimmed.slice(0, 157)}...` : trimmed;
 };
 
-const getInlineInsertIndex = (
+const isParagraphBlock = (block: PortableTextBlock) => {
+  if (
+    block?._type !== "block" ||
+    (block.style && block.style !== "normal") ||
+    !Array.isArray(block.children)
+  ) {
+    return false;
+  }
+
+  const text = block.children
+    .map((child) => (typeof child?.text === "string" ? child.text : ""))
+    .join(" ")
+    .trim();
+
+  return Boolean(text);
+};
+
+const getParagraphInsertIndex = (
   body: PortableTextBlock[],
-  minParagraphs = 4,
-  preferredParagraphs = 5,
+  minParagraphs = 1,
+  preferredParagraphs = minParagraphs,
 ) => {
   let totalParagraphs = 0;
 
   for (const block of body) {
-    if (
-      block?._type === "block" &&
-      (!block.style || block.style === "normal") &&
-      Array.isArray(block.children)
-    ) {
-      const text = block.children
-        .map((child) => (typeof child?.text === "string" ? child.text : ""))
-        .join(" ")
-        .trim();
-      if (text) totalParagraphs += 1;
+    if (isParagraphBlock(block)) {
+      totalParagraphs += 1;
     }
   }
 
@@ -97,16 +112,8 @@ const getInlineInsertIndex = (
   let seenParagraphs = 0;
   for (let i = 0; i < body.length; i += 1) {
     const block = body[i];
-    if (
-      block?._type === "block" &&
-      (!block.style || block.style === "normal") &&
-      Array.isArray(block.children)
-    ) {
-      const text = block.children
-        .map((child) => (typeof child?.text === "string" ? child.text : ""))
-        .join(" ")
-        .trim();
-      if (text) seenParagraphs += 1;
+    if (isParagraphBlock(block)) {
+      seenParagraphs += 1;
     }
 
     if (seenParagraphs === targetParagraph) {
@@ -116,6 +123,35 @@ const getInlineInsertIndex = (
 
   return null;
 };
+
+const getMidContentInsertIndex = (body: PortableTextBlock[]) => {
+  const sectionHeadingIndexes: number[] = [];
+
+  for (let i = 0; i < body.length; i += 1) {
+    const block = body[i];
+
+    if (
+      block?._type === "block" &&
+      (block.style === "h2" || block.style === "h3")
+    ) {
+      sectionHeadingIndexes.push(i);
+    }
+  }
+
+  if (sectionHeadingIndexes.length >= 5) {
+    return sectionHeadingIndexes[4];
+  }
+
+  if (sectionHeadingIndexes.length >= 4) {
+    return sectionHeadingIndexes[3];
+  }
+
+  return getParagraphInsertIndex(body, 7, 8);
+};
+
+const isRenderedBodyMarker = (
+  marker: RenderedBodyMarker | null,
+): marker is RenderedBodyMarker => marker !== null;
 
 const getPost = cache(async (slug: string) =>
   client.fetch<Post | null>(blogBySlugQuery, { slug }),
@@ -221,16 +257,11 @@ export default async function BlogDetailPage({
   );
 
   const bodyBlocks = Array.isArray(post.body) ? post.body : [];
-  const inlineInsertIndex = getInlineInsertIndex(bodyBlocks);
+  const afterFirstParagraphIndex = getParagraphInsertIndex(bodyBlocks, 1);
+  const inlineInsertIndex = getParagraphInsertIndex(bodyBlocks, 4, 5);
+  const midContentInsertIndex = getMidContentInsertIndex(bodyBlocks);
   const showInlineRelated =
     inlineInsertIndex !== null && inlineRelated.length > 0;
-  const bodyBeforeInline = showInlineRelated
-    ? bodyBlocks.slice(0, inlineInsertIndex ?? bodyBlocks.length)
-    : bodyBlocks;
-  const bodyAfterInline =
-    showInlineRelated && inlineInsertIndex !== null
-      ? bodyBlocks.slice(inlineInsertIndex)
-      : [];
 
   const portableTextComponents: PortableTextComponents = {
     types: {
@@ -308,6 +339,147 @@ export default async function BlogDetailPage({
       ),
     },
   };
+
+  const renderedBodyMarkers = [
+    afterFirstParagraphIndex !== null
+      ? {
+          index: afterFirstParagraphIndex,
+          type: "after-first-paragraph" as const,
+        }
+      : null,
+    midContentInsertIndex !== null &&
+    midContentInsertIndex !== afterFirstParagraphIndex
+      ? {
+          index: midContentInsertIndex,
+          type: "mid-content" as const,
+        }
+      : null,
+    showInlineRelated && inlineInsertIndex !== null
+      ? {
+          index: inlineInsertIndex,
+          type: "inline-related" as const,
+        }
+      : null,
+  ]
+    .filter(isRenderedBodyMarker)
+    .sort((left, right) => {
+      if (left.index !== right.index) {
+        return left.index - right.index;
+      }
+
+      if (left.type === "inline-related") {
+        return 1;
+      }
+
+      if (right.type === "inline-related") {
+        return -1;
+      }
+
+      return 0;
+    });
+
+  const articleBodyContent: ReactNode[] = [];
+  let currentBodyIndex = 0;
+
+  for (const marker of renderedBodyMarkers) {
+    const segment = bodyBlocks.slice(currentBodyIndex, marker.index);
+
+    if (segment.length > 0) {
+      articleBodyContent.push(
+        <PortableText
+          key={`body-${currentBodyIndex}-${marker.index}`}
+          value={segment}
+          components={portableTextComponents}
+        />,
+      );
+    }
+
+    if (marker.type === "after-first-paragraph") {
+      articleBodyContent.push(
+        <AdBlock
+          key="ad-after-first-paragraph"
+          instanceId={`${post._id}-after-first-paragraph`}
+        />,
+      );
+    }
+
+    if (marker.type === "mid-content") {
+      articleBodyContent.push(
+        <AdBlock
+          key="ad-mid-content"
+          instanceId={`${post._id}-mid-content`}
+        />,
+      );
+    }
+
+    if (marker.type === "inline-related") {
+      articleBodyContent.push(
+        <section
+          key="inline-related"
+          className="my-10 border border-gray-200 bg-gray-50 p-4 sm:p-5"
+        >
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900 m-0">
+              More Blogs Like This
+            </h2>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+              Related files
+            </span>
+          </div>
+
+          <div className="grid gap-3">
+            {inlineRelated.map((item) => (
+              <Link
+                key={item._id}
+                href={`/blog/${item.slug}`}
+                className="group block border border-gray-200 bg-white p-2.5 sm:p-3 no-underline md:hover:border-red-600 transition-colors max-w-xl"
+              >
+                <div className="flex items-start gap-3">
+                  {item.mainImage?.asset?.url ? (
+                    <div className="relative h-18 w-28 sm:h-20 sm:w-32 shrink-0 overflow-hidden rounded-sm bg-gray-200">
+                      <Image
+                        src={sanityImageUrl(item.mainImage, {
+                          width: 420,
+                          quality: 65,
+                        })}
+                        alt={item.mainImage.alt || item.title}
+                        fill
+                        sizes="(max-width: 768px) 120px, 140px"
+                        className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                      />
+                    </div>
+                  ) : null}
+
+                  <div className="min-w-0">
+                    <h3 className="m-0 text-sm sm:text-base font-black leading-snug text-gray-900 line-clamp-2 md:group-hover:text-red-600 transition-colors">
+                      {item.title}
+                    </h3>
+                    {item.publishedAt ? (
+                      <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                        {formatDate(item.publishedAt)}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>,
+      );
+    }
+
+    currentBodyIndex = marker.index;
+  }
+
+  if (currentBodyIndex < bodyBlocks.length) {
+    articleBodyContent.push(
+      <PortableText
+        key={`body-${currentBodyIndex}-end`}
+        value={bodyBlocks.slice(currentBodyIndex)}
+        components={portableTextComponents}
+      />,
+    );
+  }
 
   return (
     <main className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]">
@@ -469,68 +641,7 @@ export default async function BlogDetailPage({
 
             {/* Article Body */}
             <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:underline-offset-4 prose-a:decoration-2 prose-a:decoration-red-200 prose-a:rounded-sm prose-a:px-0.5 prose-a:transition-colors md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500 md:hover:prose-a:bg-red-50 prose-strong:font-bold prose-strong:text-gray-900">
-              <PortableText
-                value={bodyBeforeInline}
-                components={portableTextComponents}
-              />
-
-              {showInlineRelated ? (
-                <section className="my-10 border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-gray-900 m-0">
-                      More Blogs Like This
-                    </h2>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-                      Related files
-                    </span>
-                  </div>
-
-                  <div className="grid gap-3">
-                    {inlineRelated.map((item) => (
-                      <Link
-                        key={item._id}
-                        href={`/blog/${item.slug}`}
-                        className="group block border border-gray-200 bg-white p-2.5 sm:p-3 no-underline md:hover:border-red-600 transition-colors max-w-xl"
-                      >
-                        <div className="flex items-start gap-3">
-                          {item.mainImage?.asset?.url ? (
-                            <div className="relative h-18 w-28 sm:h-20 sm:w-32 shrink-0 overflow-hidden rounded-sm bg-gray-200">
-                              <Image
-                                src={sanityImageUrl(item.mainImage, {
-                                  width: 420,
-                                  quality: 65,
-                                })}
-                                alt={item.mainImage.alt || item.title}
-                                fill
-                                sizes="(max-width: 768px) 120px, 140px"
-                                className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-                              />
-                            </div>
-                          ) : null}
-
-                          <div className="min-w-0">
-                            <h3 className="m-0 text-sm sm:text-base font-black leading-snug text-gray-900 line-clamp-2 md:group-hover:text-red-600 transition-colors">
-                              {item.title}
-                            </h3>
-                            {item.publishedAt ? (
-                              <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                                {formatDate(item.publishedAt)}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {showInlineRelated && bodyAfterInline.length > 0 ? (
-                <PortableText
-                  value={bodyAfterInline}
-                  components={portableTextComponents}
-                />
-              ) : null}
+              {articleBodyContent}
             </div>
 
             {/* Tags */}
@@ -555,41 +666,47 @@ export default async function BlogDetailPage({
 
             {/* FAQ */}
             {post.faq?.length ? (
-              <section className="mt-12 rounded-sm border border-gray-200 bg-gray-50 p-6">
-                <h2 className="mb-6 text-2xl font-black text-gray-900">
-                  Frequently Asked Questions
-                </h2>
-                <div className="space-y-4">
-                  {post.faq.map((item, idx) => (
-                    <details
-                      key={`${item.question}-${idx}`}
-                      className="group rounded-sm border border-gray-200 bg-white p-5"
-                    >
-                      <summary className="cursor-pointer text-base font-bold text-gray-900 flex items-start justify-between">
-                        <span className="pr-4">{item.question}</span>
-                        <svg
-                          className="h-5 w-5 shrink-0 text-red-600 transition-transform group-open:rotate-180"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </summary>
-                      {item.answer && (
-                        <p className="mt-4 leading-relaxed text-gray-700">
-                          {item.answer}
-                        </p>
-                      )}
-                    </details>
-                  ))}
-                </div>
-              </section>
+              <>
+                <AdBlock
+                  className="mt-12 mb-0"
+                  instanceId={`${post._id}-before-faq`}
+                />
+                <section className="mt-12 rounded-sm border border-gray-200 bg-gray-50 p-6">
+                  <h2 className="mb-6 text-2xl font-black text-gray-900">
+                    Frequently Asked Questions
+                  </h2>
+                  <div className="space-y-4">
+                    {post.faq.map((item, idx) => (
+                      <details
+                        key={`${item.question}-${idx}`}
+                        className="group rounded-sm border border-gray-200 bg-white p-5"
+                      >
+                        <summary className="cursor-pointer text-base font-bold text-gray-900 flex items-start justify-between">
+                          <span className="pr-4">{item.question}</span>
+                          <svg
+                            className="h-5 w-5 shrink-0 text-red-600 transition-transform group-open:rotate-180"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </summary>
+                        {item.answer && (
+                          <p className="mt-4 leading-relaxed text-gray-700">
+                            {item.answer}
+                          </p>
+                        )}
+                      </details>
+                    ))}
+                  </div>
+                </section>
+              </>
             ) : null}
 
             {/* Next Blog */}
