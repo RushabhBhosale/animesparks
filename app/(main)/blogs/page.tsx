@@ -4,11 +4,9 @@ import clsx from "clsx";
 import Image from "next/image";
 
 import { client } from "@/sanity/lib/client";
-import { sanityHeroImageUrl } from "@/sanity/lib/image";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
-import { PageHero } from "@/components/page-hero";
 import { BlogListContent } from "./blog-list-content";
 import { canonicalizeSearchValue } from "@/utils/search-index";
 import type { BlogCategory, BlogPost } from "./types";
@@ -61,7 +59,7 @@ export default async function AllBlogsPage({
     if (!normalizedQuery) return true;
     const content = [post.title, post.metaDescription || post.excerpt]
       .filter(Boolean)
-      .map((entry: any) => canonicalizeSearchValue(entry))
+      .map((entry) => canonicalizeSearchValue(entry || ""))
       .join(" ");
     return content.includes(normalizedQuery);
   });
@@ -208,7 +206,7 @@ export default async function AllBlogsPage({
                     {featured.mainImage?.asset?.url && (
                       <div className="relative h-64 w-full md:h-full overflow-hidden">
                         <Image
-                          src={sanityHeroImageUrl(featured.mainImage)}
+                          src={featured.mainImage.asset.url}
                           alt={featured.mainImage.alt || featured.title}
                           fill
                           sizes="(max-width: 768px) 100vw, 960px"

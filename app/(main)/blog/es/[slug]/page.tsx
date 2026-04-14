@@ -4,12 +4,12 @@ import {
   BlogPostPage,
   generateBlogMetadata,
   generateBlogStaticParams,
-} from "../_lib/blog-post-page";
+} from "../../_lib/blog-post-page";
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return generateBlogStaticParams("en");
+  return generateBlogStaticParams("es");
 }
 
 export async function generateMetadata({
@@ -19,15 +19,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  return generateBlogMetadata({ slug, locale: "en" });
+  return generateBlogMetadata({ slug, locale: "es" });
 }
 
-export default async function BlogEnglishPage({
+export default async function BlogSpanishPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
 
-  return <BlogPostPage slug={slug} locale="en" />;
+  return <BlogPostPage slug={slug} locale="es" />;
 }

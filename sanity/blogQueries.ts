@@ -1,5 +1,18 @@
-// lib/sanity/queries.ts
 import { groq } from "next-sanity";
+
+const englishExcerptExpr = "pt::text(body)";
+const englishDescriptionExpr = `coalesce(metaDescription, ${englishExcerptExpr})`;
+
+const spanishPublishedAtExpr = "coalesce(publishedAt, originalPost->publishedAt)";
+const spanishTagsExpr = "coalesce(tags, originalPost->tags)";
+const spanishExcerptExpr = "pt::text(body)";
+const spanishDescriptionExpr = `coalesce(metaDescription, ${spanishExcerptExpr})`;
+const spanishAlternateSlugExpr = `*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  originalPost._ref == ^._id &&
+  ${spanishPublishedAtExpr} <= now()
+][0].slug.current`;
 
 /* ----------------------------------------
    BLOG LIST (Homepage / Blog page)
@@ -17,6 +30,7 @@ export const blogsQuery = groq`
   publishedAt,
   _createdAt,
   metaDescription,
+  "excerpt": ${englishDescriptionExpr},
   tags,
   mainImage {
     asset->{
@@ -38,10 +52,39 @@ export const blogsQuery = groq`
 }
 `;
 
+export const spanishBlogsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now()
+]
+| order(${spanishPublishedAtExpr} desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  "publishedAt": ${spanishPublishedAtExpr},
+  _createdAt,
+  metaDescription,
+  "excerpt": ${spanishDescriptionExpr},
+  "tags": ${spanishTagsExpr},
+  "mainImage": coalesce(mainImage, originalPost->mainImage),
+  "categories": coalesce(categories, originalPost->categories)[]->{
+    _id,
+    title,
+    "slug": slug.current
+  },
+  "author": coalesce(author, originalPost->author)->{
+    name,
+    "slug": slug.current,
+    image
+  }
+}
+`;
+
 /* ----------------------------------------
-   SINGLE BLOG (Detail page)
+   SINGLE BLOGS (Detail page)
 ---------------------------------------- */
-export const blogBySlugQuery = groq`
+export const englishBlogBySlugQuery = groq`
 *[
   _type == "post" &&
   slug.current == $slug &&
@@ -50,14 +93,16 @@ export const blogBySlugQuery = groq`
   _id,
   title,
   "slug": slug.current,
-  metaTitle,
-  metaDescription,
-  "excerpt": pt::text(body),
+  "metaTitle": coalesce(metaTitle, title),
+  "metaDescription": ${englishDescriptionExpr},
+  "excerpt": ${englishExcerptExpr},
   body,
   tags,
   publishedAt,
   _createdAt,
   _updatedAt,
+  "resolvedLocale": "en",
+  "alternateSlug": ${spanishAlternateSlugExpr},
   mainImage {
     asset->{
       _id,
@@ -84,10 +129,50 @@ export const blogBySlugQuery = groq`
 }
 `;
 
+export const spanishBlogBySlugQuery = groq`
+*[
+  _type == "spanishPost" &&
+  slug.current == $slug &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now()
+][0] {
+  _id,
+  title,
+  "slug": slug.current,
+  "metaTitle": coalesce(metaTitle, title),
+  "metaDescription": ${spanishDescriptionExpr},
+  "excerpt": ${spanishExcerptExpr},
+  body,
+  "tags": ${spanishTagsExpr},
+  "publishedAt": ${spanishPublishedAtExpr},
+  _createdAt,
+  _updatedAt,
+  "resolvedLocale": "es",
+  "alternateSlug": originalPost->slug.current,
+  "mainImage": coalesce(mainImage, originalPost->mainImage),
+  "categories": coalesce(categories, originalPost->categories)[]->{
+    _id,
+    title,
+    "slug": slug.current
+  },
+  "author": coalesce(author, originalPost->author)->{
+    name,
+    bio,
+    "slug": slug.current,
+    image
+  },
+  faq[]{
+    question,
+    answer
+  },
+  "viewCount": coalesce(viewCount, 0)
+}
+`;
+
 /* ----------------------------------------
-   RELATED BLOGS (Category + tag relevance)
+   RELATED BLOGS
 ---------------------------------------- */
-export const relatedBlogsQuery = groq`
+export const englishRelatedBlogsQuery = groq`
 *[
   _type == "post" &&
   publishedAt <= now() &&
@@ -107,7 +192,7 @@ export const relatedBlogsQuery = groq`
   )[0...8] {
   _id,
   title,
-  "excerpt": coalesce(metaDescription, pt::text(body)),
+  "excerpt": ${englishDescriptionExpr},
   "slug": slug.current,
   publishedAt,
   mainImage {
@@ -116,6 +201,33 @@ export const relatedBlogsQuery = groq`
     },
     alt
   }
+}
+`;
+
+export const spanishRelatedBlogsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now() &&
+  _id != $currentId &&
+  (
+    count(coalesce(categories, originalPost->categories)[@._ref in $categoryIds]) > 0 ||
+    count(${spanishTagsExpr}[@ in $tags]) > 0
+  )
+]
+| order(
+    (
+      count(coalesce(categories, originalPost->categories)[@._ref in $categoryIds]) * 3 +
+      count(${spanishTagsExpr}[@ in $tags])
+    ) desc,
+    ${spanishPublishedAtExpr} desc
+  )[0...8] {
+  _id,
+  title,
+  "excerpt": ${spanishDescriptionExpr},
+  "slug": slug.current,
+  "publishedAt": ${spanishPublishedAtExpr},
+  "mainImage": coalesce(mainImage, originalPost->mainImage)
 }
 `;
 
@@ -233,7 +345,7 @@ export const latestBlogsQuery = groq`
   title,
   "slug": slug.current,
   publishedAt,
-  "excerpt": coalesce(metaDescription, pt::text(body)),
+  "excerpt": ${englishDescriptionExpr},
   author->{
     name,
     image
@@ -265,7 +377,7 @@ export const blogsBySlugsQuery = groq`
   title,
   "slug": slug.current,
   publishedAt,
-  "excerpt": coalesce(metaDescription, pt::text(body)),
+  "excerpt": ${englishDescriptionExpr},
   author->{
     name,
     image
@@ -292,7 +404,7 @@ export const homepageSettingsQuery = groq`
     title,
     "slug": slug.current,
     publishedAt,
-    "excerpt": coalesce(metaDescription, pt::text(body)),
+    "excerpt": ${englishDescriptionExpr},
     mainImage {
       asset->{ url },
       alt
@@ -308,7 +420,7 @@ export const homepageSettingsQuery = groq`
     title,
     "slug": slug.current,
     publishedAt,
-    "excerpt": coalesce(metaDescription, pt::text(body)),
+    "excerpt": ${englishDescriptionExpr},
     mainImage {
       asset->{ url },
       alt
@@ -336,7 +448,7 @@ export const trendingBlogsQuery = groq`
   title,
   "slug": slug.current,
   publishedAt,
-  "excerpt": coalesce(metaDescription, pt::text(body)),
+  "excerpt": ${englishDescriptionExpr},
   categories[]->{
     _id,
     title,
@@ -351,16 +463,49 @@ export const trendingBlogsQuery = groq`
 `;
 
 /* ----------------------------------------
-   SITEMAP (Minimal fields)
+   SITEMAP
 ---------------------------------------- */
-export const sitemapBlogsQuery = groq`
+export const sitemapEnglishBlogsQuery = groq`
 *[
   _type == "post" &&
   publishedAt <= now() &&
   defined(slug.current)
 ] {
   "slug": slug.current,
+  "alternateSlug": ${spanishAlternateSlugExpr},
   _updatedAt
+}
+`;
+
+export const sitemapSpanishBlogsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now()
+] {
+  "slug": slug.current,
+  "alternateSlug": originalPost->slug.current,
+  _updatedAt
+}
+`;
+
+export const englishBlogSlugsQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  defined(slug.current)
+] {
+  "slug": slug.current
+}
+`;
+
+export const spanishBlogSlugsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now()
+] {
+  "slug": slug.current
 }
 `;
 
@@ -396,7 +541,7 @@ export const rssBlogsQuery = groq`
   "slug": slug.current,
   publishedAt,
   _updatedAt,
-  "excerpt": pt::text(body)
+  "excerpt": ${englishExcerptExpr}
 }
 `;
 

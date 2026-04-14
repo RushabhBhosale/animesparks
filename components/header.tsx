@@ -75,6 +75,10 @@ export default function Header() {
       currentPath.startsWith(`${href}/`)
     );
   };
+  const blogArchiveLocale =
+    currentPath.startsWith("/blogs/es") || currentPath.startsWith("/blog/es/")
+      ? "es"
+      : "en";
 
   const q = searchTerm.trim();
   const dropdownItems = useMemo(() => (results || []).slice(0, 7), [results]);
@@ -172,6 +176,52 @@ export default function Header() {
     e.preventDefault();
   };
 
+  const renderBlogLocaleToggle = (mobile = false) => (
+    <div
+      className={clsx(
+        "flex items-center gap-2",
+        mobile ? "mt-3 px-1" : "ml-2"
+      )}
+      aria-label="Blog language archive"
+    >
+      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-white/45">
+        Blog
+      </span>
+      <div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/[0.03] p-1">
+        <Link
+          href="/blogs"
+          onClick={() => {
+            if (mobile) setIsMobileMenuOpen(false);
+          }}
+          className={clsx(
+            "rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors",
+            blogArchiveLocale === "en"
+              ? "bg-white text-black"
+              : "text-white/65 md:hover:bg-white/10 md:hover:text-white"
+          )}
+          aria-current={blogArchiveLocale === "en" ? "page" : undefined}
+        >
+          EN
+        </Link>
+        <Link
+          href="/blogs/es"
+          onClick={() => {
+            if (mobile) setIsMobileMenuOpen(false);
+          }}
+          className={clsx(
+            "rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors",
+            blogArchiveLocale === "es"
+              ? "bg-[#f20d0d] text-white"
+              : "text-white/65 md:hover:bg-white/10 md:hover:text-white"
+          )}
+          aria-current={blogArchiveLocale === "es" ? "page" : undefined}
+        >
+          ES
+        </Link>
+      </div>
+    </div>
+  );
+
   const mobileMenu = (
     <div
       className={clsx(
@@ -244,6 +294,7 @@ export default function Header() {
               </Link>
             );
           })}
+          {renderBlogLocaleToggle(true)}
         </nav>
       </div>
     </div>
@@ -391,12 +442,16 @@ export default function Header() {
                     onClick={() => goToSearch(q)}
                     className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#ccff00] md:hover:bg-[#ccff00]/5 transition-colors border-t border-white/10 bg-white/[0.02]"
                   >
-                    <span>View all results for "{q}"</span>
+                    <span>View all results for &quot;{q}&quot;</span>
                     <span className="text-white/40">→</span>
                   </button>
                 )}
               </div>
             )}
+          </div>
+
+          <div className="hidden md:flex items-center">
+            {renderBlogLocaleToggle()}
           </div>
 
           {/* Mobile: only search icon (goes to /search) + menu */}

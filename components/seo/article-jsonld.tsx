@@ -7,6 +7,7 @@ export function ArticleJsonLd({
   dateModified,
   authorName,
   authorUrl,
+  inLanguage,
 }: {
   url: string;
   title: string;
@@ -16,6 +17,7 @@ export function ArticleJsonLd({
   dateModified?: string;
   authorName?: string;
   authorUrl?: string;
+  inLanguage?: string;
 }) {
   const author =
     authorName || authorUrl
@@ -33,6 +35,7 @@ export function ArticleJsonLd({
     headline: title,
     description: description,
     image: image ? [image] : undefined,
+    inLanguage,
     datePublished,
     dateModified: dateModified || datePublished,
     author,

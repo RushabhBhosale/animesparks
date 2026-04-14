@@ -1,17 +1,25 @@
-import { DocumentTextIcon } from "@sanity/icons";
+import { TranslateIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
-export const postType = defineType({
-  name: "post",
-  title: "Post",
+export const spanishPostType = defineType({
+  name: "spanishPost",
+  title: "Spanish Blog",
   type: "document",
-  icon: DocumentTextIcon,
+  icon: TranslateIcon,
   fields: [
+    defineField({
+      name: "originalPost",
+      title: "Original English Blog",
+      type: "reference",
+      to: [{ type: "post" }],
+      description:
+        "Optional. Select the English blog if you want to reuse its author, tags, image, categories, or publish date.",
+    }),
     defineField({
       name: "title",
       title: "Title",
       type: "string",
-      description: "Primary editorial headline used for the English route.",
+      description: "Headline used for the Spanish route.",
     }),
     defineField({
       name: "slug",
@@ -41,6 +49,8 @@ export const postType = defineType({
       name: "author",
       type: "reference",
       to: { type: "author" },
+      description:
+        "Optional. Leave blank to reuse the original English blog author when one is selected above.",
     }),
     defineField({
       name: "tags",
@@ -50,6 +60,8 @@ export const postType = defineType({
       options: {
         layout: "tags",
       },
+      description:
+        "Optional. Leave blank to reuse tags from the original English blog.",
     }),
     defineField({
       name: "mainImage",
@@ -57,6 +69,8 @@ export const postType = defineType({
       options: {
         hotspot: true,
       },
+      description:
+        "Optional. Leave blank to reuse the original English blog image.",
       fields: [
         defineField({
           name: "alt",
@@ -69,10 +83,14 @@ export const postType = defineType({
       name: "categories",
       type: "array",
       of: [defineArrayMember({ type: "reference", to: { type: "category" } })],
+      description:
+        "Optional. Leave blank to reuse categories from the original English blog.",
     }),
     defineField({
       name: "publishedAt",
       type: "datetime",
+      description:
+        "Optional. Leave blank to reuse the original English blog publish date.",
     }),
     defineField({
       name: "body",
@@ -107,13 +125,21 @@ export const postType = defineType({
     select: {
       title: "title",
       author: "author.name",
+      originalTitle: "originalPost.title",
       media: "mainImage",
     },
     prepare(selection) {
-      const { author } = selection;
+      const { author, originalTitle, title } = selection;
+      const subtitleParts = [
+        "Spanish",
+        author ? `by ${author}` : undefined,
+        originalTitle ? `from ${originalTitle}` : undefined,
+      ].filter(Boolean);
+
       return {
         ...selection,
-        subtitle: author ? `by ${author}` : "English",
+        title: title || "Untitled Spanish Blog",
+        subtitle: subtitleParts.join(" - "),
       };
     },
   },

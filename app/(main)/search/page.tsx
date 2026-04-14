@@ -43,7 +43,7 @@ const searchQuery = groq`
 | order(publishedAt desc)[0...$limit]{
   _id,
   title,
-  metaDescription,
+  "metaDescription": coalesce(metaDescription, pt::text(body)),
   publishedAt,
   "slug": slug.current,
   "typeLabel": coalesce(categories[0]->title, "Article")
@@ -158,7 +158,7 @@ export default async function SearchPage({
             </span>
             {hasQuery ? (
               <span className="ml-auto text-[10px] font-mono uppercase text-[#ccff00]">
-                "{query}"
+                &quot;{query}&quot;
               </span>
             ) : null}
           </div>
@@ -207,7 +207,7 @@ export default async function SearchPage({
             ) : (
               <div className="rounded-xl border border-white/10 bg-black/60 p-6 text-center">
                 <p className="text-base font-semibold text-white">
-                  No matches for "{query}"
+                  No matches for &quot;{query}&quot;
                 </p>
                 <p className="mt-2 text-sm text-white/60">
                   Try broader terms or check spelling. Categories and tags also

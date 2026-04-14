@@ -13,7 +13,7 @@ const searchQuery = groq`
 | order(publishedAt desc)[0...$limit]{
   _id,
   title,
-  metaDescription,
+  "metaDescription": coalesce(metaDescription, pt::text(body)),
   "slug": slug.current,
   "typeLabel": coalesce(categories[0]->title, "Article")
 }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       results: ranked,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ results: [] }, { status: 200 });
   }
 }

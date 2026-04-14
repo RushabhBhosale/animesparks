@@ -1,9 +1,20 @@
 import { client } from "@/sanity/lib/client";
-import { sitemapBlogsQuery } from "@/sanity/blogQueries";
+import {
+  sitemapEnglishBlogsQuery,
+  sitemapSpanishBlogsQuery,
+} from "@/sanity/blogQueries";
 
 type SitemapPost = {
+  locale: "en" | "es";
   slug: string;
+  alternateSlug?: string;
   _updatedAt?: string;
+};
+
+type SitemapEntry = {
+  url: string;
+  lastModified?: string;
+  alternates?: Array<{ hreflang: string; href: string }>;
 };
 
 const getBaseUrl = () => {
@@ -30,13 +41,23 @@ export const revalidate = 3600;
 
 export async function GET() {
   const baseUrl = getBaseUrl();
-  const posts: SitemapPost[] = await client
-    .withConfig({ useCdn: false })
-    .fetch(sitemapBlogsQuery);
+  const [englishPosts, spanishPosts] = await Promise.all([
+    client
+      .withConfig({ useCdn: false })
+      .fetch<Omit<SitemapPost, "locale">[]>(sitemapEnglishBlogsQuery),
+    client
+      .withConfig({ useCdn: false })
+      .fetch<Omit<SitemapPost, "locale">[]>(sitemapSpanishBlogsQuery),
+  ]);
+  const posts: SitemapPost[] = [
+    ...(englishPosts ?? []).map((post) => ({ ...post, locale: "en" as const })),
+    ...(spanishPosts ?? []).map((post) => ({ ...post, locale: "es" as const })),
+  ];
 
   const staticRoutes = [
     "/",
     "/blogs",
+    "/blogs/es",
     "/my-anime-list",
     "/categories",
     "/trending",
@@ -46,27 +67,68 @@ export async function GET() {
     "/sitemap",
   ];
 
-  const staticEntries: Array<{ url: string; lastModified?: string }> =
+  const staticEntries: SitemapEntry[] =
     staticRoutes.map((route) => ({
       url: `${baseUrl}${route}`,
     }));
 
-  const postEntries: Array<{ url: string; lastModified?: string }> = posts.map(
-    (post) => ({
-      url: `${baseUrl}/blog/${post.slug}`,
-      lastModified: toLastMod(post._updatedAt),
-    })
-  );
+  const postEntries: SitemapEntry[] = posts.map((post) => {
+    const currentUrl =
+      post.locale === "es"
+        ? `${baseUrl}/blog/es/${post.slug}`
+        : `${baseUrl}/blog/${post.slug}`;
+    const alternateUrl = post.alternateSlug
+      ? post.locale === "es"
+        ? `${baseUrl}/blog/${post.alternateSlug}`
+        : `${baseUrl}/blog/es/${post.alternateSlug}`
+      : undefined;
+    const lastModified = toLastMod(post._updatedAt);
+    const alternates = alternateUrl
+      ? post.locale === "es"
+        ? [
+            { hreflang: "en", href: alternateUrl },
+            { hreflang: "es", href: currentUrl },
+            { hreflang: "x-default", href: alternateUrl },
+          ]
+        : [
+            { hreflang: "en", href: currentUrl },
+            { hreflang: "es", href: alternateUrl },
+            { hreflang: "x-default", href: currentUrl },
+          ]
+      : [
+          {
+            hreflang: post.locale,
+            href: currentUrl,
+          },
+          {
+            hreflang: "x-default",
+            href: currentUrl,
+          },
+        ];
+
+    return {
+      url: currentUrl,
+      lastModified,
+      alternates,
+    };
+  });
 
   const urls = [...staticEntries, ...postEntries].map(
-    ({ url, lastModified }) => {
+    ({ url, lastModified, alternates }) => {
       const lastmodTag = lastModified
         ? `    <lastmod>${escapeXml(lastModified)}</lastmod>\n`
         : "";
+      const alternateTags = (alternates || [])
+        .map(
+          (alternate: { hreflang: string; href: string }) =>
+            `    <xhtml:link rel="alternate" hreflang="${escapeXml(alternate.hreflang)}" href="${escapeXml(alternate.href)}" />`
+        )
+        .join("\n");
       return [
         "  <url>",
         `    <loc>${escapeXml(url)}</loc>`,
         lastmodTag.trimEnd(),
+        alternateTags,
         "  </url>",
       ]
         .filter(Boolean)
@@ -78,7 +140,7 @@ export async function GET() {
 
   const xml =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
     `${urlsXml}\n` +
     `</urlset>\n`;
 

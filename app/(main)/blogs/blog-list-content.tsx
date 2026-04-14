@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatDate } from "@/utils/date";
 
 import type { BlogPost } from "./types";
@@ -9,17 +8,21 @@ import type { BlogPost } from "./types";
 type BlogListContentProps = {
   posts: BlogPost[];
   initialVisible?: number;
+  locale?: "en" | "es";
 };
 
 export function BlogListContent({
   posts,
   initialVisible = 10,
+  locale = "en",
 }: BlogListContentProps) {
   if (!posts.length) return null;
 
   const capped = Math.min(Math.max(initialVisible, 0), posts.length);
   const primaryPosts = posts.slice(0, Math.max(capped, 10));
   const extraPosts = posts.slice(primaryPosts.length);
+  const getPostHref = (slug: string) =>
+    locale === "es" ? `/blog/es/${slug}` : `/blog/${slug}`;
 
   return (
     <div className="space-y-10">
@@ -33,7 +36,7 @@ export function BlogListContent({
               <Link
                 prefetch={false}
                 key={post._id}
-                href={`/blog/${post.slug}`}
+                href={getPostHref(post.slug)}
                 className="group relative block ob-panel border-2 border-white/15 bg-anime-panel p-4 md:p-5 shadow-hard-white md:hover:-translate-y-1 transition-transform"
               >
                 <div className="absolute -top-4 -left-4 bg-anime-red text-white font-black text-sm px-3 py-1 border-2 border-black shadow-hard z-20 uppercase tracking-[0.14em]">
@@ -43,7 +46,7 @@ export function BlogListContent({
                 {post.mainImage?.asset?.url && (
                   <div className="relative h-64 w-full overflow-hidden bg-black border border-white/10">
                     <Image
-                      src={sanityHeroImageUrl(post.mainImage)}
+                      src={post.mainImage.asset.url}
                       alt={post.mainImage.alt || post.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 1200px"
@@ -78,7 +81,7 @@ export function BlogListContent({
             <Link
               prefetch={false}
               key={post._id}
-              href={`/blog/${post.slug}`}
+              href={getPostHref(post.slug)}
               className="group relative flex gap-4 ob-panel border-2 border-white/10 bg-anime-panel p-4 md:p-5 shadow-hard-white md:hover:-translate-y-1 transition-transform"
             >
               <div className="pointer-events-none absolute -top-3 right-6 h-6 w-20 rotate-[10deg] bg-white/10 border border-white/10" />
@@ -90,7 +93,7 @@ export function BlogListContent({
               {post.mainImage?.asset?.url && (
                 <div className="relative h-24 w-32 shrink-0 overflow-hidden bg-black border border-white/10 sm:h-28 sm:w-40">
                   <Image
-                    src={sanityImageUrl(post.mainImage, { width: 900 })}
+                    src={post.mainImage.asset.url}
                     alt={post.mainImage.alt || post.title}
                     fill
                     sizes="(max-width: 768px) 92vw, 420px"
@@ -122,14 +125,12 @@ export function BlogListContent({
       {extraPosts.length > 0 && (
         <section className="space-y-6 border-t border-white/10 pt-8">
           <div className="space-y-6">
-            {extraPosts.map((post: BlogPost, index: number) => {
-              const displayNumber = primaryPosts.length + index + 2;
-
+            {extraPosts.map((post: BlogPost) => {
               return (
                 <Link
                   prefetch={false}
                   key={post._id}
-                  href={`/blog/${post.slug}`}
+                  href={getPostHref(post.slug)}
                   className="group relative flex gap-4 ob-panel border-2 border-white/10 bg-anime-panel p-4 md:p-5 shadow-hard-white md:hover:-translate-y-1 transition-transform"
                 >
                   <div className="pointer-events-none absolute -top-3 right-6 h-6 w-20 rotate-[10deg] bg-white/10 border border-white/10" />
@@ -141,9 +142,7 @@ export function BlogListContent({
                   {post.mainImage?.asset?.url && (
                     <div className="relative h-24 w-32 shrink-0 overflow-hidden bg-black border border-white/10 sm:h-28 sm:w-40">
                       <Image
-                        src={sanityImageUrl(post.mainImage, {
-                          width: 900,
-                        })}
+                        src={post.mainImage.asset.url}
                         alt={post.mainImage.alt || post.title}
                         fill
                         sizes="(max-width: 768px) 92vw, 420px"
