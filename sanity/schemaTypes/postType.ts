@@ -21,6 +21,34 @@ export const postType = defineType({
       },
     }),
     defineField({
+      name: "excerpt",
+      title: "Excerpt",
+      type: "text",
+      rows: 3,
+      description: "Short editorial summary used by indexes and integrations.",
+    }),
+    defineField({
+      name: "animeName",
+      title: "Anime name",
+      type: "string",
+    }),
+    defineField({
+      name: "articleType",
+      title: "Article type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Release date", value: "release-date" },
+          { title: "News", value: "news" },
+          { title: "Explained", value: "explained" },
+          { title: "Characters", value: "characters" },
+          { title: "Recommendation", value: "recommendation" },
+          { title: "Review", value: "review" },
+          { title: "Other", value: "other" },
+        ],
+      },
+    }),
+    defineField({
       name: "metaTitle",
       title: "Meta title",
       type: "string",
@@ -63,6 +91,10 @@ export const postType = defineType({
           type: "string",
           title: "Alternative text",
         }),
+        defineField({ name: "sourceUrl", type: "url", title: "Original image URL" }),
+        defineField({ name: "sourcePage", type: "url", title: "Image source page" }),
+        defineField({ name: "hostedUrl", type: "url", title: "Hosted image URL" }),
+        defineField({ name: "imagePurpose", type: "string", title: "Image purpose" }),
       ],
     }),
     defineField({
@@ -78,6 +110,48 @@ export const postType = defineType({
       name: "body",
       title: "Body",
       type: "blockContent",
+    }),
+    defineField({
+      name: "primaryKeyword",
+      title: "Primary keyword",
+      type: "string",
+    }),
+    defineField({
+      name: "secondaryKeywords",
+      title: "Secondary keywords",
+      type: "array",
+      of: [{ type: "string" }],
+      options: { layout: "tags" },
+    }),
+    defineField({
+      name: "internalLinks",
+      title: "Validated internal links",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "internalLink",
+          fields: [
+            defineField({ name: "text", type: "string" }),
+            defineField({ name: "url", type: "url" }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
+      name: "sources",
+      title: "Article sources",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "articleSource",
+          fields: [
+            defineField({ name: "name", type: "string" }),
+            defineField({ name: "url", type: "url" }),
+          ],
+        }),
+      ],
     }),
     defineField({
       name: "faq",
@@ -101,6 +175,13 @@ export const postType = defineType({
       readOnly: true,
       hidden: true,
       initialValue: 0,
+    }),
+    defineField({
+      name: "integrationCreatedAt",
+      title: "Integration creation time",
+      type: "datetime",
+      readOnly: true,
+      hidden: true,
     }),
   ],
   preview: {

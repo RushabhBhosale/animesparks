@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "import:anime-list": "node scripts/import-anime-list.cjs",
     "fetch:anilist": "node scripts/fetch-anilist-bulk.cjs"
   },
@@ -22,13 +24,15 @@
     "fuse": "^0.12.1",
     "fuse.js": "^6.6.2",
     "lucide-react": "^0.562.0",
-    "next": "16.1.1",
+    "next": "16.1.6",
     "next-sanity": "^12.0.5",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "sanity": "^5.1.0",
+    "sharp": "^0.34.5",
     "styled-components": "^6.1.19",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -36,9 +40,10 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   },
   "browserslist": {
     "production": [

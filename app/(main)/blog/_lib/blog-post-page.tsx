@@ -440,6 +440,38 @@ export async function BlogPostPage({
         );
       },
     },
+    marks: {
+      link: ({ children, value }) => {
+        const href = typeof value?.href === "string" ? value.href : "";
+        if (!href) return <>{children}</>;
+        try {
+          const target = new URL(href, baseUrl);
+          const site = new URL(baseUrl);
+          if (target.hostname.replace(/^www\./, "") === site.hostname.replace(/^www\./, "")) {
+            return (
+              <Link
+                href={`${target.pathname}${target.search}${target.hash}`}
+                className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4 transition-colors md:hover:text-red-900"
+              >
+                {children}
+              </Link>
+            );
+          }
+        } catch {
+          return <>{children}</>;
+        }
+        return (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4 transition-colors md:hover:text-red-900"
+          >
+            {children}
+          </a>
+        );
+      },
+    },
     block: {
       h2: ({ children }) => (
         <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">

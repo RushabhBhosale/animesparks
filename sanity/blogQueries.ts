@@ -1,6 +1,6 @@
 import { groq } from "next-sanity";
 
-const englishExcerptExpr = "pt::text(body)";
+const englishExcerptExpr = "coalesce(excerpt, pt::text(body))";
 const englishDescriptionExpr = `coalesce(metaDescription, ${englishExcerptExpr})`;
 
 const spanishPublishedAtExpr = "coalesce(publishedAt, originalPost->publishedAt)";

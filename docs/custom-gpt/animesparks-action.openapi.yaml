@@ -1,0 +1,242 @@
+openapi: 3.1.0
+info:
+  title: AnimeSparks Editorial Integration
+  version: 1.0.0
+  description: Read AnimeSparks content, create reviewed drafts, and publish only after explicit user confirmation.
+servers:
+  - url: https://animesparks.com
+paths:
+  /api/integrations/chatgpt/content-context:
+    get:
+      operationId: getAnimeSparksContentContext
+      summary: Check existing AnimeSparks posts before drafting
+      description: Call this before creating every draft. Use the returned posts to detect overlapping topics and to select real, published internal article URLs. Draft entries may be used for duplicate detection but not as public internal links.
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string, maxLength: 200 }
+          description: Search title, slug, anime name, excerpt, and SEO keywords.
+        - in: query
+          name: animeName
+          schema: { type: string, maxLength: 120 }
+        - in: query
+          name: status
+          schema: { type: string, enum: [draft, published] }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+      responses:
+        "200":
+          description: Compact existing-post context.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [posts]
+                properties:
+                  posts:
+                    type: array
+                    items: { $ref: "#/components/schemas/ContextPost" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /api/integrations/chatgpt/blog-drafts:
+    post:
+      operationId: createAnimeSparksBlogDraft
+      summary: Create an unpublished AnimeSparks draft
+      description: Check content context first. Do not create overlapping content. Internal links must use published URLs returned by the context operation. Content should be complete Markdown. This operation never publishes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDraftRequest" }
+      responses:
+        "201":
+          description: Draft created. Image warnings do not prevent draft creation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CreateDraftSuccess" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409":
+          description: A duplicate or substantially overlapping article exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DuplicateResponse" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /api/integrations/chatgpt/blog-drafts/{id}/publish:
+    post:
+      operationId: publishAnimeSparksBlogDraft
+      summary: Publish an existing AnimeSparks draft
+      description: Consequential action. Call only after draft creation and only when the user explicitly asks to publish. Ask for confirmation immediately before calling. Send the publishing key only to this endpoint.
+      x-openai-isConsequential: true
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, pattern: "^[a-zA-Z0-9_-]{1,128}$" }
+          description: Draft ID returned by createAnimeSparksBlogDraft.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [publishKey]
+              properties:
+                publishKey:
+                  type: string
+                  description: BLOG_PUBLISH_KEY supplied privately by the owner. Never send it to another endpoint.
+      responses:
+        "200":
+          description: Draft published.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublishSuccess" }
+        "401":
+          description: Invalid publishing key.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: Draft not found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: The draft has already been published.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+components:
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+    Unavailable:
+      description: Integration or CMS is unavailable.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+  schemas:
+    ContextPost:
+      type: object
+      additionalProperties: false
+      required: [id, title, slug, url, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        slug: { type: string }
+        url: { type: string, format: uri }
+        animeName: { type: string }
+        articleType: { type: string }
+        excerpt: { type: string }
+        primaryKeyword: { type: string }
+        secondaryKeywords: { type: array, items: { type: string } }
+        status: { type: string, enum: [draft, published] }
+        publishedAt: { type: string, format: date-time }
+    ImageInput:
+      type: object
+      additionalProperties: false
+      required: [sourceUrl, alt]
+      properties:
+        sourceUrl: { type: string, format: uri, description: Original full-size HTTP or HTTPS image URL. }
+        sourcePage: { type: string, format: uri }
+        alt: { type: string, maxLength: 300 }
+    CreateDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [title, animeName, articleType, excerpt, content]
+      properties:
+        title: { type: string, maxLength: 140 }
+        slug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        animeName: { type: string, maxLength: 120 }
+        articleType:
+          type: string
+          enum: [release-date, news, explained, characters, recommendation, review, other]
+        excerpt: { type: string, maxLength: 500 }
+        content: { type: string, minLength: 500, maxLength: 120000, description: Complete article in Markdown with semantic headings. }
+        metaTitle: { type: string, maxLength: 70 }
+        metaDescription: { type: string, maxLength: 180 }
+        primaryKeyword: { type: string, maxLength: 160 }
+        secondaryKeywords: { type: array, maxItems: 20, items: { type: string, maxLength: 160 } }
+        heroImage: { $ref: "#/components/schemas/ImageInput" }
+        contentImages:
+          type: array
+          maxItems: 2
+          items: { $ref: "#/components/schemas/ContentImageInput" }
+        internalLinks:
+          type: array
+          maxItems: 10
+          description: Use only published AnimeSparks URLs returned by getAnimeSparksContentContext.
+          items:
+            type: object
+            additionalProperties: false
+            required: [text, url]
+            properties:
+              text: { type: string, maxLength: 240 }
+              url: { type: string, format: uri }
+        sources:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            additionalProperties: false
+            required: [name, url]
+            properties:
+              name: { type: string, maxLength: 240 }
+              url: { type: string, format: uri }
+    ContentImageInput:
+      type: object
+      additionalProperties: false
+      required: [sourceUrl, alt]
+      properties:
+        sourceUrl: { type: string, format: uri, description: Original full-size HTTP or HTTPS image URL. }
+        sourcePage: { type: string, format: uri }
+        alt: { type: string, maxLength: 300 }
+        insertAfterHeading: { type: string, maxLength: 240 }
+    CreateDraftSuccess:
+      type: object
+      required: [success, draft]
+      properties:
+        success: { type: boolean, const: true }
+        draft:
+          type: object
+          required: [id, title, slug, status, previewUrl]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            slug: { type: string }
+            status: { type: string, const: draft }
+            previewUrl: { type: string, format: uri }
+        imageWarnings: { type: array, items: { type: string } }
+    DuplicateResponse:
+      type: object
+      required: [success, duplicate, message, existingPost]
+      properties:
+        success: { type: boolean, const: false }
+        duplicate: { type: boolean, const: true }
+        message: { type: string }
+        existingPost: { $ref: "#/components/schemas/ContextPost" }
+    PublishSuccess:
+      type: object
+      required: [success, post]
+      properties:
+        success: { type: boolean, const: true }
+        post:
+          type: object
+          required: [id, title, status, url]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            status: { type: string, const: published }
+            url: { type: string, format: uri }
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, const: false }
+        error: { type: string }
+        message: { type: string }
+        code: { type: string }
