@@ -9,6 +9,7 @@ import {
 } from "./errors";
 import { validateInternalLinks } from "./links";
 import { insertContentImages, markdownToPortableText } from "./portable-text";
+import { isDraftPost, isPublishedPost, postStatus } from "./post-status";
 import type { ContentContextQuery, CreateBlogDraftRequest } from "./schemas";
 import { createUniqueSlug, findDuplicatePost, normalizeContentValue, slugify } from "./rules";
 import type {
@@ -21,8 +22,6 @@ import type {
 } from "./types";
 
 const canonicalId = (id: string) => id.replace(/^drafts\./, "");
-const isDraft = (post: StoredPost) => post._id.startsWith("drafts.");
-const postStatus = (post: StoredPost) => (isDraft(post) ? "draft" as const : "published" as const);
 
 function siteUrl(slug: string, baseUrl = getBaseUrl()): string {
   return `${baseUrl}/blog/${slug}`;
@@ -44,7 +43,7 @@ function toContextPost(post: StoredPost, baseUrl: string): ContentContextPost {
     ...(post.primaryKeyword ? { primaryKeyword: post.primaryKeyword } : {}),
     ...(post.secondaryKeywords?.length ? { secondaryKeywords: post.secondaryKeywords } : {}),
     status: postStatus(post),
-    ...(!isDraft(post) && post.publishedAt ? { publishedAt: post.publishedAt } : {}),
+    ...(isPublishedPost(post) ? { publishedAt: post.publishedAt } : {}),
   };
 }
 
@@ -52,37 +51,66 @@ export async function getContentContext(
   repository: ChatGptBlogRepository,
   query: ContentContextQuery,
   baseUrl = getBaseUrl(),
-): Promise<{ posts: ContentContextPost[] }> {
+): Promise<{ posts: ContentContextPost[]; published: ContentContextPost[]; drafts: ContentContextPost[] }> {
   const records = await repository.listPosts();
+  const now = new Date();
   const byCanonicalId = new Map<string, StoredPost>();
   for (const record of records) {
     const id = canonicalId(record._id);
     const current = byCanonicalId.get(id);
-    if (!current || (isDraft(current) && !isDraft(record))) byCanonicalId.set(id, record);
+    if (!current || (isDraftPost(current) && !isDraftPost(record))) byCanonicalId.set(id, record);
   }
   const search = normalizeContentValue(query.search ?? "");
   const anime = normalizeContentValue(query.animeName ?? "");
-  const posts = [...byCanonicalId.values()]
-    .filter((post) => !query.status || postStatus(post) === query.status)
-    .filter((post) => !anime || normalizeContentValue(post.animeName ?? "") === anime)
+  const candidates = [...byCanonicalId.values()]
+    .filter((post) => isDraftPost(post) || isPublishedPost(post, now))
     .filter((post) => {
-      if (!search) return true;
-      return normalizeContentValue(
-        [
-          post.title,
-          post.slug,
-          post.animeName,
-          post.excerpt,
-          post.primaryKeyword,
-          ...(post.secondaryKeywords ?? []),
-        ]
-          .filter(Boolean)
-          .join(" "),
-      ).includes(search);
+      if (!query.status) return true;
+      return query.status === "draft" ? isDraftPost(post) : isPublishedPost(post, now);
     })
-    .slice(0, query.limit)
-    .map((post) => toContextPost(post, baseUrl));
-  return { posts };
+    // Older AnimeSparks posts do not consistently have animeName populated.
+    // Fall back to title/slug so an animeName filter remains useful.
+    .filter((post) => {
+      if (!anime) return true;
+      return normalizeContentValue([post.animeName, post.title, post.slug].filter(Boolean).join(" ")).includes(anime);
+    });
+
+  const scored = candidates
+    .map((post, index) => ({ post, index, score: contextSearchScore(post, search) }))
+    .filter(({ score }) => !search || score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+    .slice(0, query.limit);
+  const posts = scored.map(({ post }) => toContextPost(post, baseUrl));
+  return {
+    posts,
+    // Keep `posts` for compatibility while exposing unambiguous buckets for
+    // callers choosing public internal links.
+    published: posts.filter((post) => post.status === "published"),
+    drafts: posts.filter((post) => post.status === "draft"),
+  };
+}
+
+const CONTEXT_STOP_WORDS = new Set(["a", "an", "and", "for", "from", "in", "is", "of", "on", "the", "to", "with"]);
+
+function contextSearchScore(post: StoredPost, search: string): number {
+  if (!search) return 0;
+  const searchable = normalizeContentValue(
+    [
+      post.title,
+      post.slug,
+      post.animeName,
+      post.excerpt,
+      post.primaryKeyword,
+      ...(post.secondaryKeywords ?? []),
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+  if (searchable.includes(search)) return 2;
+  const tokens = search.split(" ").filter((token) => token.length > 1 && !CONTEXT_STOP_WORDS.has(token));
+  if (!tokens.length) return 0;
+  const matches = tokens.filter((token) => searchable.includes(token)).length;
+  return matches / tokens.length;
 }
 
 export type CreateDraftResult =
@@ -113,7 +141,11 @@ async function importImages(
       const imported = await importer.importImage({ image: input.heroImage, purpose: "hero", slug, index: 0 });
       hero = imported.image;
       warnings.push(...imported.warnings);
-    } catch {
+    } catch (error) {
+      console.warn(
+        "[chatgpt-integration] hero image import failed",
+        JSON.stringify({ sourceUrl: input.heroImage.sourceUrl, message: error instanceof Error ? error.message : String(error) }),
+      );
       warnings.push("Hero image could not be downloaded or uploaded.");
     }
   }
@@ -129,7 +161,11 @@ async function importImages(
       const imported = await importer.importImage({ image, purpose: "article", slug, index });
       content.push(imported.image);
       warnings.push(...imported.warnings.map((warning) => `Content image ${index + 1}: ${warning}`));
-    } catch {
+    } catch (error) {
+      console.warn(
+        "[chatgpt-integration] content image import failed",
+        JSON.stringify({ index: index + 1, sourceUrl: image.sourceUrl, message: error instanceof Error ? error.message : String(error) }),
+      );
       warnings.push(`Content image ${index + 1} could not be downloaded or uploaded.`);
     }
   }

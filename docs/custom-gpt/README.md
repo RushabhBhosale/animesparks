@@ -1,6 +1,6 @@
 # AnimeSparks Custom GPT integration
 
-This integration lets a Custom GPT read compact post context, create Sanity drafts, and publish a selected draft after explicit confirmation. Content context and draft creation are intentionally public. Publishing requires a secret key.
+This integration lets a Custom GPT read compact post context, create Sanity drafts, and publish a selected draft after explicit confirmation. Content context and draft creation are intentionally public. Publishing requires a secret key. The public site URL is `https://www.animesparks.blog`.
 
 ## Endpoints
 
@@ -13,7 +13,7 @@ The copy-ready Action definition is [animesparks-action.openapi.yaml](./animespa
 ## Environment variables
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://animesparks.com
+NEXT_PUBLIC_SITE_URL=https://www.animesparks.blog
 NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
 NEXT_PUBLIC_SANITY_DATASET=production
 NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01

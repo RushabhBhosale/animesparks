@@ -160,6 +160,30 @@ describe("Custom GPT blog integration", () => {
     expect(result.posts).toHaveLength(1);
     expect(result.posts[0]).toMatchObject({ id: "post-watch-order", status: "published" });
     expect(result.posts[0]).not.toHaveProperty("body");
+    expect(result.published).toHaveLength(1);
+    expect(result.drafts).toHaveLength(0);
+  });
+
+  it("finds published posts when animeName is not populated and search includes a new topic", async () => {
+    const repository = new MemoryRepository([
+      publishedPost({
+        title: "Yhwach Is the Most Dangerous Villain Bleach Ever Created",
+        slug: "yhwach-is-the-most-dangerous-villain-bleach-ever-created",
+        animeName: undefined,
+      }),
+    ]);
+    const result = await getContentContext(
+      repository,
+      { search: "Bleach The Calamity", animeName: "Bleach", status: "published", limit: 10 },
+      "https://www.animesparks.blog",
+    );
+    expect(result.published).toMatchObject([
+      {
+        title: "Yhwach Is the Most Dangerous Villain Bleach Ever Created",
+        url: "https://www.animesparks.blog/blog/yhwach-is-the-most-dangerous-villain-bleach-ever-created",
+        status: "published",
+      },
+    ]);
   });
 
   it("detects duplicates across published posts and drafts", async () => {
@@ -244,5 +268,19 @@ describe("Custom GPT blog integration", () => {
         baseUrl,
       }),
     ).rejects.toBeInstanceOf(InternalLinkValidationError);
+  });
+
+  it("normalizes published internal URLs before validation", async () => {
+    const repository = new MemoryRepository([publishedPost()]);
+    const result = await createBlogDraft({
+      input: {
+        ...validDraftInput,
+        internalLinks: [{ text: "Demon Slayer watch order", url: `${baseUrl}/blog/demon-slayer-watch-order/?utm_source=gpt` }],
+      },
+      repository,
+      imageImporter: successfulImageImporter,
+      baseUrl,
+    });
+    expect(result.success).toBe(true);
   });
 });

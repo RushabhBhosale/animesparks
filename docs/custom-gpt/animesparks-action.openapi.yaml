@@ -4,13 +4,13 @@ info:
   version: 1.0.0
   description: Read AnimeSparks content, create reviewed drafts, and publish only after explicit user confirmation.
 servers:
-  - url: https://animesparks.com
+  - url: https://www.animesparks.blog
 paths:
   /api/integrations/chatgpt/content-context:
     get:
       operationId: getAnimeSparksContentContext
       summary: Check existing AnimeSparks posts before drafting
-      description: Call this before creating every draft. Use the returned posts to detect overlapping topics and to select real, published internal article URLs. Draft entries may be used for duplicate detection but not as public internal links.
+      description: Call this before creating every draft. Use the returned posts to detect overlapping topics. Use the published array, or published entries in posts, to select real internal article URLs. Draft entries may be used for duplicate detection but not as public internal links.
       parameters:
         - in: query
           name: search
@@ -37,13 +37,21 @@ paths:
                   posts:
                     type: array
                     items: { $ref: "#/components/schemas/ContextPost" }
+                  published:
+                    type: array
+                    description: Published public articles eligible for internal links.
+                    items: { $ref: "#/components/schemas/ContextPost" }
+                  drafts:
+                    type: array
+                    description: Unpublished drafts for duplicate detection only.
+                    items: { $ref: "#/components/schemas/ContextPost" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "503": { $ref: "#/components/responses/Unavailable" }
   /api/integrations/chatgpt/blog-drafts:
     post:
       operationId: createAnimeSparksBlogDraft
       summary: Create an unpublished AnimeSparks draft
-      description: Check content context first. Do not create overlapping content. Internal links must use published URLs returned by the context operation. Content should be complete Markdown. This operation never publishes.
+      description: Invoke this operation when the user asks for a draft. If it is listed in Actions, call it instead of saying the draft action is unavailable. Use complete Markdown and published URLs from content context. Do not create overlapping content; this operation never publishes.
       requestBody:
         required: true
         content:
@@ -66,7 +74,7 @@ paths:
     post:
       operationId: publishAnimeSparksBlogDraft
       summary: Publish an existing AnimeSparks draft
-      description: Consequential action. Call only after draft creation and only when the user explicitly asks to publish. Ask for confirmation immediately before calling. Send the publishing key only to this endpoint.
+      description: Invoke this consequential operation when the user explicitly asks to publish a specific draft. If it is listed in Actions, call it instead of saying it is unavailable. Require draft creation and explicit intent, follow any confirmation prompt, and send the publishing key only here.
       x-openai-isConsequential: true
       parameters:
         - in: path

@@ -1,6 +1,7 @@
 import { getBaseUrl } from "@/utils/seo";
 
 import { InternalLinkValidationError } from "./errors";
+import { isPublishedPost } from "./post-status";
 import type { CreateBlogDraftRequest } from "./schemas";
 import type { StoredPost } from "./types";
 
@@ -18,7 +19,12 @@ export function getInternalArticleSlug(value: string, baseUrl = getBaseUrl()): s
   const site = new URL(baseUrl);
   if (normalizedHostname(url.hostname) !== normalizedHostname(site.hostname)) return null;
   const match = url.pathname.match(/^\/blog\/([^/]+)\/?$/);
-  return match ? decodeURIComponent(match[1]).toLowerCase() : null;
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]).trim().toLowerCase();
+  } catch {
+    return null;
+  }
 }
 
 export function extractContentUrls(content: string): string[] {
@@ -38,16 +44,14 @@ export function validateInternalLinks(
 ): void {
   const publishedSlugs = new Set(
     posts
-      .filter((post) => !post._id.startsWith("drafts.") && post.publishedAt)
-      .map((post) => post.slug.toLowerCase()),
+      .filter((post) => isPublishedPost(post))
+      .map((post) => post.slug.trim().toLowerCase()),
   );
-  const siteHostname = normalizedHostname(new URL(baseUrl).hostname);
   const invalid = new Set<string>();
 
   for (const link of input.internalLinks ?? []) {
-    const url = new URL(link.url);
     const slug = getInternalArticleSlug(link.url, baseUrl);
-    if (normalizedHostname(url.hostname) !== siteHostname || !slug || !publishedSlugs.has(slug)) invalid.add(link.url);
+    if (!slug || !publishedSlugs.has(slug)) invalid.add(link.url);
   }
 
   for (const value of extractContentUrls(input.content)) {
@@ -57,6 +61,7 @@ export function validateInternalLinks(
     } catch {
       continue;
     }
+    const siteHostname = normalizedHostname(new URL(baseUrl).hostname);
     if (normalizedHostname(url.hostname) !== siteHostname) continue;
     const slug = getInternalArticleSlug(value, baseUrl);
     if (!slug || !publishedSlugs.has(slug)) invalid.add(value);

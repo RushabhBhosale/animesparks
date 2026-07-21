@@ -34,9 +34,17 @@ const POSTS_QUERY = `
   _type == "post" &&
   defined(slug.current) &&
   !(_id in path("versions.**"))
-] | order(coalesce(publishedAt, _updatedAt) desc)[0...1000] {
-  ...,
-  "slug": slug.current
+] | order(coalesce(publishedAt, _updatedAt) desc) {
+  _id,
+  _type,
+  title,
+  "slug": slug.current,
+  excerpt,
+  animeName,
+  articleType,
+  publishedAt,
+  primaryKeyword,
+  secondaryKeywords
 }`;
 
 function canonicalId(id: string): string {

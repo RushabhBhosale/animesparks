@@ -11,7 +11,7 @@ import type { ImageImporter, ImageSubmission, ImportedImage } from "./types";
 const IMAGE_TIMEOUT_MS = 12_000;
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_REDIRECTS = 3;
-const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"]);
+const IMAGE_ACCEPT_HEADER = "image/avif,image/webp,image/jpeg,image/png,image/gif,image/svg+xml,*/*;q=0.8";
 
 function isPrivateIpv4(address: string): boolean {
   const parts = address.split(".").map(Number);
@@ -81,14 +81,19 @@ async function readLimitedBody(response: Response): Promise<Buffer> {
   return Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)));
 }
 
-async function downloadImage(sourceUrl: string): Promise<{ buffer: Buffer; contentType: string }> {
+async function downloadImage(sourceUrl: string, sourcePage?: string): Promise<Buffer> {
   let url = await assertSafeRemoteUrl(sourceUrl);
   const signal = AbortSignal.timeout(IMAGE_TIMEOUT_MS);
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
     const response = await fetch(url, {
       redirect: "manual",
       signal,
-      headers: { Accept: "image/avif,image/webp,image/jpeg,image/png,image/gif" },
+      headers: {
+        Accept: IMAGE_ACCEPT_HEADER,
+        "Accept-Language": "en-US,en;q=0.8",
+        "User-Agent": "Mozilla/5.0 (compatible; AnimeSparksImageImporter/1.0)",
+        ...(sourcePage ? { Referer: sourcePage } : {}),
+      },
       cache: "no-store",
     });
     if (response.status >= 300 && response.status < 400) {
@@ -99,19 +104,19 @@ async function downloadImage(sourceUrl: string): Promise<{ buffer: Buffer; conte
       continue;
     }
     if (!response.ok) throw new Error(`Image download failed with HTTP ${response.status}.`);
-    const contentType = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase() ?? "";
-    if (!ACCEPTED_IMAGE_TYPES.has(contentType)) throw new Error("Remote response is not a supported image.");
-    return { buffer: await readLimitedBody(response), contentType };
+    // Do not trust Content-Type: image CDNs frequently omit it or return
+    // nonstandard values such as image/jpg. Sharp validates the actual bytes.
+    return readLimitedBody(response);
   }
   throw new Error("Image URL redirected too many times.");
 }
 
-async function optimizeImage(
+export async function optimizeImage(
   submission: ImageSubmission,
   purpose: "hero" | "article",
 ): Promise<{ buffer: Buffer; width: number; height: number; warnings: string[] }> {
-  const downloaded = await downloadImage(submission.sourceUrl);
-  const transformer = sharp(downloaded.buffer, { limitInputPixels: 50_000_000, animated: false }).rotate();
+  const downloaded = await downloadImage(submission.sourceUrl, submission.sourcePage);
+  const transformer = sharp(downloaded, { limitInputPixels: 50_000_000, animated: false }).rotate();
   const metadata = await transformer.metadata();
   if (!metadata.width || !metadata.height || !metadata.format) throw new Error("The downloaded file is not a valid image.");
   const warnings: string[] = [];
