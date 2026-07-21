@@ -34,6 +34,13 @@ export const createBlogDraftSchema = z
       .optional(),
     animeName: text("animeName", 120),
     articleType: z.enum(CHATGPT_ARTICLE_TYPES),
+    categorySlug: z
+      .string()
+      .trim()
+      .min(1)
+      .max(100)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "categorySlug must contain lowercase letters, numbers, and hyphens only")
+      .optional(),
     excerpt: text("excerpt", 500),
     content: z
       .string()
@@ -56,6 +63,17 @@ export const createBlogDraftSchema = z
     sources: z
       .array(z.object({ name: text("source name", 240), url: httpUrl }).strict())
       .max(30)
+      .optional(),
+    faq: z
+      .array(
+        z
+          .object({
+            question: text("FAQ question", 300),
+            answer: text("FAQ answer", 2_000),
+          })
+          .strict(),
+      )
+      .max(10)
       .optional(),
   })
   .strict();

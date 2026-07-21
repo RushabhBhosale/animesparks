@@ -3,7 +3,13 @@ import "server-only";
 import { createClient } from "next-sanity";
 
 import { IntegrationCmsError, IntegrationConfigurationError } from "./errors";
-import type { ChatGptBlogRepository, SanityPostDocument, StoredPost } from "./types";
+import type {
+  ChatGptArticleType,
+  ChatGptBlogRepository,
+  EditorialReferences,
+  SanityPostDocument,
+  StoredPost,
+} from "./types";
 
 let integrationClient: ReturnType<typeof createClient> | null = null;
 
@@ -47,6 +53,21 @@ const POSTS_QUERY = `
   secondaryKeywords
 }`;
 
+const EDITORIAL_REFERENCES_QUERY = `{
+  "author": *[_type == "author" && defined(name)] | order(_createdAt asc)[0]{ _id },
+  "categories": *[_type == "category" && defined(slug.current)]{ _id, "slug": slug.current }
+}`;
+
+const DEFAULT_CATEGORY_BY_ARTICLE_TYPE: Record<ChatGptArticleType, string> = {
+  "release-date": "anime-news-and-updates",
+  news: "anime-news-and-updates",
+  explained: "anime-opinions",
+  characters: "anime-opinions",
+  recommendation: "anime-lists",
+  review: "anime-reviews",
+  other: "anime-opinions",
+};
+
 function canonicalId(id: string): string {
   return id.replace(/^drafts\./, "");
 }
@@ -84,6 +105,24 @@ export function createSanityBlogRepository(): ChatGptBlogRepository {
         return (posts ?? []).map(asStoredPost).filter((post): post is StoredPost => post !== null);
       } catch (error) {
         throw cmsError("Unable to read posts from Sanity.", error);
+      }
+    },
+    async getEditorialReferences(articleType, requestedCategorySlug) {
+      try {
+        const result = await client.fetch<{
+          author?: { _id?: string };
+          categories?: Array<{ _id?: string; slug?: string }>;
+        }>(EDITORIAL_REFERENCES_QUERY, {}, { perspective: "raw", cache: "no-store" });
+        const defaultCategorySlug = DEFAULT_CATEGORY_BY_ARTICLE_TYPE[articleType];
+        const category =
+          (result.categories ?? []).find((item) => item.slug === requestedCategorySlug && item._id) ??
+          (result.categories ?? []).find((item) => item.slug === defaultCategorySlug && item._id);
+        return {
+          ...(result.author?._id ? { author: { _type: "reference" as const, _ref: result.author._id } } : {}),
+          ...(category?._id ? { category: { _type: "reference" as const, _ref: category._id } } : {}),
+        } satisfies EditorialReferences;
+      } catch (error) {
+        throw cmsError("Unable to resolve the default author and category.", error);
       }
     },
     async createDraft(document) {

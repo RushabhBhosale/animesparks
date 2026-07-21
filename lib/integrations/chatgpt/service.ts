@@ -207,6 +207,7 @@ export async function createBlogDraft(args: {
   }
 
   validateInternalLinks(args.input, posts, baseUrl);
+  const editorialReferences = await args.repository.getEditorialReferences(args.input.articleType, args.input.categorySlug);
   const slug = createUniqueSlug(args.input.slug, args.input.title, posts);
   const imported = await importImages(args.input, slug, args.imageImporter);
   const portableText = markdownToPortableText(args.input.content, args.input.internalLinks);
@@ -221,6 +222,8 @@ export async function createBlogDraft(args: {
     excerpt: args.input.excerpt,
     animeName: args.input.animeName,
     articleType: args.input.articleType,
+    ...(editorialReferences.author ? { author: editorialReferences.author } : {}),
+    ...(editorialReferences.category ? { categories: [editorialReferences.category] } : {}),
     body: placed.body,
     ...(args.input.metaTitle ? { metaTitle: args.input.metaTitle } : {}),
     metaDescription: args.input.metaDescription ?? args.input.excerpt.slice(0, 180),
@@ -241,6 +244,15 @@ export async function createBlogDraft(args: {
             _key: randomUUID().slice(0, 12),
             _type: "articleSource",
             ...source,
+          })),
+        }
+      : {}),
+    ...(args.input.faq?.length
+      ? {
+          faq: args.input.faq.map((item) => ({
+            _key: randomUUID().slice(0, 12),
+            _type: "faqItem",
+            ...item,
           })),
         }
       : {}),

@@ -45,6 +45,13 @@ class MemoryRepository implements ChatGptBlogRepository {
     return [...this.posts.values()];
   }
 
+  async getEditorialReferences(_articleType: string, categorySlug?: string) {
+    return {
+      author: { _type: "reference" as const, _ref: "author-rushabh" },
+      category: { _type: "reference" as const, _ref: `category-${categorySlug ?? "anime-opinions"}` },
+    };
+  }
+
   async createDraft(document: SanityPostDocument) {
     const stored = { ...document, slug: document.slug.current } as StoredPost;
     this.posts.set(stored._id, stored);
@@ -99,6 +106,13 @@ const validDraftInput = {
   metaDescription: "Frieren's ending explained through memory, grief and the meaning of its long journey.",
   primaryKeyword: "frieren ending explained",
   secondaryKeywords: ["frieren ending meaning"],
+  categorySlug: "anime-opinions",
+  faq: [
+    {
+      question: "What does Frieren's ending mean?",
+      answer: "The ending frames memory, grief and connection as the emotional meaning of Frieren's journey.",
+    },
+  ],
   internalLinks: [
     { text: "Demon Slayer watch order", url: `${baseUrl}/blog/demon-slayer-watch-order` },
   ],
@@ -133,6 +147,11 @@ describe("Custom GPT blog integration", () => {
 
     const draft = await repository.getDraft(created.draft.id);
     expect(draft?.publishedAt).toBeUndefined();
+    expect(draft).toMatchObject({
+      author: { _type: "reference", _ref: "author-rushabh" },
+      categories: [{ _type: "reference", _ref: "category-anime-opinions" }],
+      faq: [{ _type: "faqItem", question: "What does Frieren's ending mean?" }],
+    });
     expect((draft?.body as PortableTextValue).some((block) => block._type === "image")).toBe(true);
     const bodyBlocks = (draft?.body as PortableTextValue).filter((block) => block._type === "block");
     expect(bodyBlocks.some((block) => block.markDefs.some((definition) => definition.href.includes("demon-slayer-watch-order")))).toBe(true);

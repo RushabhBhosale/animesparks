@@ -11,6 +11,16 @@ export const CHATGPT_ARTICLE_TYPES = [
 export type ChatGptArticleType = (typeof CHATGPT_ARTICLE_TYPES)[number];
 export type PostStatus = "draft" | "published";
 
+export interface SanityReference {
+  _type: "reference";
+  _ref: string;
+}
+
+export interface EditorialReferences {
+  author?: SanityReference;
+  category?: SanityReference;
+}
+
 export interface ContentContextPost {
   id: string;
   title: string;
@@ -109,6 +119,7 @@ export interface ImageImporter {
 
 export interface ChatGptBlogRepository {
   listPosts(): Promise<StoredPost[]>;
+  getEditorialReferences(articleType: ChatGptArticleType, categorySlug?: string): Promise<EditorialReferences>;
   createDraft(document: SanityPostDocument): Promise<StoredPost>;
   getDraft(id: string): Promise<StoredPost | null>;
   getPublished(id: string): Promise<StoredPost | null>;

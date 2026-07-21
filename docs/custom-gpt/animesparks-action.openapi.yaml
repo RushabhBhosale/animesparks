@@ -51,7 +51,7 @@ paths:
     post:
       operationId: createAnimeSparksBlogDraft
       summary: Create an unpublished AnimeSparks draft
-      description: Invoke this operation when the user asks for a draft. If it is listed in Actions, call it instead of saying the draft action is unavailable. Use complete Markdown and published URLs from content context. Do not create overlapping content; this operation never publishes.
+      description: Invoke this operation when the user asks to create, save, or draft an article. If it is listed in Actions, call it instead of saying the draft action is unavailable. Use complete Markdown and published URLs from context. This operation never publishes.
       requestBody:
         required: true
         content:
@@ -74,7 +74,7 @@ paths:
     post:
       operationId: publishAnimeSparksBlogDraft
       summary: Publish an existing AnimeSparks draft
-      description: Invoke this consequential operation when the user explicitly asks to publish a specific draft. If it is listed in Actions, call it instead of saying it is unavailable. Require draft creation and explicit intent, follow any confirmation prompt, and send the publishing key only here.
+      description: Invoke this consequential operation when the user explicitly asks to publish a specific draft. If it is listed in Actions, call it instead of saying it is unavailable. Require any confirmation and send the publishing key only here.
       x-openai-isConsequential: true
       parameters:
         - in: path
@@ -164,6 +164,7 @@ components:
         articleType:
           type: string
           enum: [release-date, news, explained, characters, recommendation, review, other]
+        categorySlug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100, description: Optional category override; otherwise selected automatically from articleType. }
         excerpt: { type: string, maxLength: 500 }
         content: { type: string, minLength: 500, maxLength: 120000, description: Complete article in Markdown with semantic headings. }
         metaTitle: { type: string, maxLength: 70 }
@@ -196,6 +197,17 @@ components:
             properties:
               name: { type: string, maxLength: 240 }
               url: { type: string, format: uri }
+        faq:
+          type: array
+          maxItems: 10
+          description: Optional reader-focused FAQ. Include when the topic has useful recurring questions.
+          items:
+            type: object
+            additionalProperties: false
+            required: [question, answer]
+            properties:
+              question: { type: string, maxLength: 300 }
+              answer: { type: string, maxLength: 2000 }
     ContentImageInput:
       type: object
       additionalProperties: false
