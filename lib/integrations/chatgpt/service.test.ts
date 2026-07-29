@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import { AlreadyPublishedError, InternalLinkValidationError } from "./errors";
-import { createBlogDraftSchema } from "./schemas";
+import { createBlogDraftSchema, updateBlogPostSchema } from "./schemas";
 import {
   createBlogDraft,
+  getBlogPost,
   getContentContext,
   isValidPublishKey,
   publishBlogDraft,
+  updateBlogPost,
 } from "./service";
 import type {
   ChatGptBlogRepository,
@@ -53,6 +55,12 @@ class MemoryRepository implements ChatGptBlogRepository {
   }
 
   async createDraft(document: SanityPostDocument) {
+    const stored = { ...document, slug: document.slug.current } as StoredPost;
+    this.posts.set(stored._id, stored);
+    return stored;
+  }
+
+  async createOrReplaceDraft(document: SanityPostDocument) {
     const stored = { ...document, slug: document.slug.current } as StoredPost;
     this.posts.set(stored._id, stored);
     return stored;
@@ -245,6 +253,65 @@ describe("Custom GPT blog integration", () => {
   it("rejects invalid payloads", () => {
     const parsed = createBlogDraftSchema.safeParse({ ...validDraftInput, articleType: "rumor", title: "" });
     expect(parsed.success).toBe(false);
+    expect(updateBlogPostSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("reads a published article and creates a review draft for link-only updates", async () => {
+    const currentBody: PortableTextValue = [
+      {
+        _key: "heading",
+        _type: "block",
+        style: "h2",
+        children: [{ _key: "heading-span", _type: "span", text: "Why the Journey Matters", marks: [] }],
+        markDefs: [],
+      },
+      {
+        _key: "paragraph",
+        _type: "block",
+        style: "normal",
+        children: [
+          {
+            _key: "paragraph-span",
+            _type: "span",
+            text: "This article examines the journey. Frieren's ending gives that idea emotional weight. See the Demon Slayer watch order for a different kind of anime journey.",
+            marks: [],
+          },
+        ],
+        markDefs: [],
+      },
+    ];
+    const repository = new MemoryRepository([
+      publishedPost({ _id: "post-frieren", title: "Frieren Ending Explained", slug: "frieren-ending-explained", body: currentBody }),
+      publishedPost({ _id: "post-watch-order", body: undefined }),
+    ]);
+    const context = await getBlogPost({ id: "post-frieren", repository, baseUrl });
+    expect(context.post.content).toContain("## Why the Journey Matters");
+    expect(context.post.content).toContain("Frieren's ending");
+
+    const updateRepository = new MemoryRepository([
+      publishedPost({ _id: "post-frieren", title: "Frieren Ending Explained", slug: "frieren-ending-explained", body: currentBody }),
+      publishedPost({ _id: "post-watch-order" }),
+    ]);
+    const result = await updateBlogPost({
+      id: "post-frieren",
+      input: {
+        internalLinks: [{ text: "Demon Slayer watch order", url: `${baseUrl}/blog/demon-slayer-watch-order` }],
+      },
+      repository: updateRepository,
+      baseUrl,
+    });
+    expect(result.draft).toMatchObject({ id: "post-frieren", status: "draft", slug: "frieren-ending-explained" });
+    expect(result.warnings).toBeUndefined();
+    expect((await updateRepository.getDraft("post-frieren"))?.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          _type: "block",
+          children: expect.arrayContaining([
+            expect.objectContaining({ text: "Demon Slayer watch order", marks: expect.any(Array) }),
+          ]),
+        }),
+      ]),
+    );
   });
 
   it("saves a draft and returns a warning when image ingestion fails", async () => {

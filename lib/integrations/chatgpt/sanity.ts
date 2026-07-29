@@ -135,6 +135,16 @@ export function createSanityBlogRepository(): ChatGptBlogRepository {
         throw cmsError("Unable to create the Sanity draft.", error);
       }
     },
+    async createOrReplaceDraft(document) {
+      try {
+        const created = await client.createOrReplace(document, { visibility: "sync" });
+        const post = asStoredPost(created);
+        if (!post) throw new IntegrationCmsError("Sanity returned an invalid updated draft document.");
+        return post;
+      } catch (error) {
+        throw cmsError("Unable to save the updated Sanity draft.", error);
+      }
+    },
     async getDraft(id) {
       try {
         return asStoredPost(await client.getDocument(draftId(id)));

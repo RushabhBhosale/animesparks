@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: AnimeSparks Editorial Integration
   version: 1.0.0
-  description: Read AnimeSparks content, create reviewed drafts, and publish only after explicit user confirmation.
+  description: Read AnimeSparks content, create or update reviewed drafts, and publish only after explicit user confirmation.
 servers:
   - url: https://www.animesparks.blog
 paths:
@@ -47,6 +47,55 @@ paths:
                     items: { $ref: "#/components/schemas/ContextPost" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "503": { $ref: "#/components/responses/Unavailable" }
+  /api/integrations/chatgpt/blog-posts/{id}:
+    get:
+      operationId: getAnimeSparksBlog
+      summary: Read one published AnimeSparks blog
+      description: Read the current published article as editable Markdown and metadata before updating it. Use the ID returned by getAnimeSparksContentContext.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, pattern: "^[a-zA-Z0-9_-]{1,128}$" }
+          description: Published post ID returned by getAnimeSparksContentContext.
+      responses:
+        "200":
+          description: Full published article and editable metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, post]
+                properties:
+                  success: { type: boolean, const: true }
+                  post: { $ref: "#/components/schemas/EditableBlogPost" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+    patch:
+      operationId: updateAnimeSparksBlog
+      summary: Create a review draft from an existing blog
+      description: Apply requested content, SEO, FAQ, source, tag, or internal-link changes to an existing published article as an unpublished Sanity review draft. This never changes the public article; publish separately after review and explicit confirmation.
+      x-openai-isConsequential: true
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, pattern: "^[a-zA-Z0-9_-]{1,128}$" }
+          description: Published post ID returned by getAnimeSparksContentContext.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateBlogRequest" }
+      responses:
+        "201":
+          description: Updated review draft created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UpdateDraftSuccess" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/Unavailable" }
   /api/integrations/chatgpt/blog-drafts:
     post:
       operationId: createAnimeSparksBlogDraft
@@ -74,14 +123,14 @@ paths:
     post:
       operationId: publishAnimeSparksBlogDraft
       summary: Publish an existing AnimeSparks draft
-      description: Invoke this consequential operation when the user explicitly asks to publish a specific draft. If it is listed in Actions, call it instead of saying it is unavailable. Require any confirmation and send the publishing key only here.
+      description: Invoke this consequential operation when the user explicitly asks to publish a specific create or update draft. If it is listed in Actions, call it instead of saying it is unavailable. Require any confirmation and send the publishing key only here.
       x-openai-isConsequential: true
       parameters:
         - in: path
           name: id
           required: true
           schema: { type: string, pattern: "^[a-zA-Z0-9_-]{1,128}$" }
-          description: Draft ID returned by createAnimeSparksBlogDraft.
+          description: Draft ID returned by createAnimeSparksBlogDraft or updateAnimeSparksBlog.
       requestBody:
         required: true
         content:
@@ -128,6 +177,11 @@ components:
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorResponse" }
+    NotFound:
+      description: The requested published blog or draft was not found.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
   schemas:
     ContextPost:
       type: object
@@ -145,6 +199,87 @@ components:
         secondaryKeywords: { type: array, items: { type: string } }
         status: { type: string, enum: [draft, published] }
         publishedAt: { type: string, format: date-time }
+    EditableBlogPost:
+      type: object
+      additionalProperties: false
+      required: [id, title, slug, url, status, content]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        slug: { type: string }
+        url: { type: string, format: uri }
+        animeName: { type: string }
+        articleType: { type: string }
+        excerpt: { type: string }
+        content: { type: string, description: Current article body in Markdown without the title. }
+        metaTitle: { type: string }
+        metaDescription: { type: string }
+        primaryKeyword: { type: string }
+        secondaryKeywords: { type: array, items: { type: string } }
+        tags: { type: array, items: { type: string } }
+        internalLinks:
+          type: array
+          items: { $ref: "#/components/schemas/InternalLinkInput" }
+        sources:
+          type: array
+          items: { $ref: "#/components/schemas/SourceInput" }
+        faq:
+          type: array
+          items: { $ref: "#/components/schemas/FaqInput" }
+        status: { type: string, enum: [draft, published] }
+        publishedAt: { type: string, format: date-time }
+    InternalLinkInput:
+      type: object
+      additionalProperties: false
+      required: [text, url]
+      properties:
+        text: { type: string, maxLength: 240 }
+        url: { type: string, format: uri, description: Existing published AnimeSparks blog URL from context. }
+    SourceInput:
+      type: object
+      additionalProperties: false
+      required: [name, url]
+      properties:
+        name: { type: string, maxLength: 240 }
+        url: { type: string, format: uri }
+    FaqInput:
+      type: object
+      additionalProperties: false
+      required: [question, answer]
+      properties:
+        question: { type: string, maxLength: 300 }
+        answer: { type: string, maxLength: 2000 }
+    UpdateBlogRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      description: Send only fields that should change. For an internal-link-only update, send internalLinks and omit content so the current article body is preserved.
+      properties:
+        title: { type: string, maxLength: 140 }
+        slug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        animeName: { type: string, maxLength: 120 }
+        articleType: { type: string, enum: [release-date, news, explained, characters, recommendation, review, other] }
+        categorySlug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        excerpt: { type: string, maxLength: 500 }
+        content: { type: string, minLength: 500, maxLength: 120000, description: Complete replacement article body in Markdown without the title. }
+        metaTitle: { type: string, maxLength: 70 }
+        metaDescription: { type: string, maxLength: 180 }
+        primaryKeyword: { type: string, maxLength: 160 }
+        secondaryKeywords: { type: array, maxItems: 20, items: { type: string, maxLength: 160 } }
+        tags: { type: array, maxItems: 30, items: { type: string, maxLength: 80 } }
+        internalLinks:
+          type: array
+          maxItems: 10
+          description: Replace the validated internal-link set and add matching links into the article body. Use only published URLs returned by context.
+          items: { $ref: "#/components/schemas/InternalLinkInput" }
+        sources:
+          type: array
+          maxItems: 30
+          items: { $ref: "#/components/schemas/SourceInput" }
+        faq:
+          type: array
+          maxItems: 10
+          items: { $ref: "#/components/schemas/FaqInput" }
     ImageInput:
       type: object
       additionalProperties: false
@@ -232,6 +367,22 @@ components:
             status: { type: string, const: draft }
             previewUrl: { type: string, format: uri }
         imageWarnings: { type: array, items: { type: string } }
+    UpdateDraftSuccess:
+      type: object
+      required: [success, draft, changedFields]
+      properties:
+        success: { type: boolean, const: true }
+        draft:
+          type: object
+          required: [id, title, slug, status, previewUrl]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            slug: { type: string }
+            status: { type: string, const: draft }
+            previewUrl: { type: string, format: uri }
+        changedFields: { type: array, items: { type: string } }
+        warnings: { type: array, items: { type: string } }
     DuplicateResponse:
       type: object
       required: [success, duplicate, message, existingPost]

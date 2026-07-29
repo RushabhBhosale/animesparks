@@ -35,6 +35,40 @@ export interface ContentContextPost {
   publishedAt?: string;
 }
 
+export interface InternalLinkInput {
+  text: string;
+  url: string;
+}
+
+export interface StoredInternalLink extends InternalLinkInput {
+  _key?: string;
+  _type?: "internalLink";
+}
+
+export interface StoredArticleSource {
+  name: string;
+  url: string;
+  _key?: string;
+  _type?: "articleSource";
+}
+
+export interface StoredFaqItem {
+  question: string;
+  answer: string;
+  _key?: string;
+  _type?: "faqItem";
+}
+
+export interface EditableBlogPost extends ContentContextPost {
+  content: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
+  internalLinks?: InternalLinkInput[];
+  sources?: Array<Pick<StoredArticleSource, "name" | "url">>;
+  faq?: Array<Pick<StoredFaqItem, "question" | "answer">>;
+}
+
 export interface StoredPost {
   _id: string;
   _type: "post";
@@ -45,8 +79,14 @@ export interface StoredPost {
   articleType?: string;
   primaryKeyword?: string;
   secondaryKeywords?: string[];
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
   publishedAt?: string;
   body?: PortableTextValue;
+  internalLinks?: StoredInternalLink[];
+  sources?: StoredArticleSource[];
+  faq?: StoredFaqItem[];
   [key: string]: unknown;
 }
 
@@ -121,6 +161,7 @@ export interface ChatGptBlogRepository {
   listPosts(): Promise<StoredPost[]>;
   getEditorialReferences(articleType: ChatGptArticleType, categorySlug?: string): Promise<EditorialReferences>;
   createDraft(document: SanityPostDocument): Promise<StoredPost>;
+  createOrReplaceDraft(document: SanityPostDocument): Promise<StoredPost>;
   getDraft(id: string): Promise<StoredPost | null>;
   getPublished(id: string): Promise<StoredPost | null>;
   publishDraft(id: string, publishedAt: string): Promise<StoredPost>;

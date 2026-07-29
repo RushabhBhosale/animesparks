@@ -89,5 +89,64 @@ export const publishBlogDraftSchema = z
   .object({ publishKey: text("publishKey", 512) })
   .strict();
 
+const updateField = <T extends z.ZodType>(schema: T) => schema.optional();
+
+export const updateBlogPostSchema = z
+  .object({
+    title: updateField(text("title", 140)),
+    slug: updateField(
+      z
+        .string()
+        .trim()
+        .min(1)
+        .max(100)
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slug must contain lowercase letters, numbers, and hyphens only"),
+    ),
+    animeName: updateField(text("animeName", 120)),
+    articleType: updateField(z.enum(CHATGPT_ARTICLE_TYPES)),
+    categorySlug: updateField(
+      z
+        .string()
+        .trim()
+        .min(1)
+        .max(100)
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "categorySlug must contain lowercase letters, numbers, and hyphens only"),
+    ),
+    excerpt: updateField(text("excerpt", 500)),
+    content: updateField(
+      z
+        .string()
+        .trim()
+        .min(500, "content must be a complete article of at least 500 characters")
+        .max(120_000, "content is too long"),
+    ),
+    metaTitle: updateField(z.string().trim().min(1).max(70)),
+    metaDescription: updateField(z.string().trim().min(1).max(180)),
+    primaryKeyword: updateField(z.string().trim().min(1).max(160)),
+    secondaryKeywords: updateField(z.array(text("secondary keyword", 160)).max(20)),
+    tags: updateField(z.array(text("tag", 80)).max(30)),
+    internalLinks: updateField(
+      z.array(z.object({ text: text("link text", 240), url: httpUrl }).strict()).max(10),
+    ),
+    sources: updateField(
+      z.array(z.object({ name: text("source name", 240), url: httpUrl }).strict()).max(30),
+    ),
+    faq: updateField(
+      z
+        .array(
+          z
+            .object({
+              question: text("FAQ question", 300),
+              answer: text("FAQ answer", 2_000),
+            })
+            .strict(),
+        )
+        .max(10),
+    ),
+  })
+  .strict()
+  .refine((value) => Object.keys(value).length > 0, "At least one blog field must be supplied");
+
 export type CreateBlogDraftRequest = z.infer<typeof createBlogDraftSchema>;
 export type ContentContextQuery = z.infer<typeof contentContextQuerySchema>;
+export type UpdateBlogPostRequest = z.infer<typeof updateBlogPostSchema>;

@@ -1,10 +1,12 @@
 # AnimeSparks Custom GPT integration
 
-This integration lets a Custom GPT read compact post context, create Sanity drafts, and publish a selected draft after explicit confirmation. Content context and draft creation are intentionally public. Publishing requires a secret key. The public site URL is `https://www.animesparks.blog`.
+This integration lets a Custom GPT read compact post context, read a full published blog, create Sanity drafts, create review drafts for updates, and publish a selected draft after explicit confirmation. Content context and draft creation are intentionally public. Publishing requires a secret key. The public site URL is `https://www.animesparks.blog`.
 
 ## Endpoints
 
 - `GET /api/integrations/chatgpt/content-context`
+- `GET /api/integrations/chatgpt/blog-posts/{id}`
+- `PATCH /api/integrations/chatgpt/blog-posts/{id}`
 - `POST /api/integrations/chatgpt/blog-drafts`
 - `POST /api/integrations/chatgpt/blog-drafts/{id}/publish`
 
@@ -29,10 +31,12 @@ BLOG_PUBLISH_KEY=generate-a-long-random-secret
 2. Open the private GPT editor and paste `custom-gpt-instructions.txt` into Instructions.
 3. Add a new Action and paste `animesparks-action.openapi.yaml` as its schema.
 4. Keep Action authentication set to None; this first version sends the publishing key only in the consequential publish request body.
-5. Keep the GPT private and test context and draft creation first.
+5. Keep the GPT private and test context, full-blog reading, update drafts, and new draft creation first.
 6. Review the Sanity draft and image rights manually before asking the GPT to publish.
 
 The draft endpoint is deliberately unauthenticated. Anyone who discovers it can create unwanted Sanity drafts, although they cannot publish without `BLOG_PUBLISH_KEY`.
+
+An update request also creates an unpublished Sanity draft using the existing post ID. It does not alter the public article until the normal publish Action succeeds. For an internal-link-only update, send `internalLinks` and omit `content`; the API preserves the current Portable Text body and adds validated links to matching phrases.
 
 ## Complete test example
 
@@ -72,11 +76,28 @@ curl -X POST http://localhost:3000/api/integrations/chatgpt/blog-drafts/DRAFT_ID
 
 The publish response contains the public `/blog/{slug}` URL. Repeating the publish call returns an already-published conflict instead of publishing twice.
 
+Update an existing article after finding its ID in context and reading its current content:
+
+```bash
+curl "http://localhost:3000/api/integrations/chatgpt/blog-posts/POST_ID"
+
+curl -X PATCH http://localhost:3000/api/integrations/chatgpt/blog-posts/POST_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "internalLinks": [
+      {"text":"Demon Slayer watch order","url":"https://www.animesparks.blog/blog/demon-slayer-watch-order"}
+    ]
+  }'
+```
+
+The update response returns a review `previewUrl` and the same post ID. Publish that update only after review and explicit confirmation with the existing publish endpoint.
+
 ## Validation and image behavior
 
 - Draft payloads are Zod-validated and limited to 160 KB; article content is limited to 120,000 characters.
 - Duplicate checks compare titles, slugs, anime names, article types and primary keywords across drafts and published posts.
 - Internal links must resolve to existing published `/blog/{slug}` entries.
+- Existing blogs can be updated as review drafts. Omitted update fields are preserved; a link-only update preserves the current body and adds Portable Text link marks where matching text exists.
 - Remote image URLs are limited to HTTP/HTTPS, protected against common private-network SSRF targets, capped at 10 MB and timed out after 12 seconds.
 - Images are validated with Sharp, resized, converted to WebP and uploaded to Sanity. Sanity's existing image URL pipeline performs delivery-time resizing and format optimization.
 - Image failures produce warnings and do not discard the draft.

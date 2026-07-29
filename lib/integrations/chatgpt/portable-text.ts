@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import type { CreateBlogDraftRequest } from "./schemas";
 import type {
+  InternalLinkInput,
   PortableTextBlock,
   PortableTextImage,
   PortableTextMarkDef,
@@ -10,7 +10,7 @@ import type {
 } from "./types";
 import { normalizeContentValue } from "./rules";
 
-type InternalLink = NonNullable<CreateBlogDraftRequest["internalLinks"]>[number];
+type InternalLink = InternalLinkInput;
 
 interface InlineState {
   links: InternalLink[];
@@ -168,6 +168,114 @@ export function markdownToPortableText(content: string, links: InternalLink[] = 
   }
   flushParagraph();
   return body;
+}
+
+function markDefinitionFor(block: PortableTextBlock, keyValue: string): PortableTextMarkDef | undefined {
+  return block.markDefs.find((definition) => definition._key === keyValue);
+}
+
+function addLinksToBlock(
+  block: PortableTextBlock,
+  links: InternalLink[],
+  usedUrls: Set<string>,
+): PortableTextBlock {
+  if (!["normal", "blockquote"].includes(block.style)) return block;
+  const markDefs = [...block.markDefs];
+  const children: PortableTextSpan[] = [];
+
+  for (const span of block.children) {
+    const existingLink = span.marks.some((mark) => markDefinitionFor(block, mark)?._type === "link");
+    if (existingLink) {
+      children.push(span);
+      continue;
+    }
+
+    let remainder = span.text;
+    while (remainder) {
+      let selected: { link: InternalLink; index: number } | undefined;
+      for (const link of links) {
+        if (usedUrls.has(link.url)) continue;
+        const index = remainder.toLocaleLowerCase().indexOf(link.text.toLocaleLowerCase());
+        if (index >= 0 && (!selected || index < selected.index || (index === selected.index && link.text.length > selected.link.text.length))) {
+          selected = { link, index };
+        }
+      }
+
+      if (!selected) {
+        children.push({ ...span, _key: key(), text: remainder });
+        break;
+      }
+
+      if (selected.index > 0) {
+        children.push({ ...span, _key: key(), text: remainder.slice(0, selected.index) });
+      }
+      const markDef = createMarkDef(selected.link.url);
+      markDefs.push(markDef);
+      children.push({
+        ...span,
+        _key: key(),
+        text: remainder.slice(selected.index, selected.index + selected.link.text.length),
+        marks: [...span.marks, markDef._key],
+      });
+      usedUrls.add(selected.link.url);
+      remainder = remainder.slice(selected.index + selected.link.text.length);
+    }
+  }
+
+  return { ...block, children, markDefs };
+}
+
+export function addInternalLinksToPortableText(
+  body: PortableTextValue,
+  links: InternalLink[] = [],
+): { body: PortableTextValue; warnings: string[] } {
+  const usedUrls = new Set<string>();
+  for (const item of body) {
+    if (item._type !== "block") continue;
+    for (const definition of item.markDefs) {
+      if (definition._type === "link") usedUrls.add(definition.href);
+    }
+  }
+
+  const result = body.map((item) => (item._type === "block" ? addLinksToBlock(item, links, usedUrls) : item));
+  const warnings = links
+    .filter((link) => !usedUrls.has(link.url))
+    .map((link) => `Internal link "${link.text}" was saved but no matching phrase was found in the existing article.`);
+  return { body: result, warnings };
+}
+
+function inlineMarkdown(block: PortableTextBlock): string {
+  return block.children
+    .map((span) => {
+      let value = span.text;
+      for (const mark of span.marks) {
+        const definition = markDefinitionFor(block, mark);
+        if (definition?._type === "link") value = `[${value}](${definition.href})`;
+        else if (mark === "strong") value = `**${value}**`;
+        else if (mark === "em") value = `*${value}*`;
+      }
+      return value;
+    })
+    .join("");
+}
+
+/** Convert existing Portable Text into an editable Markdown representation for the Custom GPT. */
+export function portableTextToMarkdown(body: PortableTextValue = []): string {
+  const lines: string[] = [];
+  let lastWasList = false;
+
+  for (const item of body) {
+    if (item._type !== "block") continue;
+    const text = inlineMarkdown(item).trim();
+    if (!text) continue;
+    const prefix = item.style === "h2" ? "## " : item.style === "h3" ? "### " : item.style === "h4" ? "#### " : item.style === "blockquote" ? "> " : "";
+    const line = item.listItem ? `${item.listItem === "number" ? "1." : "-"} ${text}` : `${prefix}${text}`;
+    if (lines.length && (!item.listItem || !lastWasList)) lines.push("");
+    lines.push(line);
+    lastWasList = Boolean(item.listItem);
+  }
+
+  return lines.join("\n").trim();
 }
 
 function blockText(block: PortableTextBlock): string {

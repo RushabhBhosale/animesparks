@@ -26,6 +26,13 @@ export class DraftNotFoundError extends Error {
   }
 }
 
+export class PublishedPostNotFoundError extends Error {
+  constructor() {
+    super("Published blog post not found.");
+    this.name = "PublishedPostNotFoundError";
+  }
+}
+
 export class AlreadyPublishedError extends Error {
   constructor(public readonly post: StoredPublishedPost) {
     super("This article is already published.");

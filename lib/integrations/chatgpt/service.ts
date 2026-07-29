@@ -6,20 +6,30 @@ import {
   AlreadyPublishedError,
   DraftNotFoundError,
   IntegrationConfigurationError,
+  PublishedPostNotFoundError,
 } from "./errors";
 import { validateInternalLinks } from "./links";
-import { insertContentImages, markdownToPortableText } from "./portable-text";
+import {
+  addInternalLinksToPortableText,
+  insertContentImages,
+  markdownToPortableText,
+  portableTextToMarkdown,
+} from "./portable-text";
 import { isDraftPost, isPublishedPost, postStatus } from "./post-status";
-import type { ContentContextQuery, CreateBlogDraftRequest } from "./schemas";
+import type { ContentContextQuery, CreateBlogDraftRequest, UpdateBlogPostRequest } from "./schemas";
 import { createUniqueSlug, findDuplicatePost, normalizeContentValue, slugify } from "./rules";
 import type {
   ChatGptBlogRepository,
+  ChatGptArticleType,
   ContentContextPost,
+  EditableBlogPost,
   ImageImporter,
+  InternalLinkInput,
   PortableTextImage,
   SanityPostDocument,
   StoredPost,
 } from "./types";
+import { CHATGPT_ARTICLE_TYPES } from "./types";
 
 const canonicalId = (id: string) => id.replace(/^drafts\./, "");
 
@@ -44,6 +54,29 @@ function toContextPost(post: StoredPost, baseUrl: string): ContentContextPost {
     ...(post.secondaryKeywords?.length ? { secondaryKeywords: post.secondaryKeywords } : {}),
     status: postStatus(post),
     ...(isPublishedPost(post) ? { publishedAt: post.publishedAt } : {}),
+  };
+}
+
+function storedInternalLinks(post: StoredPost): InternalLinkInput[] {
+  return (post.internalLinks ?? [])
+    .filter((link) => typeof link.text === "string" && typeof link.url === "string")
+    .map(({ text, url }) => ({ text, url }));
+}
+
+function toEditablePost(post: StoredPost, baseUrl: string): EditableBlogPost {
+  return {
+    ...toContextPost(post, baseUrl),
+    content: portableTextToMarkdown(post.body ?? []),
+    ...(post.metaTitle ? { metaTitle: post.metaTitle } : {}),
+    ...(post.metaDescription ? { metaDescription: post.metaDescription } : {}),
+    ...(post.tags?.length ? { tags: post.tags } : {}),
+    ...(storedInternalLinks(post).length ? { internalLinks: storedInternalLinks(post) } : {}),
+    ...(post.sources?.length
+      ? { sources: post.sources.map(({ name, url }) => ({ name, url })) }
+      : {}),
+    ...(post.faq?.length
+      ? { faq: post.faq.map(({ question, answer }) => ({ question, answer })) }
+      : {}),
   };
 }
 
@@ -271,6 +304,141 @@ export async function createBlogDraft(args: {
       previewUrl: editorUrl(canonicalId(created._id), baseUrl),
     },
     ...(imageWarnings.length ? { imageWarnings } : {}),
+  };
+}
+
+export async function getBlogPost(args: {
+  id: string;
+  repository: ChatGptBlogRepository;
+  baseUrl?: string;
+}): Promise<{ success: true; post: EditableBlogPost }> {
+  const post = await args.repository.getPublished(canonicalId(args.id));
+  if (!post || !isPublishedPost(post)) throw new PublishedPostNotFoundError();
+  return { success: true, post: toEditablePost(post, args.baseUrl ?? getBaseUrl()) };
+}
+
+export type UpdateBlogPostResult = {
+  success: true;
+  draft: {
+    id: string;
+    title: string;
+    slug: string;
+    status: "draft";
+    previewUrl: string;
+  };
+  changedFields: string[];
+  warnings?: string[];
+};
+
+function hasUpdateField(input: UpdateBlogPostRequest, field: keyof UpdateBlogPostRequest): boolean {
+  return Object.prototype.hasOwnProperty.call(input, field);
+}
+
+function articleTypeFor(value: string | undefined): ChatGptArticleType {
+  return CHATGPT_ARTICLE_TYPES.includes(value as ChatGptArticleType) ? (value as ChatGptArticleType) : "other";
+}
+
+function keyedRecords<T extends Record<string, unknown>>(type: string, values: T[]): Array<T & { _key: string; _type: string }> {
+  return values.map((value) => ({ _key: randomUUID().slice(0, 12), _type: type, ...value }));
+}
+
+export async function updateBlogPost(args: {
+  id: string;
+  input: UpdateBlogPostRequest;
+  repository: ChatGptBlogRepository;
+  baseUrl?: string;
+}): Promise<UpdateBlogPostResult> {
+  const baseUrl = args.baseUrl ?? getBaseUrl();
+  const id = canonicalId(args.id);
+  const current = await args.repository.getPublished(id);
+  if (!current || !isPublishedPost(current)) throw new PublishedPostNotFoundError();
+
+  const posts = await args.repository.listPosts();
+  validateInternalLinks(
+    { content: args.input.content ?? "", internalLinks: args.input.internalLinks },
+    posts,
+    baseUrl,
+  );
+
+  const preservedBody = current.body ?? [];
+  const linksForContent = args.input.internalLinks ?? storedInternalLinks(current);
+  let body = preservedBody;
+  const warnings: string[] = [];
+
+  if (hasUpdateField(args.input, "content") && args.input.content) {
+    const parsedBody = markdownToPortableText(args.input.content, linksForContent);
+    const existingImages = preservedBody.filter((item): item is PortableTextImage => item._type === "image");
+    const placed = insertContentImages(parsedBody, existingImages);
+    body = placed.body;
+    warnings.push(...placed.warnings);
+  } else if (hasUpdateField(args.input, "internalLinks")) {
+    const linked = addInternalLinksToPortableText(preservedBody, args.input.internalLinks ?? []);
+    body = linked.body;
+    warnings.push(...linked.warnings);
+  }
+
+  const {
+    _id: _currentId,
+    _type: _currentType,
+    _rev: _revision,
+    _createdAt: _created,
+    _updatedAt: _updated,
+    slug: _currentSlug,
+    body: _currentBody,
+    ...preservedFields
+  } = current;
+  void _currentId;
+  void _currentType;
+  void _revision;
+  void _created;
+  void _updated;
+  void _currentSlug;
+  void _currentBody;
+
+  const document: SanityPostDocument = {
+    ...preservedFields,
+    _id: `drafts.${id}`,
+    _type: "post",
+    title: args.input.title ?? current.title,
+    slug: { _type: "slug", current: args.input.slug ?? current.slug },
+    body,
+    ...(hasUpdateField(args.input, "excerpt") ? { excerpt: args.input.excerpt } : {}),
+    ...(hasUpdateField(args.input, "animeName") ? { animeName: args.input.animeName } : {}),
+    ...(hasUpdateField(args.input, "articleType") ? { articleType: args.input.articleType } : {}),
+    ...(hasUpdateField(args.input, "metaTitle") ? { metaTitle: args.input.metaTitle } : {}),
+    ...(hasUpdateField(args.input, "metaDescription") ? { metaDescription: args.input.metaDescription } : {}),
+    ...(hasUpdateField(args.input, "primaryKeyword") ? { primaryKeyword: args.input.primaryKeyword } : {}),
+    ...(hasUpdateField(args.input, "secondaryKeywords") ? { secondaryKeywords: args.input.secondaryKeywords } : {}),
+    ...(hasUpdateField(args.input, "tags") ? { tags: args.input.tags } : {}),
+    ...(hasUpdateField(args.input, "internalLinks")
+      ? { internalLinks: keyedRecords("internalLink", args.input.internalLinks ?? []) }
+      : {}),
+    ...(hasUpdateField(args.input, "sources")
+      ? { sources: keyedRecords("articleSource", args.input.sources ?? []) }
+      : {}),
+    ...(hasUpdateField(args.input, "faq") ? { faq: keyedRecords("faqItem", args.input.faq ?? []) } : {}),
+  };
+
+  if (hasUpdateField(args.input, "categorySlug")) {
+    const references = await args.repository.getEditorialReferences(
+      articleTypeFor(args.input.articleType ?? current.articleType),
+      args.input.categorySlug,
+    );
+    if (references.category) document.categories = [references.category];
+  }
+
+  const saved = await args.repository.createOrReplaceDraft(document);
+  return {
+    success: true,
+    draft: {
+      id,
+      title: saved.title,
+      slug: saved.slug,
+      status: "draft",
+      previewUrl: editorUrl(id, baseUrl),
+    },
+    changedFields: Object.keys(args.input),
+    ...(warnings.length ? { warnings } : {}),
   };
 }
 
