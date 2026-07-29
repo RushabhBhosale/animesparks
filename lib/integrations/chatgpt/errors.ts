@@ -33,6 +33,19 @@ export class PublishedPostNotFoundError extends Error {
   }
 }
 
+export interface BlogPostMatch {
+  id: string;
+  title: string;
+  slug: string;
+}
+
+export class AmbiguousBlogPostError extends Error {
+  constructor(public readonly matches: BlogPostMatch[]) {
+    super("More than one published blog matches that name.");
+    this.name = "AmbiguousBlogPostError";
+  }
+}
+
 export class AlreadyPublishedError extends Error {
   constructor(public readonly post: StoredPublishedPost) {
     super("This article is already published.");

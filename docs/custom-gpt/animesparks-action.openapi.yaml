@@ -47,6 +47,31 @@ paths:
                     items: { $ref: "#/components/schemas/ContextPost" }
         "400": { $ref: "#/components/responses/BadRequest" }
         "503": { $ref: "#/components/responses/Unavailable" }
+  /api/integrations/chatgpt/blog-posts:
+    patch:
+      operationId: updateAnimeSparksBlog
+      summary: Update an existing AnimeSparks blog by name
+      description: Resolve a published blog by its exact or unique title and create an unpublished review draft with the requested changes. A URL or internal post ID is not required.
+      x-openai-isConsequential: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateBlogByNameRequest" }
+      responses:
+        "201":
+          description: Updated review draft created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UpdateDraftSuccess" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: More than one published article matched the supplied name.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AmbiguousBlogResponse" }
+        "503": { $ref: "#/components/responses/Unavailable" }
   /api/integrations/chatgpt/blog-posts/{id}:
     get:
       operationId: getAnimeSparksBlog
@@ -72,7 +97,7 @@ paths:
         "404": { $ref: "#/components/responses/NotFound" }
         "503": { $ref: "#/components/responses/Unavailable" }
     patch:
-      operationId: updateAnimeSparksBlog
+      operationId: updateAnimeSparksBlogById
       summary: Create a review draft from an existing blog
       description: Apply requested content, SEO, FAQ, source, tag, or internal-link changes to an existing published article as an unpublished Sanity review draft. This never changes the public article; publish separately after review and explicit confirmation.
       x-openai-isConsequential: true
@@ -280,6 +305,39 @@ components:
           type: array
           maxItems: 10
           items: { $ref: "#/components/schemas/FaqInput" }
+    UpdateBlogByNameRequest:
+      type: object
+      additionalProperties: false
+      required: [blogName]
+      minProperties: 2
+      description: Use the exact published title from context when possible. Send only fields that should change; for internal-link-only updates send blogName and internalLinks.
+      properties:
+        blogName: { type: string, maxLength: 200, description: Published blog title or a unique title phrase. }
+        title: { type: string, maxLength: 140 }
+        slug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        animeName: { type: string, maxLength: 120 }
+        articleType: { type: string, enum: [release-date, news, explained, characters, recommendation, review, other] }
+        categorySlug: { type: string, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", maxLength: 100 }
+        excerpt: { type: string, maxLength: 500 }
+        content: { type: string, minLength: 500, maxLength: 120000, description: Complete replacement article body in Markdown without the title. }
+        metaTitle: { type: string, maxLength: 70 }
+        metaDescription: { type: string, maxLength: 180 }
+        primaryKeyword: { type: string, maxLength: 160 }
+        secondaryKeywords: { type: array, maxItems: 20, items: { type: string, maxLength: 160 } }
+        tags: { type: array, maxItems: 30, items: { type: string, maxLength: 80 } }
+        internalLinks:
+          type: array
+          maxItems: 10
+          description: Replace the validated internal-link set and add matching links into the article body. Use only published URLs returned by context.
+          items: { $ref: "#/components/schemas/InternalLinkInput" }
+        sources:
+          type: array
+          maxItems: 30
+          items: { $ref: "#/components/schemas/SourceInput" }
+        faq:
+          type: array
+          maxItems: 10
+          items: { $ref: "#/components/schemas/FaqInput" }
     ImageInput:
       type: object
       additionalProperties: false
@@ -383,6 +441,22 @@ components:
             previewUrl: { type: string, format: uri }
         changedFields: { type: array, items: { type: string } }
         warnings: { type: array, items: { type: string } }
+    AmbiguousBlogResponse:
+      type: object
+      required: [success, error, code, matches]
+      properties:
+        success: { type: boolean, const: false }
+        error: { type: string }
+        code: { type: string, const: AMBIGUOUS_BLOG_NAME }
+        matches:
+          type: array
+          items:
+            type: object
+            required: [id, title, slug]
+            properties:
+              id: { type: string }
+              title: { type: string }
+              slug: { type: string }
     DuplicateResponse:
       type: object
       required: [success, duplicate, message, existingPost]

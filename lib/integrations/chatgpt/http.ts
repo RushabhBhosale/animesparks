@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import {
+  AmbiguousBlogPostError,
   IntegrationCmsError,
   IntegrationConfigurationError,
   InternalLinkValidationError,
@@ -70,6 +71,12 @@ export function commonIntegrationError(error: unknown): NextResponse | null {
   }
   if (error instanceof PublishedPostNotFoundError) {
     return integrationJson({ success: false, error: error.message, code: "BLOG_POST_NOT_FOUND" }, { status: 404 });
+  }
+  if (error instanceof AmbiguousBlogPostError) {
+    return integrationJson(
+      { success: false, error: error.message, code: "AMBIGUOUS_BLOG_NAME", matches: error.matches },
+      { status: 409 },
+    );
   }
   if (error instanceof IntegrationConfigurationError) {
     console.error("[chatgpt-integration] configuration error", JSON.stringify({ message: error.message }));

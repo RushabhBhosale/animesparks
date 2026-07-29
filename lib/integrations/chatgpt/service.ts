@@ -3,6 +3,7 @@ import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { getBaseUrl } from "@/utils/seo";
 
 import {
+  AmbiguousBlogPostError,
   AlreadyPublishedError,
   DraftNotFoundError,
   IntegrationConfigurationError,
@@ -16,7 +17,12 @@ import {
   portableTextToMarkdown,
 } from "./portable-text";
 import { isDraftPost, isPublishedPost, postStatus } from "./post-status";
-import type { ContentContextQuery, CreateBlogDraftRequest, UpdateBlogPostRequest } from "./schemas";
+import type {
+  ContentContextQuery,
+  CreateBlogDraftRequest,
+  UpdateBlogPostByNameRequest,
+  UpdateBlogPostRequest,
+} from "./schemas";
 import { createUniqueSlug, findDuplicatePost, normalizeContentValue, slugify } from "./rules";
 import type {
   ChatGptBlogRepository,
@@ -317,6 +323,45 @@ export async function getBlogPost(args: {
   return { success: true, post: toEditablePost(post, args.baseUrl ?? getBaseUrl()) };
 }
 
+function blogMatchScore(post: StoredPost, identifier: string): number {
+  const query = normalizeContentValue(identifier);
+  const title = normalizeContentValue(post.title);
+  const slug = normalizeContentValue(post.slug);
+  if (title === query || slug === query) return 3;
+  if (title.includes(query) || query.includes(title) || slug.includes(query) || query.includes(slug)) return 2;
+  const queryTokens = query.split(" ").filter(Boolean);
+  if (!queryTokens.length) return 0;
+  const searchable = `${title} ${slug}`;
+  const matchedTokens = queryTokens.filter((token) => searchable.includes(token)).length;
+  return matchedTokens === queryTokens.length ? 1 : 0;
+}
+
+export async function resolvePublishedBlogId(args: {
+  blogName: string;
+  repository: ChatGptBlogRepository;
+}): Promise<string> {
+  const records = await args.repository.listPosts();
+  const matches = records
+    .filter((post) => isPublishedPost(post))
+    .map((post) => ({ post, score: blogMatchScore(post, args.blogName) }))
+    .filter(({ score }) => score > 0)
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        Date.parse(right.post.publishedAt ?? "") - Date.parse(left.post.publishedAt ?? ""),
+    );
+  const bestScore = matches[0]?.score;
+  const best = matches.filter((match) => match.score === bestScore);
+  if (bestScore !== 3 && best.length > 0) return canonicalId(best[0].post._id);
+  if (best.length === 1) return canonicalId(best[0].post._id);
+  if (best.length > 1) {
+    throw new AmbiguousBlogPostError(
+      best.map(({ post }) => ({ id: canonicalId(post._id), title: post.title, slug: post.slug })),
+    );
+  }
+  throw new PublishedPostNotFoundError();
+}
+
 export type UpdateBlogPostResult = {
   success: true;
   draft: {
@@ -440,6 +485,18 @@ export async function updateBlogPost(args: {
     changedFields: Object.keys(args.input),
     ...(warnings.length ? { warnings } : {}),
   };
+}
+
+export async function updateBlogPostByName(args: {
+  blogName: string;
+  input: UpdateBlogPostByNameRequest;
+  repository: ChatGptBlogRepository;
+  baseUrl?: string;
+}): Promise<UpdateBlogPostResult> {
+  const id = await resolvePublishedBlogId({ blogName: args.blogName, repository: args.repository });
+  const { blogName: _blogName, ...input } = args.input;
+  void _blogName;
+  return updateBlogPost({ id, input, repository: args.repository, baseUrl: args.baseUrl });
 }
 
 export function isValidPublishKey(provided: string, expected = process.env.BLOG_PUBLISH_KEY): boolean {

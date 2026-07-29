@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { AlreadyPublishedError, InternalLinkValidationError } from "./errors";
-import { createBlogDraftSchema, updateBlogPostSchema } from "./schemas";
+import { createBlogDraftSchema, updateBlogPostByNameSchema, updateBlogPostSchema } from "./schemas";
 import {
   createBlogDraft,
   getBlogPost,
@@ -9,6 +9,7 @@ import {
   isValidPublishKey,
   publishBlogDraft,
   updateBlogPost,
+  updateBlogPostByName,
 } from "./service";
 import type {
   ChatGptBlogRepository,
@@ -254,6 +255,7 @@ describe("Custom GPT blog integration", () => {
     const parsed = createBlogDraftSchema.safeParse({ ...validDraftInput, articleType: "rumor", title: "" });
     expect(parsed.success).toBe(false);
     expect(updateBlogPostSchema.safeParse({}).success).toBe(false);
+    expect(updateBlogPostByNameSchema.safeParse({ blogName: "Sparks of Tomorrow" }).success).toBe(false);
   });
 
   it("reads a published article and creates a review draft for link-only updates", async () => {
@@ -312,6 +314,36 @@ describe("Custom GPT blog integration", () => {
         }),
       ]),
     );
+  });
+
+  it("resolves an existing published article by its name", async () => {
+    const repository = new MemoryRepository([
+      publishedPost({
+        _id: "post-sparks",
+        title: "Is Sparks of Tomorrow Worth Watching? What Makes Its Steampunk Kyoto Different",
+        slug: "is-sparks-of-tomorrow-worth-watching-steampunk-kyoto",
+        body: [
+          {
+            _key: "body",
+            _type: "block",
+            style: "normal",
+            children: [{ _key: "span", _type: "span", text: "Sparks of Tomorrow is worth watching.", marks: [] }],
+            markDefs: [],
+          },
+        ],
+      }),
+      publishedPost({ _id: "post-related", slug: "demon-slayer-watch-order" }),
+    ]);
+    const result = await updateBlogPostByName({
+      blogName: "Is Sparks of Tomorrow Worth Watching? What Makes Its Steampunk Kyoto Different",
+      input: {
+        blogName: "Is Sparks of Tomorrow Worth Watching? What Makes Its Steampunk Kyoto Different",
+        internalLinks: [{ text: "Demon Slayer watch order", url: `${baseUrl}/blog/demon-slayer-watch-order` }],
+      },
+      repository,
+      baseUrl,
+    });
+    expect(result.draft.id).toBe("post-sparks");
   });
 
   it("saves a draft and returns a warning when image ingestion fails", async () => {

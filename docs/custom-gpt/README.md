@@ -6,6 +6,7 @@ This integration lets a Custom GPT read compact post context, read a full publis
 
 - `GET /api/integrations/chatgpt/content-context`
 - `GET /api/integrations/chatgpt/blog-posts/{id}`
+- `PATCH /api/integrations/chatgpt/blog-posts` (update by blog name)
 - `PATCH /api/integrations/chatgpt/blog-posts/{id}`
 - `POST /api/integrations/chatgpt/blog-drafts`
 - `POST /api/integrations/chatgpt/blog-drafts/{id}/publish`
@@ -76,21 +77,22 @@ curl -X POST http://localhost:3000/api/integrations/chatgpt/blog-drafts/DRAFT_ID
 
 The publish response contains the public `/blog/{slug}` URL. Repeating the publish call returns an already-published conflict instead of publishing twice.
 
-Update an existing article after finding its ID in context and reading its current content:
+Update an existing article by name after using context to select relevant published links:
 
 ```bash
-curl "http://localhost:3000/api/integrations/chatgpt/blog-posts/POST_ID"
+curl "http://localhost:3000/api/integrations/chatgpt/content-context?search=Sparks%20of%20Tomorrow&status=published"
 
-curl -X PATCH http://localhost:3000/api/integrations/chatgpt/blog-posts/POST_ID \
+curl -X PATCH http://localhost:3000/api/integrations/chatgpt/blog-posts \
   -H "Content-Type: application/json" \
   -d '{
+    "blogName":"Is Sparks of Tomorrow Worth Watching? What Makes Its Steampunk Kyoto Different",
     "internalLinks": [
       {"text":"Demon Slayer watch order","url":"https://www.animesparks.blog/blog/demon-slayer-watch-order"}
     ]
   }'
 ```
 
-The update response returns a review `previewUrl` and the same post ID. Publish that update only after review and explicit confirmation with the existing publish endpoint.
+The update response returns a review `previewUrl` and the resolved post ID. Publish that update only after review and explicit confirmation with the existing publish endpoint. If a name matches multiple published posts, the API returns the candidates instead of guessing.
 
 ## Validation and image behavior
 
