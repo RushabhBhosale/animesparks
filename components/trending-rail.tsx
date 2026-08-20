@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 import { sanityImageUrl } from "@/sanity/lib/image";
-import { timeAgo } from "@/utils/date";
+import { formatPostDate } from "@/utils/date";
 
 type TrendingPost = {
   _id: string;
@@ -124,7 +124,7 @@ export function TrendingRail({ posts }: { posts: TrendingPost[] }) {
                         {post.title}
                       </h3>
                       <div className="flex items-center justify-between text-[11px] uppercase text-gray-500 tracking-[0.16em]">
-                        <span>{timeAgo(post.publishedAt)}</span>
+                        <span>{formatPostDate(post.publishedAt)}</span>
                         <span className="inline-flex items-center gap-2 text-white md:group-hover:text-[#ccff00] transition-colors">
                           {post.viewCount !== undefined ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-[#0d0d0d] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-200 border border-[#1f1f1f]">

@@ -185,6 +185,19 @@ const formatPublishedDate = (value: string, locale: BlogLocale) =>
     day: "numeric",
   }).format(new Date(value));
 
+const isSameDay = (a?: string, b?: string) => {
+  if (!a || !b) return false;
+  const da = new Date(a);
+  const db = new Date(b);
+  return (
+    !Number.isNaN(da.getTime()) &&
+    !Number.isNaN(db.getTime()) &&
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+  );
+};
+
 const isParagraphBlock = (block: PortableTextBlock) => {
   if (
     block?._type !== "block" ||
@@ -396,7 +409,7 @@ export async function BlogPostPage({
       ? post._updatedAt
       : undefined);
   const showUpdatedDate =
-    !!effectiveUpdatedAt && effectiveUpdatedAt !== post.publishedAt;
+    !!effectiveUpdatedAt && !isSameDay(effectiveUpdatedAt, post.publishedAt);
 
   const relatedLocale = post.resolvedLocale;
   const related =
@@ -840,7 +853,7 @@ export async function BlogPostPage({
                       </time>
                     ) : null}
                     {showUpdatedDate && effectiveUpdatedAt ? (
-                      <p className="mt-0.5 text-xs font-semibold text-red-600">
+                      <p className="mt-0.5 text-xs font-semibold text-gray-500">
                         {contentUi.updatedLabel}{" "}
                         <time dateTime={effectiveUpdatedAt}>
                           {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}

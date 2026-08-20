@@ -10,7 +10,7 @@ import {
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
-import { formatDate, timeAgo } from "@/utils/date";
+import { formatPostDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { bungeeOutline, splineSans } from "@/lib/font";
 import { fetchGaPageViews } from "@/lib/analytics";
@@ -458,7 +458,7 @@ export default async function Home() {
                                 </span>
                               )}
                               <span className="text-gray-500 text-xs font-mono py-1">
-                                {timeAgo(post.publishedAt)}
+                                {formatPostDate(post.publishedAt)}
                               </span>
                             </div>
 
@@ -523,8 +523,7 @@ export default async function Home() {
                                   {post.title}
                                 </h5>
                                 <span className="text-xs text-gray-500 font-mono mt-1">
-                                  {timeAgo(post.publishedAt) ||
-                                    formatDate(post.publishedAt)}
+                                  {formatPostDate(post.publishedAt)}
                                 </span>
                               </div>
                             </div>
@@ -693,7 +692,7 @@ export default async function Home() {
                                   {post.title}
                                 </h3>
                                 <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.16em] text-gray-500">
-                                  <span>{timeAgo(post.publishedAt)}</span>
+                                  <span>{formatPostDate(post.publishedAt)}</span>
                                   <span className="inline-flex items-center gap-1 text-white">
                                     Read <ArrowUpRight className="h-4 w-4" />
                                   </span>
