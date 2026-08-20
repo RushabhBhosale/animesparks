@@ -54,6 +54,7 @@ type Post = {
   body?: PortableTextBlock[];
   tags?: string[];
   publishedAt?: string;
+  updatedAt?: string;
   _updatedAt?: string;
   mainImage?: { asset?: { url?: string }; alt?: string };
   categories?: { _id: string; title: string; slug: string }[];
@@ -96,6 +97,7 @@ type LocaleCopy = {
   nextInLabel: (category?: string) => string;
   nextUpLabel: string;
   filedLabel: string;
+  updatedLabel: string;
   readNextLabel: string;
   sidebarHeading: string;
   newsletterHeading: string;
@@ -122,6 +124,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     nextInLabel: (category) => `Next in ${category || "AnimeSparks"}`,
     nextUpLabel: "Next up",
     filedLabel: "Filed",
+    updatedLabel: "Updated",
     readNextLabel: "Read next",
     sidebarHeading: "Related Blogs",
     newsletterHeading: "Subscribe to Our Newsletter",
@@ -146,6 +149,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     nextInLabel: (category) => `Siguiente en ${category || "AnimeSparks"}`,
     nextUpLabel: "Sigue leyendo",
     filedLabel: "Publicado",
+    updatedLabel: "Actualizado",
     readNextLabel: "Leer siguiente",
     sidebarHeading: "Articulos relacionados",
     newsletterHeading: "Suscribete al boletin",
@@ -385,6 +389,14 @@ export async function BlogPostPage({
     .filter(Boolean);
   const postTags = (post.tags || []).map((tag) => tag?.trim()).filter(Boolean);
   const viewCount = await fetchGaPageView(slug);
+
+  const effectiveUpdatedAt =
+    post.updatedAt ||
+    (post._updatedAt && post.publishedAt && post._updatedAt > post.publishedAt
+      ? post._updatedAt
+      : undefined);
+  const showUpdatedDate =
+    !!effectiveUpdatedAt && effectiveUpdatedAt !== post.publishedAt;
 
   const relatedLocale = post.resolvedLocale;
   const related =
@@ -685,7 +697,7 @@ export async function BlogPostPage({
         description={description}
         image={mainImageUrl}
         datePublished={post.publishedAt}
-        dateModified={post._updatedAt}
+        dateModified={effectiveUpdatedAt}
         authorName={post.author?.name || siteAuthorName}
         authorUrl={siteAuthorUrl}
         inLanguage={post.resolvedLocale}
@@ -826,6 +838,14 @@ export async function BlogPostPage({
                       >
                         {formatPublishedDate(post.publishedAt, post.resolvedLocale)}
                       </time>
+                    ) : null}
+                    {showUpdatedDate && effectiveUpdatedAt ? (
+                      <p className="mt-0.5 text-xs font-semibold text-red-600">
+                        {contentUi.updatedLabel}{" "}
+                        <time dateTime={effectiveUpdatedAt}>
+                          {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
+                        </time>
+                      </p>
                     ) : null}
                   </div>
                 </div>

@@ -93,6 +93,13 @@ export const spanishPostType = defineType({
         "Optional. Leave blank to reuse the original English blog publish date.",
     }),
     defineField({
+      name: "updatedAt",
+      title: "Updated at",
+      type: "datetime",
+      description:
+        "Optional. Leave blank to reuse the original English blog update date. Set when the article has been substantially updated after publishing.",
+    }),
+    defineField({
       name: "body",
       title: "Body",
       type: "blockContent",

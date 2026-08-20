@@ -107,6 +107,13 @@ export const postType = defineType({
       type: "datetime",
     }),
     defineField({
+      name: "updatedAt",
+      title: "Updated at",
+      type: "datetime",
+      description:
+        "Set when the article has been substantially updated after publishing. Shown to readers when it is newer than the publish date.",
+    }),
+    defineField({
       name: "body",
       title: "Body",
       type: "blockContent",
