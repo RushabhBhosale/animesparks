@@ -4,8 +4,19 @@ export const siteDescription =
 export const defaultOgImage = "/anime-poster.jpg";
 export const siteAuthorName = "Rushabh Bhosale";
 export const siteAuthorUrl = "https://www.rushabh.in/home";
+export const productionSiteUrl = "https://www.animesparks.blog";
 
 export const getBaseUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return siteUrl.replace(/\/$/, "");
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!configuredSiteUrl) return productionSiteUrl;
+
+  try {
+    const url = new URL(configuredSiteUrl);
+    if (url.hostname === "animesparks.blog" || url.hostname === "www.animesparks.blog") {
+      return productionSiteUrl;
+    }
+    return url.origin;
+  } catch {
+    return productionSiteUrl;
+  }
 };

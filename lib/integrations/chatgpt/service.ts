@@ -261,11 +261,16 @@ export async function createBlogDraft(args: {
     excerpt: args.input.excerpt,
     animeName: args.input.animeName,
     articleType: args.input.articleType,
+    tags: args.input.tags,
     ...(editorialReferences.author ? { author: editorialReferences.author } : {}),
     ...(editorialReferences.category ? { categories: [editorialReferences.category] } : {}),
     body: placed.body,
     ...(args.input.metaTitle ? { metaTitle: args.input.metaTitle } : {}),
-    metaDescription: args.input.metaDescription ?? args.input.excerpt.slice(0, 180),
+    metaDescription:
+      args.input.metaDescription ??
+      (args.input.excerpt.length <= 160
+        ? args.input.excerpt
+        : `${args.input.excerpt.slice(0, 157).trimEnd()}...`),
     ...(args.input.primaryKeyword ? { primaryKeyword: args.input.primaryKeyword } : {}),
     ...(args.input.secondaryKeywords?.length ? { secondaryKeywords: args.input.secondaryKeywords } : {}),
     ...(args.input.internalLinks?.length

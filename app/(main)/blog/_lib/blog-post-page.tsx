@@ -58,7 +58,13 @@ type Post = {
   _updatedAt?: string;
   mainImage?: { asset?: { url?: string }; alt?: string };
   categories?: { _id: string; title: string; slug: string }[];
-  author?: { name?: string; slug?: string };
+  author?: {
+    name?: string;
+    slug?: string;
+    image?: { asset?: { url?: string } };
+  };
+  sources?: { name?: string; url?: string }[];
+  animeName?: string;
   faq?: { question?: string; answer?: string }[];
   resolvedLocale: BlogLocale;
   alternateSlug?: string;
@@ -79,7 +85,7 @@ type BlogSlug = {
 
 type RenderedBodyMarker = {
   index: number;
-  type: "after-first-paragraph" | "mid-content" | "inline-related";
+  type: "after-first-paragraph" | "mid-content";
 };
 
 type LocaleCopy = {
@@ -94,6 +100,7 @@ type LocaleCopy = {
   relatedEyebrow: string;
   tagsHeading: string;
   faqHeading: string;
+  sourcesHeading: string;
   nextInLabel: (category?: string) => string;
   nextUpLabel: string;
   filedLabel: string;
@@ -121,6 +128,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     relatedEyebrow: "Related files",
     tagsHeading: "Tags",
     faqHeading: "Frequently Asked Questions",
+    sourcesHeading: "Sources",
     nextInLabel: (category) => `Next in ${category || "AnimeSparks"}`,
     nextUpLabel: "Next up",
     filedLabel: "Filed",
@@ -146,6 +154,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     relatedEyebrow: "Archivos relacionados",
     tagsHeading: "Etiquetas",
     faqHeading: "Preguntas frecuentes",
+    sourcesHeading: "Fuentes",
     nextInLabel: (category) => `Siguiente en ${category || "AnimeSparks"}`,
     nextUpLabel: "Sigue leyendo",
     filedLabel: "Publicado",
@@ -423,19 +432,19 @@ export async function BlogPostPage({
           },
         )
       : [];
-  const inlineRelated = related.slice(0, 1);
-  const inlineRelatedIds = new Set(inlineRelated.map((item) => item._id));
-  const nextBlog = related.find((item) => !inlineRelatedIds.has(item._id));
+  const relatedHighlight = related.slice(0, 1);
+  const relatedHighlightIds = new Set(relatedHighlight.map((item) => item._id));
+  const nextBlog = related.find((item) => !relatedHighlightIds.has(item._id));
   const sidebarRelated = related.filter(
-    (item) => item._id !== nextBlog?._id && !inlineRelatedIds.has(item._id),
+    (item) => item._id !== nextBlog?._id && !relatedHighlightIds.has(item._id),
   );
 
   const bodyBlocks = Array.isArray(post.body) ? post.body : [];
   const afterFirstParagraphIndex = getParagraphInsertIndex(bodyBlocks, 1);
-  const inlineInsertIndex = getParagraphInsertIndex(bodyBlocks, 4, 5);
   const midContentInsertIndex = getMidContentInsertIndex(bodyBlocks);
-  const showInlineRelated =
-    inlineInsertIndex !== null && inlineRelated.length > 0;
+  const sourceItems = (post.sources || []).filter(
+    (source) => source.name?.trim() || source.url?.trim(),
+  );
 
   const portableTextComponents: PortableTextComponents = {
     types: {
@@ -498,6 +507,13 @@ export async function BlogPostPage({
       },
     },
     block: {
+      // The article title already owns the page H1. Treat any legacy body H1
+      // as a section heading so old content cannot create a second page H1.
+      h1: ({ children }) => (
+        <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
+          {children}
+        </h2>
+      ),
       h2: ({ children }) => (
         <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
           {children}
@@ -560,25 +576,11 @@ export async function BlogPostPage({
           type: "mid-content" as const,
         }
       : null,
-    showInlineRelated && inlineInsertIndex !== null
-      ? {
-          index: inlineInsertIndex,
-          type: "inline-related" as const,
-        }
-      : null,
   ]
     .filter(isRenderedBodyMarker)
     .sort((left, right) => {
       if (left.index !== right.index) {
         return left.index - right.index;
-      }
-
-      if (left.type === "inline-related") {
-        return 1;
-      }
-
-      if (right.type === "inline-related") {
-        return -1;
       }
 
       return 0;
@@ -615,62 +617,6 @@ export async function BlogPostPage({
           key="ad-mid-content"
           instanceId={`${post._id}-mid-content`}
         />,
-      );
-    }
-
-    if (marker.type === "inline-related") {
-      articleBodyContent.push(
-        <section
-          key="inline-related"
-          className="my-10 border border-gray-200 bg-gray-50 p-4 sm:p-5"
-        >
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="m-0 text-base font-black uppercase tracking-tight text-gray-900 sm:text-lg">
-              {contentUi.relatedHeading}
-            </h2>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-              {contentUi.relatedEyebrow}
-            </span>
-          </div>
-
-          <div className="grid gap-3">
-            {inlineRelated.map((item) => (
-              <Link
-                key={item._id}
-                href={getBlogPath(post.resolvedLocale, item.slug)}
-                className="group block max-w-xl border border-gray-200 bg-white p-2.5 no-underline transition-colors sm:p-3 md:hover:border-red-600"
-              >
-                <div className="flex items-start gap-3">
-                  {item.mainImage?.asset?.url ? (
-                    <div className="relative h-18 w-28 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-20 sm:w-32">
-                      <Image
-                        src={sanityImageUrl(item.mainImage, {
-                          width: 420,
-                          quality: 65,
-                        })}
-                        alt={item.mainImage.alt || item.title}
-                        fill
-                        sizes="(max-width: 768px) 120px, 140px"
-                        className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-                      />
-                    </div>
-                  ) : null}
-
-                  <div className="min-w-0">
-                    <h3 className="m-0 line-clamp-2 text-sm font-black leading-snug text-gray-900 transition-colors sm:text-base md:group-hover:text-red-600">
-                      {item.title}
-                    </h3>
-                    {item.publishedAt ? (
-                      <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                        {formatPublishedDate(item.publishedAt, post.resolvedLocale)}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>,
       );
     }
 
@@ -713,6 +659,12 @@ export async function BlogPostPage({
         dateModified={effectiveUpdatedAt}
         authorName={post.author?.name || siteAuthorName}
         authorUrl={siteAuthorUrl}
+        authorImage={post.author?.image?.asset?.url}
+        authorSameAs={[siteAuthorUrl]}
+        publisherUrl={baseUrl}
+        publisherLogo={`${baseUrl}/logo.png`}
+        articleSection={post.categories?.map((category) => category.title).filter(Boolean)}
+        about={post.animeName ? { "@type": "Thing", name: post.animeName } : undefined}
         inLanguage={post.resolvedLocale}
       />
       <BreadcrumbsJsonLd
@@ -926,6 +878,32 @@ export async function BlogPostPage({
               </section>
             ) : null}
 
+            {sourceItems.length ? (
+              <section className="mt-12 border-t border-gray-200 pt-6" aria-labelledby="article-sources-heading">
+                <h2 id="article-sources-heading" className="mb-4 text-2xl font-black text-gray-900">
+                  {contentUi.sourcesHeading}
+                </h2>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {sourceItems.map((source, index) => (
+                    <li key={`${source.url || source.name}-${index}`}>
+                      {source.url ? (
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4"
+                        >
+                          {source.name?.trim() || source.url}
+                        </a>
+                      ) : (
+                        source.name
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
             {faqItems.length ? (
               <>
                 <AdBlock
@@ -968,6 +946,60 @@ export async function BlogPostPage({
               </>
             ) : null}
 
+            {relatedHighlight.length ? (
+              <aside
+                className="mt-14 border border-gray-200 bg-gray-50 p-4 sm:p-5"
+                aria-label={contentUi.relatedHeading}
+              >
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <p className="m-0 text-base font-black uppercase tracking-tight text-gray-900 sm:text-lg">
+                    {contentUi.relatedHeading}
+                  </p>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
+                    {contentUi.relatedEyebrow}
+                  </span>
+                </div>
+
+                <div className="grid gap-3">
+                  {relatedHighlight.map((item) => (
+                    <Link
+                      key={item._id}
+                      href={getBlogPath(post.resolvedLocale, item.slug)}
+                      className="group block max-w-xl border border-gray-200 bg-white p-2.5 no-underline transition-colors sm:p-3 md:hover:border-red-600"
+                    >
+                      <div className="flex items-start gap-3">
+                        {item.mainImage?.asset?.url ? (
+                          <div className="relative h-18 w-28 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-20 sm:w-32">
+                            <Image
+                              src={sanityImageUrl(item.mainImage, {
+                                width: 420,
+                                quality: 65,
+                              })}
+                              alt={item.mainImage.alt || item.title}
+                              fill
+                              sizes="(max-width: 768px) 120px, 140px"
+                              className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                            />
+                          </div>
+                        ) : null}
+
+                        <div className="min-w-0">
+                          <p className="m-0 line-clamp-2 text-sm font-black leading-snug text-gray-900 transition-colors sm:text-base md:group-hover:text-red-600">
+                            {item.title}
+                          </p>
+                          {item.publishedAt ? (
+                            <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                              {formatPublishedDate(item.publishedAt, post.resolvedLocale)}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </aside>
+            ) : null}
+
             {nextBlog ? (
               <section className="mt-14">
                 <div className="mt-5 overflow-hidden rounded-sm border border-anime-muted bg-black text-white shadow-[12px_12px_0px_0px_#f20d0d]">
@@ -1000,9 +1032,9 @@ export async function BlogPostPage({
                         {contentUi.nextUpLabel}
                       </p>
 
-                      <h2 className="line-clamp-3 text-2xl font-black leading-tight text-white md:text-3xl">
+                      <p className="line-clamp-3 text-2xl font-black leading-tight text-white md:text-3xl">
                         {nextBlog.title}
-                      </h2>
+                      </p>
 
                       {nextBlog.excerpt ? (
                         <p className="line-clamp-3 text-sm leading-relaxed text-gray-300">

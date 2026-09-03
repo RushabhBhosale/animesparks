@@ -3,6 +3,7 @@ import {
   sitemapEnglishBlogsQuery,
   sitemapSpanishBlogsQuery,
 } from "@/sanity/blogQueries";
+import { getBaseUrl } from "@/utils/seo";
 
 type SitemapPost = {
   locale: "en" | "es";
@@ -15,11 +16,6 @@ type SitemapEntry = {
   url: string;
   lastModified?: string;
   alternates?: Array<{ hreflang: string; href: string }>;
-};
-
-const getBaseUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return siteUrl.replace(/\/$/, "");
 };
 
 const escapeXml = (value: string) =>

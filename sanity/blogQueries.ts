@@ -96,8 +96,13 @@ export const englishBlogBySlugQuery = groq`
   "metaTitle": coalesce(metaTitle, title),
   "metaDescription": ${englishDescriptionExpr},
   "excerpt": ${englishExcerptExpr},
+  animeName,
   body,
   tags,
+  sources[]{
+    name,
+    url
+  },
   publishedAt,
   updatedAt,
   _createdAt,
@@ -120,7 +125,9 @@ export const englishBlogBySlugQuery = groq`
     name,
     bio,
     "slug": slug.current,
-    image
+    image {
+      asset->{ url }
+    }
   },
   faq[]{
     question,
@@ -143,8 +150,13 @@ export const spanishBlogBySlugQuery = groq`
   "metaTitle": coalesce(metaTitle, title),
   "metaDescription": ${spanishDescriptionExpr},
   "excerpt": ${spanishExcerptExpr},
+  "animeName": coalesce(animeName, originalPost->animeName),
   body,
   "tags": ${spanishTagsExpr},
+  "sources": coalesce(sources, originalPost->sources)[]{
+    name,
+    url
+  },
   "publishedAt": ${spanishPublishedAtExpr},
   "updatedAt": coalesce(updatedAt, originalPost->updatedAt),
   _createdAt,
@@ -161,7 +173,9 @@ export const spanishBlogBySlugQuery = groq`
     name,
     bio,
     "slug": slug.current,
-    image
+    image {
+      asset->{ url }
+    }
   },
   faq[]{
     question,
@@ -288,8 +302,8 @@ export const categoriesWithCoversQuery = groq`
   _id,
   title,
   "slug": slug.current,
-  "postCount": count(*[_type=="post" && references(^._id)]),
-  "cover": *[_type=="post" && references(^._id) && defined(mainImage.asset)]|order(publishedAt desc)[0]{
+  "postCount": count(*[_type=="post" && publishedAt <= now() && references(^._id)]),
+  "cover": *[_type=="post" && publishedAt <= now() && references(^._id) && defined(mainImage.asset)]|order(publishedAt desc)[0]{
     title,
     "slug": slug.current,
     publishedAt,

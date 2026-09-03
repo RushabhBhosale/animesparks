@@ -39,18 +39,18 @@ export const createBlogDraftSchema = z
       .trim()
       .min(1)
       .max(100)
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "categorySlug must contain lowercase letters, numbers, and hyphens only")
-      .optional(),
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "categorySlug must contain lowercase letters, numbers, and hyphens only"),
     excerpt: text("excerpt", 500),
     content: z
       .string()
       .trim()
       .min(500, "content must be a complete article of at least 500 characters")
       .max(120_000, "content is too long"),
-    metaTitle: z.string().trim().min(1).max(70).optional(),
-    metaDescription: z.string().trim().min(1).max(180).optional(),
-    primaryKeyword: z.string().trim().min(1).max(160).optional(),
+    metaTitle: z.string().trim().min(1).max(60).optional(),
+    metaDescription: z.string().trim().min(1).max(160).optional(),
+    primaryKeyword: z.string().trim().min(1).max(160),
     secondaryKeywords: z.array(text("secondary keyword", 160)).max(20).optional(),
+    tags: z.array(text("tag", 80)).min(1).max(12),
     heroImage: imageSchema.optional(),
     contentImages: z
       .array(imageSchema.extend({ insertAfterHeading: z.string().trim().min(1).max(240).optional() }).strict())
@@ -76,7 +76,16 @@ export const createBlogDraftSchema = z
       .max(10)
       .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((value, ctx) => {
+    if ((value.articleType === "release-date" || value.articleType === "news") && !value.sources?.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sources"],
+        message: "At least one source is required for release-date and news articles.",
+      });
+    }
+  });
 
 export const contentContextQuerySchema = z.object({
   search: z.string().trim().max(200).optional(),

@@ -26,11 +26,14 @@ export const postType = defineType({
       type: "text",
       rows: 3,
       description: "Short editorial summary used by indexes and integrations.",
+      validation: (Rule) =>
+        Rule.required().min(1).max(500).warning("Required for new articles."),
     }),
     defineField({
       name: "animeName",
       title: "Anime name",
       type: "string",
+      validation: (Rule) => Rule.required().warning("Required for new articles."),
     }),
     defineField({
       name: "articleType",
@@ -47,6 +50,7 @@ export const postType = defineType({
           { title: "Other", value: "other" },
         ],
       },
+      validation: (Rule) => Rule.required().warning("Required for new articles."),
     }),
     defineField({
       name: "metaTitle",
@@ -78,6 +82,8 @@ export const postType = defineType({
       options: {
         layout: "tags",
       },
+      validation: (Rule) =>
+        Rule.min(1).max(12).warning("Add at least one useful franchise or intent tag."),
     }),
     defineField({
       name: "mainImage",
@@ -101,6 +107,8 @@ export const postType = defineType({
       name: "categories",
       type: "array",
       of: [defineArrayMember({ type: "reference", to: { type: "category" } })],
+      validation: (Rule) =>
+        Rule.min(1).max(2).warning("Assign one or two editorial categories."),
     }),
     defineField({
       name: "publishedAt",
@@ -122,6 +130,7 @@ export const postType = defineType({
       name: "primaryKeyword",
       title: "Primary keyword",
       type: "string",
+      validation: (Rule) => Rule.required().warning("Required for new articles."),
     }),
     defineField({
       name: "secondaryKeywords",
@@ -154,11 +163,32 @@ export const postType = defineType({
           type: "object",
           name: "articleSource",
           fields: [
-            defineField({ name: "name", type: "string" }),
-            defineField({ name: "url", type: "url" }),
+            defineField({
+              name: "name",
+              type: "string",
+              validation: (Rule) => Rule.required().warning("Name the source."),
+            }),
+            defineField({
+              name: "url",
+              type: "url",
+              validation: (Rule) => Rule.required().warning("Add the source URL."),
+            }),
           ],
         }),
       ],
+      description:
+        "Add sources for release dates, renewals, streaming details, and other factual status claims.",
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const articleType = (context.document as { articleType?: string } | undefined)?.articleType;
+          if (
+            (articleType === "release-date" || articleType === "news") &&
+            (!Array.isArray(value) || value.length === 0)
+          ) {
+            return "Add at least one source for release-date or news articles.";
+          }
+          return true;
+        }).warning("Factual status articles should include at least one source."),
     }),
     defineField({
       name: "faq",

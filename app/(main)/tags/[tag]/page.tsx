@@ -6,9 +6,11 @@ import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import Image from "next/image";
+import { cache } from "react";
 import { PageHero } from "@/components/page-hero";
 
 export const revalidate = 60;
+const TAG_INDEX_THRESHOLD = 3;
 
 type TagPost = {
   _id: string;
@@ -77,6 +79,11 @@ const tagMetaPresets = [
   },
 ];
 
+const getTagPosts = cache(async (tag: string): Promise<TagPost[]> => {
+  if (!tag) return [];
+  return client.fetch<TagPost[]>(blogsByTagQuery, { tagValue: tag });
+});
+
 const resolveTagMeta = (
   tagValue: string,
   fallbackTitle: string,
@@ -99,6 +106,8 @@ export async function generateMetadata({
 
   const decodedTag = decodeTag(tag).trim();
   const safeTag = encodeURIComponent(decodedTag);
+  const posts = decodedTag ? await getTagPosts(decodedTag) : [];
+  const shouldIndex = posts.length >= TAG_INDEX_THRESHOLD;
   const fallbackTitle = decodedTag
     ? `Anime Tag: ${decodedTag} | ${siteName}`
     : `Anime Tags | ${siteName}`;
@@ -115,6 +124,14 @@ export async function generateMetadata({
     description: meta.description,
     alternates: {
       canonical,
+    },
+    robots: {
+      index: shouldIndex,
+      follow: true,
+      googleBot: {
+        index: shouldIndex,
+        follow: true,
+      },
     },
     openGraph: {
       title: meta.title,
@@ -140,9 +157,7 @@ export default async function TagPage({
 }) {
   const { tag } = await params;
   const decodedTag = decodeTag(tag || "").trim();
-  const posts: TagPost[] = decodedTag
-    ? await client.fetch(blogsByTagQuery, { tagValue: decodedTag })
-    : [];
+  const posts = await getTagPosts(decodedTag);
 
   return (
     <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">

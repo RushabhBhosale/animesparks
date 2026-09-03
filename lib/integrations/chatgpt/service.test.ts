@@ -115,6 +115,7 @@ const validDraftInput = {
   metaDescription: "Frieren's ending explained through memory, grief and the meaning of its long journey.",
   primaryKeyword: "frieren ending explained",
   secondaryKeywords: ["frieren ending meaning"],
+  tags: ["Frieren", "Ending Explained"],
   categorySlug: "anime-opinions",
   faq: [
     {
@@ -159,6 +160,7 @@ describe("Custom GPT blog integration", () => {
     expect(draft).toMatchObject({
       author: { _type: "reference", _ref: "author-rushabh" },
       categories: [{ _type: "reference", _ref: "category-anime-opinions" }],
+      tags: ["Frieren", "Ending Explained"],
       faq: [{ _type: "faqItem", question: "What does Frieren's ending mean?" }],
     });
     expect((draft?.body as PortableTextValue).some((block) => block._type === "image")).toBe(true);
@@ -256,6 +258,25 @@ describe("Custom GPT blog integration", () => {
     expect(parsed.success).toBe(false);
     expect(updateBlogPostSchema.safeParse({}).success).toBe(false);
     expect(updateBlogPostByNameSchema.safeParse({ blogName: "Sparks of Tomorrow" }).success).toBe(false);
+  });
+
+  it("requires SEO governance fields and sources for factual news drafts", () => {
+    expect(createBlogDraftSchema.safeParse({ ...validDraftInput, primaryKeyword: undefined }).success).toBe(false);
+    expect(createBlogDraftSchema.safeParse({ ...validDraftInput, tags: [] }).success).toBe(false);
+    expect(
+      createBlogDraftSchema.safeParse({
+        ...validDraftInput,
+        articleType: "release-date",
+        sources: undefined,
+      }).success,
+    ).toBe(false);
+    expect(
+      createBlogDraftSchema.safeParse({
+        ...validDraftInput,
+        articleType: "release-date",
+        sources: [{ name: "Official anime website", url: "https://example.com/official" }],
+      }).success,
+    ).toBe(true);
   });
 
   it("reads a published article and creates a review draft for link-only updates", async () => {

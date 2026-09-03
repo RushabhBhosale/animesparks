@@ -1,5 +1,6 @@
 import { client } from "@/sanity/lib/client";
 import { rssBlogsQuery } from "@/sanity/blogQueries";
+import { getBaseUrl } from "@/utils/seo";
 
 type RssPost = {
   _id: string;
@@ -8,11 +9,6 @@ type RssPost = {
   publishedAt: string;
   _updatedAt?: string;
   excerpt?: string;
-};
-
-const getBaseUrl = () => {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return siteUrl.replace(/\/$/, "");
 };
 
 const escapeXml = (value: string) =>

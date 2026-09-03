@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { categoriesWithCountsQuery } from "@/sanity/blogQueries";
+import {
+  categoriesWithCountsQuery,
+  categoriesWithCoversQuery,
+} from "@/sanity/blogQueries";
 import { sanityImageUrl } from "@/sanity/lib/image";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
@@ -50,19 +53,6 @@ const formatCount = (count?: number) => {
   if (!count) return "No posts";
   return count === 1 ? "1 post" : `${count} posts`;
 };
-
-const categoriesWithCoversQuery = `
-*[_type=="category"]|order(title asc){
-  _id,
-  title,
-  "slug": slug.current,
-  "postCount": count(*[_type=="post" && references(^._id)]),
-  "cover": *[_type=="post" && references(^._id) && defined(mainImage.asset)]|order(publishedAt desc)[0]{
-    title,
-    mainImage
-  }
-}
-`;
 
 function pick<T>(arr: T[], idx: number): T | null {
   return arr[idx] ?? null;

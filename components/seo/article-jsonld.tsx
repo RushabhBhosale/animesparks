@@ -7,6 +7,12 @@ export function ArticleJsonLd({
   dateModified,
   authorName,
   authorUrl,
+  authorImage,
+  authorSameAs,
+  publisherUrl,
+  publisherLogo,
+  articleSection,
+  about,
   inLanguage,
 }: {
   url: string;
@@ -17,6 +23,12 @@ export function ArticleJsonLd({
   dateModified?: string;
   authorName?: string;
   authorUrl?: string;
+  authorImage?: string;
+  authorSameAs?: string[];
+  publisherUrl?: string;
+  publisherLogo?: string;
+  articleSection?: string[];
+  about?: { "@type": "Thing"; name: string };
   inLanguage?: string;
 }) {
   const author =
@@ -25,6 +37,8 @@ export function ArticleJsonLd({
           "@type": "Person",
           name: authorName,
           url: authorUrl,
+          image: authorImage,
+          sameAs: authorSameAs?.length ? authorSameAs : undefined,
         }
       : undefined;
 
@@ -39,9 +53,19 @@ export function ArticleJsonLd({
     datePublished,
     dateModified: dateModified || datePublished,
     author,
+    articleSection: articleSection?.length ? articleSection : undefined,
+    about,
     publisher: {
       "@type": "Organization",
       name: "AnimeSparks",
+      url: publisherUrl,
+      "@id": publisherUrl ? `${publisherUrl}/#organization` : undefined,
+      logo: publisherLogo
+        ? {
+            "@type": "ImageObject",
+            url: publisherLogo,
+          }
+        : undefined,
     },
   };
 
