@@ -122,6 +122,36 @@ export const postType = defineType({
         "Set when the article has been substantially updated after publishing. Shown to readers when it is newer than the publish date.",
     }),
     defineField({
+      name: "updateHistory",
+      title: "Update history",
+      type: "array",
+      description:
+        "Reader-facing record of material editorial, factual, or source updates. Add an entry whenever a published article changes in a meaningful way.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "articleUpdate",
+          fields: [
+            defineField({
+              name: "date",
+              title: "Update date",
+              type: "datetime",
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "summary",
+              title: "What changed",
+              type: "string",
+              validation: (Rule) => Rule.required().max(240),
+            }),
+          ],
+          preview: {
+            select: { title: "summary", subtitle: "date" },
+          },
+        }),
+      ],
+    }),
+    defineField({
       name: "body",
       title: "Body",
       type: "blockContent",

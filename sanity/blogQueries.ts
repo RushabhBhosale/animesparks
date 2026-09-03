@@ -103,6 +103,10 @@ export const englishBlogBySlugQuery = groq`
     name,
     url
   },
+  updateHistory[]{
+    date,
+    summary
+  },
   publishedAt,
   updatedAt,
   _createdAt,
@@ -156,6 +160,10 @@ export const spanishBlogBySlugQuery = groq`
   "sources": coalesce(sources, originalPost->sources)[]{
     name,
     url
+  },
+  "updateHistory": coalesce(updateHistory, originalPost->updateHistory)[]{
+    date,
+    summary
   },
   "publishedAt": ${spanishPublishedAtExpr},
   "updatedAt": coalesce(updatedAt, originalPost->updatedAt),

@@ -64,6 +64,7 @@ type Post = {
     image?: { asset?: { url?: string } };
   };
   sources?: { name?: string; url?: string }[];
+  updateHistory?: { date?: string; summary?: string }[];
   animeName?: string;
   faq?: { question?: string; answer?: string }[];
   resolvedLocale: BlogLocale;
@@ -101,6 +102,7 @@ type LocaleCopy = {
   tagsHeading: string;
   faqHeading: string;
   sourcesHeading: string;
+  updateHistoryHeading: string;
   nextInLabel: (category?: string) => string;
   nextUpLabel: string;
   filedLabel: string;
@@ -129,6 +131,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     tagsHeading: "Tags",
     faqHeading: "Frequently Asked Questions",
     sourcesHeading: "Sources",
+    updateHistoryHeading: "Update history",
     nextInLabel: (category) => `Next in ${category || "AnimeSparks"}`,
     nextUpLabel: "Next up",
     filedLabel: "Filed",
@@ -155,6 +158,7 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     tagsHeading: "Etiquetas",
     faqHeading: "Preguntas frecuentes",
     sourcesHeading: "Fuentes",
+    updateHistoryHeading: "Historial de actualizaciones",
     nextInLabel: (category) => `Siguiente en ${category || "AnimeSparks"}`,
     nextUpLabel: "Sigue leyendo",
     filedLabel: "Publicado",
@@ -445,6 +449,9 @@ export async function BlogPostPage({
   const sourceItems = (post.sources || []).filter(
     (source) => source.name?.trim() || source.url?.trim(),
   );
+  const updateHistoryItems = (post.updateHistory || [])
+    .filter((item) => item.date && item.summary?.trim())
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
   const portableTextComponents: PortableTextComponents = {
     types: {
@@ -901,6 +908,36 @@ export async function BlogPostPage({
                     </li>
                   ))}
                 </ul>
+              </section>
+            ) : null}
+
+            {updateHistoryItems.length ? (
+              <section
+                className="mt-8 border-t border-gray-200 pt-6"
+                aria-labelledby="article-update-history-heading"
+              >
+                <h2
+                  id="article-update-history-heading"
+                  className="mb-4 text-2xl font-black text-gray-900"
+                >
+                  {contentUi.updateHistoryHeading}
+                </h2>
+                <ol className="space-y-3 text-sm text-gray-700">
+                  {updateHistoryItems.map((item, index) => (
+                    <li
+                      key={`${item.date}-${item.summary}-${index}`}
+                      className="border-l-2 border-red-200 pl-4"
+                    >
+                      <time
+                        dateTime={item.date}
+                        className="block text-xs font-black uppercase tracking-wider text-gray-500"
+                      >
+                        {formatPublishedDate(item.date!, post.resolvedLocale)}
+                      </time>
+                      <p className="mt-1 leading-relaxed">{item.summary}</p>
+                    </li>
+                  ))}
+                </ol>
               </section>
             ) : null}
 
