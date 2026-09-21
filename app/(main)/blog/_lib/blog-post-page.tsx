@@ -12,9 +12,11 @@ import { FaqJsonLd } from "@/components/seo/faq-jsonld";
 import { fetchGaPageView } from "@/lib/analytics";
 import {
   englishBlogBySlugQuery,
+  englishFranchiseBlogsQuery,
   englishBlogSlugsQuery,
   englishRelatedBlogsQuery,
   spanishBlogBySlugQuery,
+  spanishFranchiseBlogsQuery,
   spanishBlogSlugsQuery,
   spanishRelatedBlogsQuery,
 } from "@/sanity/blogQueries";
@@ -56,6 +58,7 @@ type Post = {
   publishedAt?: string;
   updatedAt?: string;
   _updatedAt?: string;
+  articleType?: string;
   mainImage?: { asset?: { url?: string }; alt?: string };
   categories?: { _id: string; title: string; slug: string }[];
   author?: {
@@ -303,15 +306,18 @@ const getAllPostSlugs = cache(async (locale: BlogLocale) =>
   ),
 );
 
-const getFranchiseBlogs = cache(async (animeName: string, locale: BlogLocale) => {
+const getFranchiseBlogs = cache(
+  async (animeName: string, locale: BlogLocale, currentId: string) => {
   const query =
     locale === "es"
       ? spanishFranchiseBlogsQuery
       : englishFranchiseBlogsQuery;
-  return client.fetch<RelatedPost[]>(query, {
-    animeName,
-  });
-});
+    return client.fetch<RelatedPost[]>(query, {
+      animeName,
+      currentId,
+    });
+  },
+);
 
 export async function generateBlogStaticParams(locale: BlogLocale) {
   const posts = await getAllPostSlugs(locale);
@@ -435,7 +441,7 @@ export async function BlogPostPage({
     !!effectiveUpdatedAt && !isSameDay(effectiveUpdatedAt, post.publishedAt);
 
 const franchiseBlogs = post.animeName
-    ? await getFranchiseBlogs(post.animeName, post.resolvedLocale)
+    ? await getFranchiseBlogs(post.animeName, post.resolvedLocale, post._id)
     : [];
 
   const relatedLocale = post.resolvedLocale;
@@ -949,9 +955,7 @@ const franchiseBlogs = post.animeName
                 </section>
               </>
             ) : null}
-
-
-
+            {sourceItems.length ? (
               <section className="mt-12 border-t border-gray-200 pt-6" aria-labelledby="article-sources-heading">
                 <h2
                   id="article-sources-heading"

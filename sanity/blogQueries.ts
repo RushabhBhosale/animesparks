@@ -97,6 +97,7 @@ export const englishBlogBySlugQuery = groq`
   "metaDescription": ${englishDescriptionExpr},
   "excerpt": ${englishExcerptExpr},
   animeName,
+  articleType,
   body,
   tags,
   sources[]{
@@ -155,6 +156,7 @@ export const spanishBlogBySlugQuery = groq`
   "metaDescription": ${spanishDescriptionExpr},
   "excerpt": ${spanishExcerptExpr},
   "animeName": coalesce(animeName, originalPost->animeName),
+  "articleType": coalesce(articleType, originalPost->articleType),
   body,
   "tags": ${spanishTagsExpr},
   "sources": coalesce(sources, originalPost->sources)[]{
@@ -591,6 +593,7 @@ export const englishFranchiseBlogsQuery = groq`
     alt
   }
 }
+`;
 
 export const spanishFranchiseBlogsQuery = groq`
 *[
