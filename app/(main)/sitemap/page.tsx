@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { categoriesQuery, sitemapPageBlogsQuery } from "@/sanity/blogQueries";
+import {
+  categoriesQuery,
+  sitemapPageBlogsQuery,
+  sitemapPageSpanishBlogsQuery,
+} from "@/sanity/blogQueries";
 import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
@@ -58,9 +62,10 @@ const coreLinks = [
 ];
 
 export default async function SitemapPage() {
-  const [categories, posts] = await Promise.all([
+  const [categories, posts, spanishPosts] = await Promise.all([
     client.fetch<Category[]>(categoriesQuery),
     client.fetch<Blog[]>(sitemapPageBlogsQuery),
+    client.fetch<Blog[]>(sitemapPageSpanishBlogsQuery),
   ]);
 
   return (
@@ -134,6 +139,33 @@ export default async function SitemapPage() {
                 <Link
                   key={post._id}
                   href={`/blog/${post.slug}`}
+                  className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-colors md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
+                >
+                  <span className="block">{post.title}</span>
+                  {post.publishedAt ? (
+                    <span className="mt-1 block text-xs font-medium text-gray-500">
+                      {formatDate(post.publishedAt)}
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {spanishPosts?.length ? (
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 rounded-full bg-[#f20d0d]" />
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                Spanish Posts
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {spanishPosts.map((post) => (
+                <Link
+                  key={post._id}
+                  href={`/es/blog/${post.slug}`}
                   className="group border border-[#1f1f1f] bg-[#0b0b0b] px-4 py-3 text-sm font-semibold text-gray-200 transition-colors md:hover:border-[#ccff00] md:hover:text-[#ccff00]"
                 >
                   <span className="block">{post.title}</span>

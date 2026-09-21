@@ -558,6 +558,20 @@ export const sitemapPageBlogsQuery = groq`
 }
 `;
 
+export const sitemapPageSpanishBlogsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now()
+]
+| order(${spanishPublishedAtExpr} desc) {
+  _id,
+  title,
+  "slug": slug.current,
+  "publishedAt": ${spanishPublishedAtExpr}
+}
+`;
+
 /* ----------------------------------------
    RSS (Published posts with excerpts)
 ---------------------------------------- */
