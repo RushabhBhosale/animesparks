@@ -71,12 +71,12 @@ export async function GET() {
   const postEntries: SitemapEntry[] = posts.map((post) => {
     const currentUrl =
       post.locale === "es"
-        ? `${baseUrl}/blog/es/${post.slug}`
+        ? `${baseUrl}/es/blog/${post.slug}`
         : `${baseUrl}/blog/${post.slug}`;
     const alternateUrl = post.alternateSlug
       ? post.locale === "es"
         ? `${baseUrl}/blog/${post.alternateSlug}`
-        : `${baseUrl}/blog/es/${post.alternateSlug}`
+        : `${baseUrl}/es/blog/${post.alternateSlug}`
       : undefined;
     const lastModified = toLastMod(post._updatedAt);
     const alternates = alternateUrl

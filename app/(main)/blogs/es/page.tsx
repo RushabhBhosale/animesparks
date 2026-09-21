@@ -143,7 +143,7 @@ export default async function SpanishBlogsPage({
                   </div>
 
                   <div className="flex flex-col justify-center gap-4 md:col-span-5">
-                    <Link href={`/blog/es/${featured.slug}`} className="group">
+                    <Link href={`/es/blog/${featured.slug}`} className="group">
                       <h2 className="text-3xl font-black uppercase leading-tight tracking-tight text-white transition-colors md:text-4xl md:group-hover:text-anime-lime">
                         {featured.title}
                       </h2>
@@ -162,7 +162,7 @@ export default async function SpanishBlogsPage({
 
                     <div className="flex flex-wrap gap-3">
                       <Link
-                        href={`/blog/es/${featured.slug}`}
+                        href={`/es/blog/${featured.slug}`}
                         className="bg-anime-red px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition-all shadow-[8px_8px_0px_0px_#fff] md:hover:translate-x-1 md:hover:translate-y-1 md:hover:bg-[#ccff00] md:hover:text-black md:hover:shadow-none"
                       >
                         Leer

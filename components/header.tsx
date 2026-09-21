@@ -76,7 +76,7 @@ export default function Header() {
     );
   };
   const blogArchiveLocale =
-    currentPath.startsWith("/blogs/es") || currentPath.startsWith("/blog/es/")
+    currentPath.startsWith("/blogs/es") || currentPath.startsWith("/es/blog/")
       ? "es"
       : "en";
 

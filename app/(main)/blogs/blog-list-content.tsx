@@ -22,7 +22,7 @@ export function BlogListContent({
   const primaryPosts = posts.slice(0, Math.max(capped, 10));
   const extraPosts = posts.slice(primaryPosts.length);
   const getPostHref = (slug: string) =>
-    locale === "es" ? `/blog/es/${slug}` : `/blog/${slug}`;
+    locale === "es" ? `/es/blog/${slug}` : `/blog/${slug}`;
 
   return (
     <div className="space-y-10">

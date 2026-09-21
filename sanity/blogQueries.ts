@@ -570,8 +570,48 @@ export const rssBlogsQuery = groq`
 `;
 
 /* ----------------------------------------
+   FRANCHISE-RELATED BLOGS
+   ---------------------------------------- */
+export const englishFranchiseBlogsQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  animeName == $animeName &&
+  _id != $currentId
+]
+| order(publishedAt desc)[0...5] {
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  mainImage {
+    asset->{
+      url
+    },
+    alt
+  }
+}
+
+export const spanishFranchiseBlogsQuery = groq`
+*[
+  _type == "spanishPost" &&
+  defined(slug.current) &&
+  ${spanishPublishedAtExpr} <= now() &&
+  animeName == $animeName &&
+  _id != $currentId
+]
+| order(publishedAt desc)[0...5] {
+  _id,
+  title,
+  "slug": slug.current,
+  "publishedAt": ${spanishPublishedAtExpr},
+  "mainImage": coalesce(mainImage, originalPost->mainImage)
+}
+`;
+
+/* ----------------------------------------
    ANIME LIST
----------------------------------------- */
+   ---------------------------------------- */
 export const animeListQuery = groq`
 *[_type == "animeEntry"] | order(title asc) {
   _id,

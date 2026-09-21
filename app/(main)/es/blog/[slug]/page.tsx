@@ -4,7 +4,7 @@ import {
   BlogPostPage,
   generateBlogMetadata,
   generateBlogStaticParams,
-} from "../../_lib/blog-post-page";
+} from "../../../blog/_lib/blog-post-page";
 
 export const revalidate = 60;
 

@@ -183,7 +183,7 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
 };
 
 const getBlogPath = (locale: BlogLocale, slug: string) =>
-  locale === "es" ? `/blog/es/${slug}` : `/blog/${slug}`;
+  locale === "es" ? `/es/blog/${slug}` : `/blog/${slug}`;
 
 const getBlogArchivePath = (locale: BlogLocale) =>
   locale === "es" ? "/blogs/es" : "/blogs";
@@ -303,6 +303,16 @@ const getAllPostSlugs = cache(async (locale: BlogLocale) =>
   ),
 );
 
+const getFranchiseBlogs = cache(async (animeName: string, locale: BlogLocale) => {
+  const query =
+    locale === "es"
+      ? spanishFranchiseBlogsQuery
+      : englishFranchiseBlogsQuery;
+  return client.fetch<RelatedPost[]>(query, {
+    animeName,
+  });
+});
+
 export async function generateBlogStaticParams(locale: BlogLocale) {
   const posts = await getAllPostSlugs(locale);
 
@@ -414,7 +424,7 @@ export async function BlogPostPage({
     .map((category) => category?._id)
     .filter(Boolean);
   const postTags = (post.tags || []).map((tag) => tag?.trim()).filter(Boolean);
-  const viewCount = await fetchGaPageView(slug);
+  const viewCount = await fetchGaPageView(slug, post.resolvedLocale);
 
   const effectiveUpdatedAt =
     post.updatedAt ||
@@ -423,6 +433,10 @@ export async function BlogPostPage({
       : undefined);
   const showUpdatedDate =
     !!effectiveUpdatedAt && !isSameDay(effectiveUpdatedAt, post.publishedAt);
+
+const franchiseBlogs = post.animeName
+    ? await getFranchiseBlogs(post.animeName, post.resolvedLocale)
+    : [];
 
   const relatedLocale = post.resolvedLocale;
   const related =
@@ -785,6 +799,25 @@ export async function BlogPostPage({
                   </span>
                 </Link>
               ))}
+
+              {post.animeName ? (
+                <div className="inline-flex items-center gap-1.5 mt-2">
+                  <Link
+                    href={`/tags/${encodeURIComponent(post.animeName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors md:hover:border-red-600 md:hover:bg-gray-50 md:hover:text-red-600"
+                  >
+                    {post.animeName}
+                  </Link>
+                  {post.articleType && (
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-500">
+                      {post.articleType}
+                    </span>
+                  )}
+                </div>
+              ) : null}
+
             </div>
 
             <h1 className="text-3xl font-black leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
@@ -811,13 +844,21 @@ export async function BlogPostPage({
                         {formatPublishedDate(post.publishedAt, post.resolvedLocale)}
                       </time>
                     ) : null}
-                    {showUpdatedDate && effectiveUpdatedAt ? (
-                      <p className="mt-0.5 text-xs font-semibold text-gray-500">
-                        {contentUi.updatedLabel}{" "}
-                        <time dateTime={effectiveUpdatedAt}>
-                          {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
-                        </time>
-                      </p>
+                    {showUpdatedDate ? (
+                      <>
+                        <p className="mt-0.5 text-xs font-semibold text-gray-500">
+                          {contentUi.updatedLabel}{" "}
+                          <time dateTime={effectiveUpdatedAt}>
+                            {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
+                          </time>
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-500">
+                          Last verified{" "}
+                          <time dateTime={effectiveUpdatedAt}>
+                            {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
+                          </time>
+                        </p>
+                      </>
                     ) : null}
                   </div>
                 </div>
@@ -866,82 +907,8 @@ export async function BlogPostPage({
               {articleBodyContent}
             </div>
 
-            {post.tags?.length ? (
-              <section className="mt-12 border-t border-gray-200 pt-6">
-                <h3 className="mb-3 text-sm font-black uppercase tracking-wider text-gray-900">
-                  {contentUi.tagsHeading}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/tags/${encodeURIComponent(tag)}`}
-                      className="rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors md:hover:border-red-600 md:hover:bg-gray-50 md:hover:text-red-600"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            ) : null}
 
-            {sourceItems.length ? (
-              <section className="mt-12 border-t border-gray-200 pt-6" aria-labelledby="article-sources-heading">
-                <h2 id="article-sources-heading" className="mb-4 text-2xl font-black text-gray-900">
-                  {contentUi.sourcesHeading}
-                </h2>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {sourceItems.map((source, index) => (
-                    <li key={`${source.url || source.name}-${index}`}>
-                      {source.url ? (
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4"
-                        >
-                          {source.name?.trim() || source.url}
-                        </a>
-                      ) : (
-                        source.name
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {updateHistoryItems.length ? (
-              <section
-                className="mt-8 border-t border-gray-200 pt-6"
-                aria-labelledby="article-update-history-heading"
-              >
-                <h2
-                  id="article-update-history-heading"
-                  className="mb-4 text-2xl font-black text-gray-900"
-                >
-                  {contentUi.updateHistoryHeading}
-                </h2>
-                <ol className="space-y-3 text-sm text-gray-700">
-                  {updateHistoryItems.map((item, index) => (
-                    <li
-                      key={`${item.date}-${item.summary}-${index}`}
-                      className="border-l-2 border-red-200 pl-4"
-                    >
-                      <time
-                        dateTime={item.date}
-                        className="block text-xs font-black uppercase tracking-wider text-gray-500"
-                      >
-                        {formatPublishedDate(item.date!, post.resolvedLocale)}
-                      </time>
-                      <p className="mt-1 leading-relaxed">{item.summary}</p>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ) : null}
-
-            {faqItems.length ? (
+              {faqItems.length ? (
               <>
                 <AdBlock
                   className="mt-12 mb-0"
@@ -981,6 +948,158 @@ export async function BlogPostPage({
                   </div>
                 </section>
               </>
+            ) : null}
+
+
+
+              <section className="mt-12 border-t border-gray-200 pt-6" aria-labelledby="article-sources-heading">
+                <h2
+                  id="article-sources-heading"
+                  className="mb-4 text-2xl font-black text-gray-900"
+                >
+                  Official sources
+                </h2>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  {sourceItems.map((source, index) => {
+                    const domain = source.url
+                      ? new URL(source.url).hostname.replace(/^www\./, "")
+                      : undefined;
+                    return (
+                      <li
+                        key={`${source.url || source.name}-${index}`}
+                        className="flex items-start gap-3"
+                      >
+                        <div className="flex-shrink-0">
+                          {source.url ? (
+                            <a
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 rounded-sm border border-red-600 bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white transition-colors hover:bg-red-700 hover:text-white"
+                            >
+                              {source.name}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">{source.name}</span>
+                          )}
+                        </div>
+                        {domain ? (
+                          <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-gray-500">
+                            {domain}
+                          </span>
+                        ) : null}
+                        {source.url ? (
+                          <span
+                            className="ml-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gray-400"
+                            aria-hidden="true"
+                          >
+                            •
+                          </span>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ) : null}
+
+            {updateHistoryItems.length ? (
+              <section
+                className="mt-8 border-t border-gray-200 pt-6"
+                aria-labelledby="article-update-history-heading"
+              >
+                {updateHistoryItems.length === 1 ? (
+                  <div className="text-sm text-gray-700">
+                    <time
+                      dateTime={updateHistoryItems[0].date}
+                      className="block text-xs font-black uppercase tracking-wider"
+                    >
+                      {formatPublishedDate(updateHistoryItems[0].date!, post.resolvedLocale)}
+                    </time>
+                    <p className="mt-1 leading-relaxed">{updateHistoryItems[0].summary}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <h2
+                      id="article-update-history-heading"
+                      className="mb-4 text-2xl font-black text-gray-900"
+                    >
+                      {contentUi.updateHistoryHeading}
+                    </h2>
+                    <ol className="space-y-3 text-sm text-gray-700">
+                      {updateHistoryItems.map((item, index) => (
+                        <li
+                          key={`${item.date}-${item.summary}-${index}`}
+                          className="border-l-2 border-red-200 pl-4"
+                        >
+                          <time
+                            dateTime={item.date}
+                            className="block text-xs font-black uppercase tracking-wider text-gray-500"
+                          >
+                            {formatPublishedDate(item.date!, post.resolvedLocale)}
+                          </time>
+                          <p className="mt-1 leading-relaxed">{item.summary}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </section>
+            ) : null}
+
+            {post.animeName && franchiseBlogs.length >= 2 ? (
+              <section
+                id="article-franchise-cluster"
+                className="mt-8 border-t border-gray-200 pt-6"
+                aria-labelledby="article-franchise-cluster-heading"
+              >
+                <h2
+                  id="article-franchise-cluster-heading"
+                  className="mb-4 text-xl font-black text-gray-900"
+                >
+                  More from {post.animeName}
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  {franchiseBlogs.map((item, index) => (
+                    <Link
+                      key={item._id}
+                      href={getBlogPath(post.resolvedLocale, item.slug)}
+                      className="group block border border-gray-200 bg-white rounded-md p-3 transition-colors hover:border-red-600"
+                    >
+                      {item.mainImage?.asset?.url ? (
+                        <div className="relative h-24 w-full overflow-hidden rounded-md mb-3">
+                          <Image
+                            src={sanityImageUrl(item.mainImage, {
+                              width: 360,
+                              quality: 60,
+                            })}
+                            alt={item.mainImage.alt || item.title}
+                            fill
+                            className="object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="relative h-24 w-full overflow-hidden rounded-md mb-3 bg-gray-200 flex items-center justify-center text-xs text-gray-400"
+                        >
+                          No image
+                        </div>
+                      )}
+
+                      <div className="flex flex-col flex-1 pr-1">
+                        <p className="line-clamp-2 m-0 text-sm font-black leading-snug text-gray-900 transition-colors hover:text-red-600">
+                          {item.title}
+                        </p>
+                        {item.publishedAt ? (
+                          <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-gray-500">
+                            {formatPublishedDate(item.publishedAt, post.resolvedLocale)}
+                          </p>
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
             ) : null}
 
             {relatedHighlight.length ? (

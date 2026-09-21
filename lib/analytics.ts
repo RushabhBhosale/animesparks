@@ -14,6 +14,8 @@ const DEFAULT_RANGE = { startDate: "30daysAgo", endDate: "yesterday" };
 const TOKEN_EXPIRY_BUFFER = 60; // seconds
 const VIEW_CACHE_SECONDS = 60 * 5;
 
+type AnalyticsLocale = "en" | "es";
+
 let cachedToken:
   | {
       accessToken: string;
@@ -96,13 +98,14 @@ const getAccessToken = async (config: GaConfig) => {
   return json.access_token;
 };
 
-const buildPath = (slug: string) => {
+const buildPath = (slug: string, locale: AnalyticsLocale = "en") => {
   const trimmed = slug.replace(/^\/+|\/+$/g, "");
-  return `/blog/${trimmed}`;
+  return locale === "es" ? `/es/blog/${trimmed}` : `/blog/${trimmed}`;
 };
 
 export async function fetchGaPageViews(
-  slugs: string[]
+  slugs: string[],
+  locale: AnalyticsLocale = "en",
 ): Promise<Record<string, number>> {
   const config = getConfig();
   if (!config) return {};
@@ -117,7 +120,8 @@ export async function fetchGaPageViews(
   const toFetch: string[] = [];
 
   for (const slug of unique) {
-    const cachedEntry = viewCache.get(slug);
+    const cacheKey = `${locale}:${slug}`;
+    const cachedEntry = viewCache.get(cacheKey);
     if (cachedEntry && cachedEntry.expiresAt > now) {
       cached[slug] = cachedEntry.value;
     } else {
@@ -129,7 +133,7 @@ export async function fetchGaPageViews(
 
   try {
     const token = await getAccessToken(config);
-    const pagePaths = toFetch.map(buildPath);
+    const pagePaths = toFetch.map((slug) => buildPath(slug, locale));
 
     const res = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${config.propertyId}:runReport`,
@@ -169,10 +173,20 @@ export async function fetchGaPageViews(
       const path = row.dimensionValues?.[0]?.value || "";
       const metric = row.metricValues?.[0]?.value;
       const views = Number(metric) || 0;
-      const slug = path.replace(/^\/+|\/+$/g, "").replace(/^blog\//, "");
+      const segments = path.replace(/^\/+|\/+$/g, "").split("/");
+      const rowLocale = segments[0] === "es" ? "es" : "en";
+      const slug =
+        rowLocale === "es" && segments[1] === "blog"
+          ? segments.slice(2).join("/")
+          : rowLocale === "en" && segments[0] === "blog"
+            ? segments.slice(1).join("/")
+            : "";
       if (!slug) continue;
       result[slug] = views;
-      viewCache.set(slug, { value: views, expiresAt: now + VIEW_CACHE_SECONDS });
+      viewCache.set(`${locale}:${slug}`, {
+        value: views,
+        expiresAt: now + VIEW_CACHE_SECONDS,
+      });
     }
 
     return result;
@@ -182,7 +196,10 @@ export async function fetchGaPageViews(
   }
 }
 
-export async function fetchGaPageView(slug: string): Promise<number> {
-  const data = await fetchGaPageViews([slug]);
+export async function fetchGaPageView(
+  slug: string,
+  locale: AnalyticsLocale = "en",
+): Promise<number> {
+  const data = await fetchGaPageViews([slug], locale);
   return data[slug] ?? 0;
 }
