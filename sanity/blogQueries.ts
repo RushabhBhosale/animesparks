@@ -67,7 +67,13 @@ export const spanishBlogsQuery = groq`
   metaDescription,
   "excerpt": ${spanishDescriptionExpr},
   "tags": ${spanishTagsExpr},
-  "mainImage": coalesce(mainImage, originalPost->mainImage),
+  "mainImage": coalesce(mainImage, originalPost->mainImage) {
+    asset->{
+      _id,
+      url
+    },
+    alt
+  },
   "categories": coalesce(categories, originalPost->categories)[]->{
     _id,
     title,
