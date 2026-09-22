@@ -1,3 +1,4 @@
+import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/pagination";
 import type { Metadata } from "next";
 
 import { client } from "@/sanity/lib/client";
@@ -14,7 +15,7 @@ const metaTitle = "Trending Anime Articles Right Now";
 const metaDescription =
   "Discover the most read and talked-about anime articles on AnimeSparks, updated with what fans are engaging with right now.";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: metaTitle,
   description: metaDescription,
   alternates: {
@@ -36,13 +37,17 @@ export const metadata: Metadata = {
   },
 };
 
+export async function generateMetadata({ searchParams }: { searchParams?: Promise<ListingSearchParams> }): Promise<Metadata> {
+  return withListingMetadata(baseMetadata, "/trending", (await searchParams) || {});
+}
+
 type FilterValue = "recent" | "popular" | "discussed" | "visual" | "all";
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 export default async function TrendingPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ sort?: string | string[]; range?: string | string[] }>;
+  searchParams?: Promise<ListingSearchParams>;
 }) {
   const params = (await searchParams) ?? {};
   const sort = Array.isArray(params.sort) ? params.sort[0] : params.sort;
@@ -170,6 +175,8 @@ export default async function TrendingPage({
           : sortByRecent
           : postsInRange;
 
+  const { items, pagination } = paginate(sortedPosts, params.page);
+
   if (!sortedPosts.length) {
     return (
       <main className="min-h-screen bg-[#050505] text-[#f0f0f0] font-display bg-grid selection:bg-[#ccff00] selection:text-black">
@@ -189,7 +196,7 @@ export default async function TrendingPage({
   }
 
   const baseUrl = getBaseUrl();
-  const initialSelection = sortedPosts.slice(0, 10);
+  const initialSelection = items;
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -215,7 +222,7 @@ export default async function TrendingPage({
     "@type": "ItemList",
     itemListElement: initialSelection.map((post, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: pagination.start + index,
       item: {
         "@type": "BlogPosting",
         headline: post.title,
@@ -244,7 +251,7 @@ export default async function TrendingPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listSchema) }}
       />
 
-      <TrendingContent posts={sortedPosts} range={rangeValue} currentSort={filterValue} />
+      <TrendingContent posts={items} pagination={pagination} range={rangeValue} currentSort={filterValue} />
     </main>
   );
 }

@@ -1,11 +1,12 @@
+import { Pagination } from "@/components/pagination";
+import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/pagination";
+import { EditorialCard } from "@/components/editorial-card";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { blogsByTagQuery } from "@/sanity/blogQueries";
-import { formatDate } from "@/utils/date";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
-import { sanityImageUrl } from "@/sanity/lib/image";
-import Image from "next/image";
 import { cache } from "react";
 import { PageHero } from "@/components/page-hero";
 
@@ -98,8 +99,10 @@ const resolveTagMeta = (
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ tag: string }>;
+  searchParams?: Promise<ListingSearchParams>;
 }): Promise<Metadata> {
   const { tag } = await params;
   if (!tag) return {};
@@ -119,7 +122,7 @@ export async function generateMetadata({
     ? resolveTagMeta(decodedTag, fallbackTitle, fallbackDescription)
     : { title: fallbackTitle, description: fallbackDescription };
 
-  return {
+  return withListingMetadata({
     title: meta.title,
     description: meta.description,
     alternates: {
@@ -147,84 +150,28 @@ export async function generateMetadata({
       description: meta.description,
       images: [defaultOgImage],
     },
-  };
+  }, canonical, (await searchParams) || {});
 }
 
 export default async function TagPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tag: string }>;
+  searchParams?: Promise<ListingSearchParams>;
 }) {
   const { tag } = await params;
   const decodedTag = decodeTag(tag || "").trim();
   const posts = await getTagPosts(decodedTag);
+  const { items, pagination } = paginate(posts, (await searchParams)?.page);
 
   return (
-    <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
-      <PageHero
-        eyebrow="Tag"
-        title={decodedTag ? `#${decodedTag}` : "Tagged Blogs"}
-        description={
-          decodedTag
-            ? `Blogs tagged with ${decodedTag}.`
-            : "Blogs grouped by tag."
-        }
-        backgroundImage="/anime-poster.jpg"
-      />
-
-      <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 space-y-8">
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-[#ccff00]" />
-            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
-              {decodedTag ? "Blogs" : "Latest Blogs"}
-            </h2>
-          </div>
-
-          {posts.length ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {posts.map((post) => (
-                <Link
-                  key={post._id}
-                  href={`/blog/${post.slug}`}
-                  className="group flex flex-col gap-4 border border-[#1f1f1f] bg-[#0b0b0b] p-4 md:flex-row md:items-center"
-                >
-                  {post.mainImage?.asset?.url ? (
-                    <div className="relative h-48 w-full flex-shrink-0 overflow-hidden bg-black md:h-32 md:w-56">
-                      <Image
-                        src={sanityImageUrl(post.mainImage, {
-                          width: 700,
-                          quality: 60,
-                        })}
-                        alt={post.mainImage.alt || post.title}
-                        fill
-                        sizes="(max-width: 768px) 90vw, 320px"
-                        className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-                      />
-                    </div>
-                  ) : null}
-                  <div className="flex flex-1 flex-col justify-center gap-2">
-                    {decodedTag ? (
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#f20d0d]">
-                        {decodedTag}
-                      </span>
-                    ) : null}
-                    <h3 className="text-xl font-black uppercase leading-tight text-white transition-colors md:group-hover:text-[#ccff00] sm:text-2xl">
-                      {post.title}
-                    </h3>
-                    <p className="text-xs font-mono uppercase text-gray-500">
-                      {formatDate(post.publishedAt)}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm font-medium text-gray-400">
-              No posts for this tag yet.
-            </p>
-          )}
-        </section>
+    <main className="bg-anime-ink text-anime-text">
+      <PageHero eyebrow="From the archive" title={decodedTag || "Explore topics"} description={decodedTag ? `Stories, analysis, and perspectives on ${decodedTag}.` : "Discover articles by topic."} />
+      <div className="editorial-shell editorial-archive">
+        <div className="editorial-section-heading"><h2 className="text-xl font-bold">Related reading</h2><Link href="/blogs">All articles <ArrowUpRight size={16} /></Link></div>
+        {posts.length ? <div className="editorial-grid">{items.map((post, index) => <EditorialCard key={post._id} post={post} priority={index === 0} />)}</div> : <p className="py-8 text-sm text-white/65">No articles for this topic yet.</p>}
+        <Pagination pagination={pagination} path={`/tags/${encodeURIComponent(decodedTag)}`} />
       </div>
     </main>
   );

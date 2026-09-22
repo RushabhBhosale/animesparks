@@ -3,21 +3,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { cache, type ReactNode } from "react";
 
+import {
+  ArticleShareControls,
+  ArticleToc,
+  type ArticleTocItem,
+} from "@/components/article/article-tools";
+import { QuickAnswer, SpoilerNotice } from "@/components/article/editorial-components";
+import { EditorialCard } from "@/components/editorial-card";
 import { AdBlock } from "@/components/ads/ad-block";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
 import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
-import { fetchGaPageView } from "@/lib/analytics";
 import {
   englishBlogBySlugQuery,
-  englishFranchiseBlogsQuery,
   englishBlogSlugsQuery,
+  englishFranchiseBlogsQuery,
   englishRelatedBlogsQuery,
   spanishBlogBySlugQuery,
-  spanishFranchiseBlogsQuery,
   spanishBlogSlugsQuery,
+  spanishFranchiseBlogsQuery,
   spanishRelatedBlogsQuery,
 } from "@/sanity/blogQueries";
 import { client } from "@/sanity/lib/client";
@@ -31,15 +38,11 @@ import {
 } from "@/utils/seo";
 
 export const blogRevalidate = 60;
-
 export type BlogLocale = "en" | "es";
 
-type PortableTextSpan = {
-  _type: string;
-  text?: string;
-};
-
+type PortableTextSpan = { _type: string; text?: string };
 type PortableTextBlock = {
+  _key?: string;
   _type: string;
   style?: string;
   children?: PortableTextSpan[];
@@ -64,6 +67,7 @@ type Post = {
   author?: {
     name?: string;
     slug?: string;
+    bio?: PortableTextBlock[];
     image?: { asset?: { url?: string } };
   };
   sources?: { name?: string; url?: string }[];
@@ -78,104 +82,95 @@ type RelatedPost = {
   _id: string;
   title: string;
   slug: string;
-  excerpt: string;
+  excerpt?: string;
   publishedAt?: string;
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
-type BlogSlug = {
-  slug: string;
-};
-
+type BlogSlug = { slug: string };
 type RenderedBodyMarker = {
   index: number;
-  type: "after-first-paragraph" | "mid-content";
+  type: "opening-ad" | "mid-content";
 };
 
 type LocaleCopy = {
-  contentLanguage: BlogLocale;
   dateLocale: string;
-  languageLabel: string;
   homeLabel: string;
   blogsLabel: string;
+  languageLabel: string;
   shareLabel: string;
-  viewsLabel: string;
-  relatedHeading: string;
-  relatedEyebrow: string;
-  tagsHeading: string;
+  copyLabel: string;
+  copiedLabel: string;
+  tocHeading: string;
   faqHeading: string;
   sourcesHeading: string;
+  sourcesCount: (count: number) => string;
   updateHistoryHeading: string;
-  nextInLabel: (category?: string) => string;
-  nextUpLabel: string;
-  filedLabel: string;
+  tagsHeading: string;
+  authorHeading: string;
+  authorRole: string;
+  continueHeading: string;
+  relatedHeading: string;
   updatedLabel: string;
-  readNextLabel: string;
-  sidebarHeading: string;
-  newsletterHeading: string;
-  newsletterCopy: string;
-  newsletterPlaceholder: string;
-  newsletterCta: string;
-  facebookShareLabel: string;
-  twitterShareLabel: string;
+  publishedLabel: string;
+  readTimeLabel: (minutes: number) => string;
+  spoilerLabel: string;
+  quickAnswerLabel: string;
 };
 
 const localeCopy: Record<BlogLocale, LocaleCopy> = {
   en: {
-    contentLanguage: "en",
     dateLocale: "en-US",
-    languageLabel: "Language",
     homeLabel: "Home",
     blogsLabel: "Blogs",
+    languageLabel: "Language",
     shareLabel: "Share",
-    viewsLabel: "views",
-    relatedHeading: "More Blogs Like This",
-    relatedEyebrow: "Related files",
-    tagsHeading: "Tags",
-    faqHeading: "Frequently Asked Questions",
-    sourcesHeading: "Sources",
+    copyLabel: "Copy link",
+    copiedLabel: "Copied",
+    tocHeading: "In this article",
+    faqHeading: "Frequently asked questions",
+    sourcesHeading: "Sources & references",
+    sourcesCount: (count) => `${count} ${count === 1 ? "source" : "sources"}`,
     updateHistoryHeading: "Update history",
-    nextInLabel: (category) => `Next in ${category || "AnimeSparks"}`,
-    nextUpLabel: "Next up",
-    filedLabel: "Filed",
+    tagsHeading: "Filed under",
+    authorHeading: "About the author",
+    authorRole: "Anime critic",
+    continueHeading: "Continue reading",
+    relatedHeading: "Related reading",
     updatedLabel: "Updated",
-    readNextLabel: "Read next",
-    sidebarHeading: "Related Blogs",
-    newsletterHeading: "Subscribe to Our Newsletter",
-    newsletterCopy: "Get the latest articles delivered straight to your inbox.",
-    newsletterPlaceholder: "Your email address",
-    newsletterCta: "Subscribe",
-    facebookShareLabel: "Share on Facebook",
-    twitterShareLabel: "Share on Twitter/X",
+    publishedLabel: "Originally published",
+    readTimeLabel: (minutes) => `${minutes} min read`,
+    spoilerLabel: "Spoiler level",
+    quickAnswerLabel: "Quick answer",
   },
   es: {
-    contentLanguage: "es",
     dateLocale: "es-ES",
-    languageLabel: "Idioma",
     homeLabel: "Inicio",
     blogsLabel: "Articulos",
+    languageLabel: "Idioma",
     shareLabel: "Compartir",
-    viewsLabel: "vistas",
-    relatedHeading: "Mas articulos como este",
-    relatedEyebrow: "Archivos relacionados",
-    tagsHeading: "Etiquetas",
+    copyLabel: "Copiar enlace",
+    copiedLabel: "Copiado",
+    tocHeading: "En este articulo",
     faqHeading: "Preguntas frecuentes",
-    sourcesHeading: "Fuentes",
+    sourcesHeading: "Fuentes y referencias",
+    sourcesCount: (count) => `${count} ${count === 1 ? "fuente" : "fuentes"}`,
     updateHistoryHeading: "Historial de actualizaciones",
-    nextInLabel: (category) => `Siguiente en ${category || "AnimeSparks"}`,
-    nextUpLabel: "Sigue leyendo",
-    filedLabel: "Publicado",
+    tagsHeading: "Archivado en",
+    authorHeading: "Sobre el autor",
+    authorRole: "Critico de anime",
+    continueHeading: "Sigue leyendo",
+    relatedHeading: "Lecturas relacionadas",
     updatedLabel: "Actualizado",
-    readNextLabel: "Leer siguiente",
-    sidebarHeading: "Articulos relacionados",
-    newsletterHeading: "Suscribete al boletin",
-    newsletterCopy: "Recibe los ultimos articulos directamente en tu correo.",
-    newsletterPlaceholder: "Tu correo electronico",
-    newsletterCta: "Suscribirse",
-    facebookShareLabel: "Compartir en Facebook",
-    twitterShareLabel: "Compartir en Twitter/X",
+    publishedLabel: "Publicado originalmente",
+    readTimeLabel: (minutes) => `${minutes} min de lectura`,
+    spoilerLabel: "Nivel de spoilers",
+    quickAnswerLabel: "Respuesta rapida",
   },
 };
+
+const spoilerPrefix = /^(spoiler warning|advertencia de spoilers?)\s*[:\u2014-]\s*/i;
+const quickAnswerHeading = /^(the\s+)?(short|simple)\s+(answer|version)$/i;
 
 const getDescription = (metaDescription?: string, excerpt?: string) => {
   const source = metaDescription || excerpt;
@@ -187,17 +182,15 @@ const getDescription = (metaDescription?: string, excerpt?: string) => {
 
 const getBlogPath = (locale: BlogLocale, slug: string) =>
   locale === "es" ? `/es/blog/${slug}` : `/blog/${slug}`;
-
 const getBlogArchivePath = (locale: BlogLocale) =>
   locale === "es" ? "/blogs/es" : "/blogs";
-
 const getBlogUrl = (baseUrl: string, locale: BlogLocale, slug: string) =>
   `${baseUrl}${getBlogPath(locale, slug)}`;
 
 const formatPublishedDate = (value: string, locale: BlogLocale) =>
   new Intl.DateTimeFormat(localeCopy[locale].dateLocale, {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   }).format(new Date(value));
 
@@ -214,21 +207,80 @@ const isSameDay = (a?: string, b?: string) => {
   );
 };
 
+const getBlockText = (block?: PortableTextBlock) =>
+  (block?.children || [])
+    .map((child) => (typeof child?.text === "string" ? child.text : ""))
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const getPlainText = (blocks?: PortableTextBlock[]) =>
+  (blocks || []).map((block) => getBlockText(block)).filter(Boolean).join("\n\n");
+
+const slugifyHeading = (value: string) =>
+  value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "section";
+
+const getTocData = (blocks: PortableTextBlock[]) => {
+  const counts = new Map<string, number>();
+  const idByKey = new Map<string, string>();
+  const items: ArticleTocItem[] = [];
+
+  blocks.forEach((block) => {
+    if (block._type !== "block" || (block.style !== "h2" && block.style !== "h1")) return;
+    const label = getBlockText(block);
+    if (!label) return;
+    const baseId = slugifyHeading(label);
+    const seen = counts.get(baseId) || 0;
+    counts.set(baseId, seen + 1);
+    const id = seen ? `${baseId}-${seen + 1}` : baseId;
+    if (block._key) idByKey.set(block._key, id);
+    items.push({ id, label, index: items.length + 1 });
+  });
+
+  return { items, idByKey };
+};
+
+const getQuickAnswerParagraphKeys = (blocks: PortableTextBlock[]) => {
+  const keys = new Set<string>();
+
+  blocks.forEach((block, index) => {
+    if (
+      block._type !== "block" ||
+      (block.style !== "h2" && block.style !== "h1") ||
+      !quickAnswerHeading.test(getBlockText(block))
+    ) return;
+
+    for (let cursor = index + 1; cursor < blocks.length; cursor += 1) {
+      const candidate = blocks[cursor];
+      if (candidate._type === "block" && /^h[1-4]$/.test(candidate.style || "")) break;
+      if (
+        candidate._type === "block" &&
+        (!candidate.style || candidate.style === "normal") &&
+        candidate._key &&
+        getBlockText(candidate)
+      ) {
+        keys.add(candidate._key);
+        break;
+      }
+    }
+  });
+
+  return keys;
+};
+
 const isParagraphBlock = (block: PortableTextBlock) => {
   if (
     block?._type !== "block" ||
     (block.style && block.style !== "normal") ||
     !Array.isArray(block.children)
-  ) {
-    return false;
-  }
-
-  const text = block.children
-    .map((child) => (typeof child?.text === "string" ? child.text : ""))
-    .join(" ")
-    .trim();
-
-  return Boolean(text);
+  ) return false;
+  const text = getBlockText(block);
+  return Boolean(text) && !spoilerPrefix.test(text);
 };
 
 const getParagraphInsertIndex = (
@@ -236,62 +288,39 @@ const getParagraphInsertIndex = (
   minParagraphs = 1,
   preferredParagraphs = minParagraphs,
 ) => {
-  let totalParagraphs = 0;
-
-  for (const block of body) {
-    if (isParagraphBlock(block)) {
-      totalParagraphs += 1;
-    }
-  }
-
+  const totalParagraphs = body.filter(isParagraphBlock).length;
   if (totalParagraphs < minParagraphs) return null;
-
   const targetParagraph =
     totalParagraphs >= preferredParagraphs ? preferredParagraphs : minParagraphs;
-
   let seenParagraphs = 0;
-  for (let i = 0; i < body.length; i += 1) {
-    const block = body[i];
-    if (isParagraphBlock(block)) {
-      seenParagraphs += 1;
-    }
-
-    if (seenParagraphs === targetParagraph) {
-      return i + 1;
-    }
+  for (let index = 0; index < body.length; index += 1) {
+    if (isParagraphBlock(body[index])) seenParagraphs += 1;
+    if (seenParagraphs === targetParagraph) return index + 1;
   }
-
   return null;
 };
 
 const getMidContentInsertIndex = (body: PortableTextBlock[]) => {
-  const sectionHeadingIndexes: number[] = [];
-
-  for (let i = 0; i < body.length; i += 1) {
-    const block = body[i];
-
-    if (
-      block?._type === "block" &&
-      (block.style === "h2" || block.style === "h3")
-    ) {
-      sectionHeadingIndexes.push(i);
-    }
-  }
-
-  if (sectionHeadingIndexes.length >= 5) {
-    return sectionHeadingIndexes[4];
-  }
-
-  if (sectionHeadingIndexes.length >= 4) {
-    return sectionHeadingIndexes[3];
-  }
-
-  return getParagraphInsertIndex(body, 7, 8);
+  const headings = body
+    .map((block, index) => ({ block, index }))
+    .filter(({ block }) => block._type === "block" && block.style === "h2");
+  if (headings.length >= 6) return headings[Math.floor(headings.length / 2)].index;
+  return getParagraphInsertIndex(body, 9, 10);
 };
 
-const isRenderedBodyMarker = (
-  marker: RenderedBodyMarker | null,
-): marker is RenderedBodyMarker => marker !== null;
+const getReadingTime = (body: PortableTextBlock[]) => {
+  const words = getPlainText(body).split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 220));
+};
+
+const getSourceDomain = (url?: string) => {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return undefined;
+  }
+};
 
 const getPost = cache(async (slug: string, locale: BlogLocale) =>
   client.fetch<Post | null>(
@@ -299,85 +328,47 @@ const getPost = cache(async (slug: string, locale: BlogLocale) =>
     { slug },
   ),
 );
-
 const getAllPostSlugs = cache(async (locale: BlogLocale) =>
   client.fetch<BlogSlug[]>(
     locale === "es" ? spanishBlogSlugsQuery : englishBlogSlugsQuery,
   ),
 );
-
 const getFranchiseBlogs = cache(
-  async (animeName: string, locale: BlogLocale, currentId: string) => {
-  const query =
-    locale === "es"
-      ? spanishFranchiseBlogsQuery
-      : englishFranchiseBlogsQuery;
-    return client.fetch<RelatedPost[]>(query, {
-      animeName,
-      currentId,
-    });
-  },
+  async (animeName: string, locale: BlogLocale, currentId: string) =>
+    client.fetch<RelatedPost[]>(
+      locale === "es" ? spanishFranchiseBlogsQuery : englishFranchiseBlogsQuery,
+      { animeName, currentId },
+    ),
 );
 
 export async function generateBlogStaticParams(locale: BlogLocale) {
   const posts = await getAllPostSlugs(locale);
-
-  return (posts ?? [])
-    .map((post) => post.slug)
-    .filter(Boolean)
-    .map((slug) => ({ slug }));
+  return (posts ?? []).map((post) => post.slug).filter(Boolean).map((slug) => ({ slug }));
 }
 
-export async function generateBlogMetadata({
-  slug,
-  locale,
-}: {
-  slug: string;
-  locale: BlogLocale;
-}): Promise<Metadata> {
+export async function generateBlogMetadata({ slug, locale }: { slug: string; locale: BlogLocale }): Promise<Metadata> {
   if (!slug) return {};
-
   const post = await getPost(slug, locale);
-  if (!post?._id) {
-    return { title: "Post Not Found" };
-  }
+  if (!post?._id) return { title: "Post Not Found" };
 
   const baseUrl = getBaseUrl();
   const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonical = getBlogUrl(baseUrl, post.resolvedLocale, post.slug);
-  const description =
-    getDescription(post.metaDescription, post.excerpt) ||
-    `Read ${post.title} on ${siteName}.`;
-  const mainImageUrl = post.mainImage?.asset
-    ? sanityHeroImageUrl(post.mainImage)
-    : undefined;
+  const description = getDescription(post.metaDescription, post.excerpt) || `Read ${post.title} on ${siteName}.`;
+  const mainImageUrl = post.mainImage?.asset ? sanityHeroImageUrl(post.mainImage) : undefined;
   const ogImage = mainImageUrl || new URL(defaultOgImage, baseUrl).toString();
-  const englishUrl =
-    post.resolvedLocale === "en"
-      ? canonical
-      : post.alternateSlug
-        ? getBlogUrl(baseUrl, "en", post.alternateSlug)
-        : undefined;
-  const spanishUrl =
-    post.resolvedLocale === "es"
-      ? canonical
-      : post.alternateSlug
-        ? getBlogUrl(baseUrl, "es", post.alternateSlug)
-        : undefined;
-  const languages =
-    englishUrl && spanishUrl
-      ? { en: englishUrl, es: spanishUrl, "x-default": englishUrl }
-      : post.resolvedLocale === "en"
-        ? { en: canonical, "x-default": canonical }
-        : { es: canonical, "x-default": canonical };
+  const englishUrl = post.resolvedLocale === "en" ? canonical : post.alternateSlug ? getBlogUrl(baseUrl, "en", post.alternateSlug) : undefined;
+  const spanishUrl = post.resolvedLocale === "es" ? canonical : post.alternateSlug ? getBlogUrl(baseUrl, "es", post.alternateSlug) : undefined;
+  const languages = englishUrl && spanishUrl
+    ? { en: englishUrl, es: spanishUrl, "x-default": englishUrl }
+    : post.resolvedLocale === "en"
+      ? { en: canonical, "x-default": canonical }
+      : { es: canonical, "x-default": canonical };
 
   return {
     title: seoTitle,
     description,
-    alternates: {
-      canonical,
-      languages,
-    },
+    alternates: { canonical, languages },
     robots: { index: true, follow: true },
     openGraph: {
       title: seoTitle,
@@ -388,115 +379,95 @@ export async function generateBlogMetadata({
       locale: post.resolvedLocale === "es" ? "es_ES" : "en_US",
       images: [{ url: ogImage }],
     },
-    twitter: {
-      card: "summary_large_image",
-      title: seoTitle,
-      description,
-      images: [ogImage],
-    },
+    twitter: { card: "summary_large_image", title: seoTitle, description, images: [ogImage] },
   };
 }
 
-export async function BlogPostPage({
-  slug,
-  locale,
-}: {
-  slug: string;
-  locale: BlogLocale;
-}) {
+export async function BlogPostPage({ slug, locale }: { slug: string; locale: BlogLocale }) {
   const post = await getPost(slug, locale);
-
   if (!post?._id) return notFound();
 
   const baseUrl = getBaseUrl();
   const contentUi = localeCopy[post.resolvedLocale];
   const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonicalUrl = getBlogUrl(baseUrl, post.resolvedLocale, post.slug);
-  const description =
-    getDescription(post.metaDescription, post.excerpt) ||
-    `Read ${post.title} on ${siteName}.`;
-  const mainImageUrl = post.mainImage?.asset
-    ? sanityHeroImageUrl(post.mainImage)
-    : undefined;
-  const faqItems =
-    post.faq
-      ?.map((item) => ({
-        question: item.question?.trim() || "",
-        answer: item.answer?.trim() || "",
-      }))
-      .filter((item) => item.question && item.answer) || [];
-
-  const categoryIds = (post.categories || [])
-    .map((category) => category?._id)
-    .filter(Boolean);
+  const description = getDescription(post.metaDescription, post.excerpt) || `Read ${post.title} on ${siteName}.`;
+  const mainImageUrl = post.mainImage?.asset ? sanityHeroImageUrl(post.mainImage) : undefined;
+  const faqItems = post.faq
+    ?.map((item) => ({ question: item.question?.trim() || "", answer: item.answer?.trim() || "" }))
+    .filter((item) => item.question && item.answer) || [];
+  const categoryIds = (post.categories || []).map((category) => category?._id).filter(Boolean);
   const postTags = (post.tags || []).map((tag) => tag?.trim()).filter(Boolean);
-  const viewCount = await fetchGaPageView(slug, post.resolvedLocale);
+  const effectiveUpdatedAt = post.updatedAt ||
+    (post._updatedAt && post.publishedAt && post._updatedAt > post.publishedAt ? post._updatedAt : undefined);
+  const showUpdatedDate = Boolean(effectiveUpdatedAt) && !isSameDay(effectiveUpdatedAt, post.publishedAt);
 
-  const effectiveUpdatedAt =
-    post.updatedAt ||
-    (post._updatedAt && post.publishedAt && post._updatedAt > post.publishedAt
-      ? post._updatedAt
-      : undefined);
-  const showUpdatedDate =
-    !!effectiveUpdatedAt && !isSameDay(effectiveUpdatedAt, post.publishedAt);
-
-const franchiseBlogs = post.animeName
-    ? await getFranchiseBlogs(post.animeName, post.resolvedLocale, post._id)
-    : [];
-
-  const relatedLocale = post.resolvedLocale;
-  const related =
+  const [franchiseBlogs, related] = await Promise.all([
+    post.animeName ? getFranchiseBlogs(post.animeName, post.resolvedLocale, post._id) : Promise.resolve([]),
     categoryIds.length > 0 || postTags.length > 0
-      ? await client.fetch<RelatedPost[]>(
-          relatedLocale === "es" ? spanishRelatedBlogsQuery : englishRelatedBlogsQuery,
-          {
-          currentId: post._id,
-          categoryIds,
-          tags: postTags,
-          },
+      ? client.fetch<RelatedPost[]>(
+          post.resolvedLocale === "es" ? spanishRelatedBlogsQuery : englishRelatedBlogsQuery,
+          { currentId: post._id, categoryIds, tags: postTags },
         )
-      : [];
-  const relatedHighlight = related.slice(0, 1);
-  const relatedHighlightIds = new Set(relatedHighlight.map((item) => item._id));
-  const nextBlog = related.find((item) => !relatedHighlightIds.has(item._id));
-  const sidebarRelated = related.filter(
-    (item) => item._id !== nextBlog?._id && !relatedHighlightIds.has(item._id),
-  );
+      : Promise.resolve([]),
+  ]);
+
+  const relatedIds = new Set<string>();
+  const continueReading = [...franchiseBlogs, ...related]
+    .filter((item) => {
+      if (!item?._id || relatedIds.has(item._id)) return false;
+      relatedIds.add(item._id);
+      return true;
+    })
+    .slice(0, 3);
+  const sidebarRelated = continueReading.slice(0, 2);
 
   const bodyBlocks = Array.isArray(post.body) ? post.body : [];
-  const afterFirstParagraphIndex = getParagraphInsertIndex(bodyBlocks, 1);
+  const { items: tocItems, idByKey: headingIdByKey } = getTocData(bodyBlocks);
+  const sectionIndexById = new Map(tocItems.map((item) => [item.id, item.index]));
+  const quickAnswerParagraphKeys = getQuickAnswerParagraphKeys(bodyBlocks);
+  const readingTime = getReadingTime(bodyBlocks);
+  const openingAdIndex = getParagraphInsertIndex(bodyBlocks, 2, 3);
   const midContentInsertIndex = getMidContentInsertIndex(bodyBlocks);
-  const sourceItems = (post.sources || []).filter(
-    (source) => source.name?.trim() || source.url?.trim(),
-  );
+  const sourceItems = (post.sources || []).filter((source) => source.name?.trim() || source.url?.trim());
   const updateHistoryItems = (post.updateHistory || [])
     .filter((item) => item.date && item.summary?.trim())
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const authorName = post.author?.name || siteAuthorName;
+  const authorBio = getPlainText(post.author?.bio);
+  const animeTagExists = Boolean(post.animeName && postTags.some((tag) => tag.toLowerCase() === post.animeName?.toLowerCase()));
+
+  const renderSectionHeading = ({ children, value }: { children?: ReactNode; value: unknown }) => {
+    const block = value as PortableTextBlock;
+    const label = getBlockText(block);
+    const id = (block._key && headingIdByKey.get(block._key)) || slugifyHeading(label);
+    const sectionNumber = sectionIndexById.get(id);
+    if (quickAnswerHeading.test(label)) {
+      return <h2 id={id} className="sr-only scroll-mt-24">{children}</h2>;
+    }
+    return (
+      <h2 id={id} className="article-section-heading">
+        {sectionNumber ? (
+          <span className="article-section-number" aria-hidden="true">
+            {String(sectionNumber).padStart(2, "0")}
+          </span>
+        ) : null}
+        {children}
+      </h2>
+    );
+  };
 
   const portableTextComponents: PortableTextComponents = {
     types: {
       image: ({ value }) => {
         if (!value?.asset) return null;
         const src = sanityImageUrl(value, { width: 1200 });
-
         return (
-          <figure className="my-8">
-            <div className="relative aspect-video w-full overflow-hidden rounded-sm">
-              <Image
-                src={src}
-                alt={typeof value.alt === "string" ? value.alt : ""}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
-                className="object-cover"
-                loading="lazy"
-                quality={75}
-              />
+          <figure className="my-9">
+            <div className="relative aspect-video w-full overflow-hidden border border-white/10 bg-[#0b0b0b]">
+              <Image src={src} alt={typeof value.alt === "string" ? value.alt : ""} fill sizes="(max-width: 768px) 100vw, 736px" className="object-cover" loading="lazy" quality={75} />
             </div>
-            {typeof value.alt === "string" && value.alt ? (
-              <figcaption className="mt-2 text-center text-sm text-gray-500">
-                {value.alt}
-              </figcaption>
-            ) : null}
+            {typeof value.alt === "string" && value.alt ? <figcaption className="mt-2 text-center text-sm leading-relaxed text-white/40">{value.alt}</figcaption> : null}
           </figure>
         );
       },
@@ -509,174 +480,66 @@ const franchiseBlogs = post.animeName
           const target = new URL(href, baseUrl);
           const site = new URL(baseUrl);
           if (target.hostname.replace(/^www\./, "") === site.hostname.replace(/^www\./, "")) {
-            return (
-              <Link
-                href={`${target.pathname}${target.search}${target.hash}`}
-                className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4 transition-colors md:hover:text-red-900"
-              >
-                {children}
-              </Link>
-            );
+            return <Link href={`${target.pathname}${target.search}${target.hash}`} className="font-semibold text-white underline decoration-[#f20d0d] decoration-2 underline-offset-4 transition-colors hover:text-[#ccff00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ccff00]">{children}</Link>;
           }
         } catch {
           return <>{children}</>;
         }
-        return (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-red-700 underline decoration-red-300 underline-offset-4 transition-colors md:hover:text-red-900"
-          >
-            {children}
-          </a>
-        );
+        return <a href={href} target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline decoration-[#f20d0d] decoration-2 underline-offset-4 transition-colors hover:text-[#ccff00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ccff00]">{children}</a>;
       },
     },
     block: {
-      // The article title already owns the page H1. Treat any legacy body H1
-      // as a section heading so old content cannot create a second page H1.
-      h1: ({ children }) => (
-        <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
-          {children}
-        </h2>
-      ),
-      h2: ({ children }) => (
-        <h2 className="mt-12 mb-4 text-3xl font-black tracking-tight text-gray-900">
-          {children}
-        </h2>
-      ),
-      h3: ({ children }) => (
-        <h3 className="mt-10 mb-3 text-2xl font-black text-gray-900">
-          {children}
-        </h3>
-      ),
-      h4: ({ children }) => (
-        <h4 className="mt-8 mb-2 text-xl font-bold text-gray-900">
-          {children}
-        </h4>
-      ),
-      normal: ({ children }) => (
-        <p className="mb-6 text-lg leading-relaxed text-gray-800">{children}</p>
-      ),
-      blockquote: ({ children }) => (
-        <blockquote className="my-8 border-l-4 border-red-600 bg-gray-50 pl-6 py-4 italic text-gray-700">
-          {children}
-        </blockquote>
-      ),
+      h1: renderSectionHeading,
+      h2: renderSectionHeading,
+      h3: ({ children, value }) => <h3 id={slugifyHeading(getBlockText(value as PortableTextBlock))} className="mt-10 scroll-mt-24 text-xl font-black leading-snug text-white sm:text-2xl">{children}</h3>,
+      h4: ({ children }) => <h4 className="mt-8 scroll-mt-24 text-lg font-bold leading-snug text-white sm:text-xl">{children}</h4>,
+      normal: ({ children, value }) => {
+        const block = value as PortableTextBlock;
+        const text = getBlockText(block);
+        if (spoilerPrefix.test(text)) {
+          return <SpoilerNotice label={contentUi.spoilerLabel}>{text.replace(spoilerPrefix, "")}</SpoilerNotice>;
+        }
+        if (block._key && quickAnswerParagraphKeys.has(block._key)) {
+          return <QuickAnswer label={contentUi.quickAnswerLabel}>{children}</QuickAnswer>;
+        }
+        return <p className="mb-6 text-[1.0625rem] leading-[1.82] text-white/76 sm:text-lg">{children}</p>;
+      },
+      blockquote: ({ children }) => <blockquote className="my-9 border-l-2 border-[#f20d0d] bg-white/[0.035] px-5 py-4 text-lg italic leading-relaxed text-white/70 sm:px-6">{children}</blockquote>,
     },
     list: {
-      bullet: ({ children }) => (
-        <ul className="my-6 list-disc list-outside space-y-2 pl-6">{children}</ul>
-      ),
-      number: ({ children }) => (
-        <ol className="my-6 list-decimal list-outside space-y-2 pl-6">
-          {children}
-        </ol>
-      ),
+      bullet: ({ children }) => <ul className="my-6 list-disc space-y-2 pl-6 marker:text-[#f20d0d]">{children}</ul>,
+      number: ({ children }) => <ol className="my-6 list-decimal space-y-2 pl-6 marker:font-bold marker:text-[#f20d0d]">{children}</ol>,
     },
     listItem: {
-      bullet: ({ children }) => (
-        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-          {children}
-        </li>
-      ),
-      number: ({ children }) => (
-        <li className="text-lg leading-relaxed text-gray-800 marker:text-gray-500">
-          {children}
-        </li>
-      ),
+      bullet: ({ children }) => <li className="pl-1 text-[1.0625rem] leading-relaxed text-white/76 sm:text-lg">{children}</li>,
+      number: ({ children }) => <li className="pl-1 text-[1.0625rem] leading-relaxed text-white/76 sm:text-lg">{children}</li>,
     },
   };
 
-  const renderedBodyMarkers = [
-    afterFirstParagraphIndex !== null
-      ? {
-          index: afterFirstParagraphIndex,
-          type: "after-first-paragraph" as const,
-        }
-      : null,
-    midContentInsertIndex !== null &&
-    midContentInsertIndex !== afterFirstParagraphIndex
-      ? {
-          index: midContentInsertIndex,
-          type: "mid-content" as const,
-        }
-      : null,
-  ]
-    .filter(isRenderedBodyMarker)
-    .sort((left, right) => {
-      if (left.index !== right.index) {
-        return left.index - right.index;
-      }
-
-      return 0;
-    });
+  const markers: RenderedBodyMarker[] = [
+    openingAdIndex !== null ? { index: openingAdIndex, type: "opening-ad" } : null,
+    midContentInsertIndex !== null && midContentInsertIndex !== openingAdIndex ? { index: midContentInsertIndex, type: "mid-content" } : null,
+  ].filter((marker): marker is RenderedBodyMarker => marker !== null).sort((left, right) => left.index - right.index);
 
   const articleBodyContent: ReactNode[] = [];
   let currentBodyIndex = 0;
-
-  for (const marker of renderedBodyMarkers) {
+  for (const marker of markers) {
     const segment = bodyBlocks.slice(currentBodyIndex, marker.index);
-
-    if (segment.length > 0) {
-      articleBodyContent.push(
-        <PortableText
-          key={`body-${currentBodyIndex}-${marker.index}`}
-          value={segment}
-          components={portableTextComponents}
-        />,
-      );
+    if (segment.length) {
+      articleBodyContent.push(<PortableText key={`body-${currentBodyIndex}-${marker.index}`} value={segment} components={portableTextComponents} />);
     }
-
-    if (marker.type === "after-first-paragraph") {
-      articleBodyContent.push(
-        <AdBlock
-          key="ad-after-first-paragraph"
-          instanceId={`${post._id}-after-first-paragraph`}
-        />,
-      );
-    }
-
-    if (marker.type === "mid-content") {
-      articleBodyContent.push(
-        <AdBlock
-          key="ad-mid-content"
-          instanceId={`${post._id}-mid-content`}
-        />,
-      );
-    }
-
+    articleBodyContent.push(<AdBlock key={`ad-${marker.type}`} className="my-12" instanceId={`${post._id}-${marker.type}`} />);
     currentBodyIndex = marker.index;
   }
-
   if (currentBodyIndex < bodyBlocks.length) {
-    articleBodyContent.push(
-      <PortableText
-        key={`body-${currentBodyIndex}-end`}
-        value={bodyBlocks.slice(currentBodyIndex)}
-        components={portableTextComponents}
-      />,
-    );
+    articleBodyContent.push(<PortableText key={`body-${currentBodyIndex}-end`} value={bodyBlocks.slice(currentBodyIndex)} components={portableTextComponents} />);
   }
-  const englishVersionPath =
-    post.resolvedLocale === "en"
-      ? getBlogPath("en", post.slug)
-      : post.alternateSlug
-        ? getBlogPath("en", post.alternateSlug)
-        : null;
-  const spanishVersionPath =
-    post.resolvedLocale === "es"
-      ? getBlogPath("es", post.slug)
-      : post.alternateSlug
-        ? getBlogPath("es", post.alternateSlug)
-        : null;
+
+  const englishVersionPath = post.resolvedLocale === "en" ? getBlogPath("en", post.slug) : post.alternateSlug ? getBlogPath("en", post.alternateSlug) : null;
+  const spanishVersionPath = post.resolvedLocale === "es" ? getBlogPath("es", post.slug) : post.alternateSlug ? getBlogPath("es", post.alternateSlug) : null;
 
   return (
-    <main
-      lang={post.resolvedLocale}
-      className="blog-page min-h-screen bg-[#050505] text-[#f0f0f0]"
-    >
+    <main lang={post.resolvedLocale} className="blog-page article-detail min-h-screen bg-[#050505] text-[#f0f0f0]">
       <ArticleJsonLd
         url={canonicalUrl}
         title={seoTitle}
@@ -684,7 +547,7 @@ const franchiseBlogs = post.animeName
         image={mainImageUrl}
         datePublished={post.publishedAt}
         dateModified={effectiveUpdatedAt}
-        authorName={post.author?.name || siteAuthorName}
+        authorName={authorName}
         authorUrl={siteAuthorUrl}
         authorImage={post.author?.image?.asset?.url}
         authorSameAs={[siteAuthorUrl]}
@@ -694,620 +557,191 @@ const franchiseBlogs = post.animeName
         about={post.animeName ? { "@type": "Thing", name: post.animeName } : undefined}
         inLanguage={post.resolvedLocale}
       />
-      <BreadcrumbsJsonLd
-        items={[
-          { name: contentUi.homeLabel, item: `${baseUrl}/` },
-          {
-            name: contentUi.blogsLabel,
-            item: `${baseUrl}${getBlogArchivePath(post.resolvedLocale)}`,
-          },
-          { name: post.title, item: canonicalUrl },
-        ]}
-      />
+      <BreadcrumbsJsonLd items={[
+        { name: contentUi.homeLabel, item: `${baseUrl}/` },
+        { name: contentUi.blogsLabel, item: `${baseUrl}${getBlogArchivePath(post.resolvedLocale)}` },
+        { name: post.title, item: canonicalUrl },
+      ]} />
       {faqItems.length ? <FaqJsonLd items={faqItems} /> : null}
-      {mainImageUrl ? (
-        <div className="relative h-100 w-full overflow-hidden bg-black lg:h-125">
-          <Image
-            src={mainImageUrl}
-            alt={post.mainImage?.alt || post.title}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 768px, 860px"
-            fetchPriority="high"
-            quality={60}
-            className="object-cover object-center opacity-70"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
-        </div>
-      ) : null}
 
-      <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 py-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Link
-              href="/"
-              className="font-semibold text-gray-600 transition-colors md:hover:text-red-600"
-            >
-              {contentUi.homeLabel}
-            </Link>
-            <span className="text-gray-400">/</span>
-            {post.categories?.[0] ? (
-              <>
-                <Link
-                  href={`/categories/${post.categories[0].slug}`}
-                  className="text-nowrap font-semibold text-gray-600 transition-colors md:hover:text-red-600"
-                >
-                  {post.categories[0].title}
-                </Link>
-                <span className="text-gray-400">/</span>
-              </>
+      <div className="editorial-shell article-utility">
+        <nav aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-3">
+            <li><Link href="/">{contentUi.homeLabel}</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link href={getBlogArchivePath(post.resolvedLocale)}>{contentUi.blogsLabel}</Link></li>
+            {post.categories?.[0] && <><li aria-hidden="true">/</li><li><Link href={`/categories/${post.categories[0].slug}`}>{post.categories[0].title}</Link></li></>}
+          </ol>
+        </nav>
+        <nav aria-label={contentUi.languageLabel} className="article-editions">
+          {englishVersionPath && <Link href={englishVersionPath} hrefLang="en" aria-current={post.resolvedLocale === "en" ? "page" : undefined}>EN</Link>}
+          {spanishVersionPath && <Link href={spanishVersionPath} hrefLang="es" aria-current={post.resolvedLocale === "es" ? "page" : undefined}>ES</Link>}
+        </nav>
+      </div>
+
+      <header className={`article-hero ${mainImageUrl ? "article-hero--illustrated" : ""}`}>
+        {mainImageUrl && <div className="article-hero-art"><Image src={mainImageUrl} alt={post.mainImage?.alt || post.title} fill priority fetchPriority="high" sizes="100vw" quality={72} className="object-cover" /></div>}
+        <div className="editorial-shell article-hero-inner">
+          <div className="article-hero-copy">
+            <div className="article-classification">
+              {(post.categories || []).slice(0, 2).map((category) => <Link key={category.slug} href={`/categories/${category.slug}`}>{category.title}</Link>)}
+              {post.articleType && <span>{post.articleType.replace(/-/g, " ")}</span>}
+            </div>
+            <h1>{post.title}</h1>
+            {post.excerpt && <p className="article-deck">{post.excerpt}</p>}
+            <div className="article-hero-footnote">
+              <span className="article-read-time">{contentUi.readTimeLabel(readingTime)}</span>
+              {post.animeName && (animeTagExists ? <Link href={`/tags/${encodeURIComponent(post.animeName)}`}>{post.animeName}<ArrowUpRight size={14} /></Link> : <span>{post.animeName}</span>)}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="editorial-shell article-byline-bar">
+        <div className="article-byline">
+          <div className="article-avatar">
+            {post.author?.image?.asset?.url ? <Image src={post.author.image.asset.url} alt={authorName} fill sizes="42px" className="object-cover" /> : <span>{authorName.charAt(0).toUpperCase()}</span>}
+          </div>
+          <div>
+            <a href="#article-author-heading" className="article-byline-name">{authorName}</a>
+            <p>
+              {showUpdatedDate && effectiveUpdatedAt ? (
+                <>{contentUi.updatedLabel} <time dateTime={effectiveUpdatedAt}>{formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}</time>{post.publishedAt ? <> · {contentUi.publishedLabel} <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt, post.resolvedLocale)}</time></> : null}</>
+              ) : post.publishedAt ? <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt, post.resolvedLocale)}</time> : null}
+            </p>
+          </div>
+        </div>
+        <ArticleShareControls title={post.title} url={canonicalUrl} shareLabel={contentUi.shareLabel} copyLabel={contentUi.copyLabel} copiedLabel={contentUi.copiedLabel} />
+      </div>
+
+      <div className="editorial-shell article-reading-layout">
+        <div className="lg:hidden"><ArticleToc items={tocItems} heading={contentUi.tocHeading} /></div>
+
+        <div className="article-reading-grid">
+          <article className="article-reading-column" lang={post.resolvedLocale}>
+            <div className="blogContent article-copy article-reading-copy">{articleBodyContent}</div>
+
+            {postTags.length ? (
+              <section className="mt-12 border-t border-white/10 pt-5" aria-labelledby="article-tags-heading">
+                <h2 id="article-tags-heading" className="mb-3 text-[11px] font-black uppercase tracking-[0.2em] text-white/40">{contentUi.tagsHeading}</h2>
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/55">
+                  {postTags.map((tag) => <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`} className="transition-colors hover:text-[#ccff00] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#ccff00]">#{tag}</Link>)}
+                </div>
+              </section>
             ) : null}
-            <span className="truncate text-gray-400">{post.title}</span>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gray-500">
-              {contentUi.languageLabel}
-            </span>
-            <div className="inline-flex overflow-hidden rounded-sm border border-gray-300 bg-white">
-              {locale === "en" ? (
-                <>
-                  <span className="bg-gray-900 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-white">
-                    EN
-                  </span>
-                  {spanishVersionPath ? (
-                    <Link
-                      href={spanishVersionPath}
-                      className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-gray-900 transition-colors md:hover:bg-gray-100"
-                    >
-                      ES
-                    </Link>
-                  ) : (
-                    <span className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-gray-400">
-                      ES
-                    </span>
-                  )}
-                </>
-              ) : (
-                <>
-                  {englishVersionPath ? (
-                    <Link
-                      href={englishVersionPath}
-                      className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-gray-900 transition-colors md:hover:bg-gray-100"
-                    >
-                      EN
-                    </Link>
-                  ) : (
-                    <span className="px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-gray-400">
-                      EN
-                    </span>
-                  )}
-                  <span className="bg-gray-900 px-3 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-white">
-                    ES
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-12 md:gap-10 lg:gap-12">
-          <article className="md:col-span-8 lg:col-span-8" lang={post.resolvedLocale}>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {(post.categories || []).slice(0, 3).map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/categories/${category.slug}`}
-                  className="inline-flex self-start border border-[#f20d0d] bg-black px-3 py-1 shadow-[8px_8px_0px_0px_rgba(242,13,13,1)] -rotate-2"
-                >
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-[#f20d0d]">
-                    {category.title}
-                  </span>
-                </Link>
-              ))}
-
-              {post.animeName ? (
-                <div className="inline-flex items-center gap-1.5 mt-2">
-                  <Link
-                    href={`/tags/${encodeURIComponent(post.animeName)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-sm border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors md:hover:border-red-600 md:hover:bg-gray-50 md:hover:text-red-600"
-                  >
-                    {post.animeName}
-                  </Link>
-                  {post.articleType && (
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-500">
-                      {post.articleType}
-                    </span>
-                  )}
-                </div>
-              ) : null}
-
-            </div>
-
-            <h1 className="text-3xl font-black leading-tight tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-              {post.title}
-            </h1>
-
-            <div className="mt-4 flex flex-wrap items-center gap-3 border-b border-gray-200 pb-4">
-              {post.author?.name ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                    <span className="text-sm font-bold text-gray-600">
-                      {post.author.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">
-                      {post.author.name}
-                    </p>
-                    {post.publishedAt ? (
-                      <time
-                        dateTime={post.publishedAt}
-                        className="text-xs text-gray-500"
-                      >
-                        {formatPublishedDate(post.publishedAt, post.resolvedLocale)}
-                      </time>
-                    ) : null}
-                    {showUpdatedDate ? (
-                      <>
-                        <p className="mt-0.5 text-xs font-semibold text-gray-500">
-                          {contentUi.updatedLabel}{" "}
-                          <time dateTime={effectiveUpdatedAt}>
-                            {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
-                          </time>
-                        </p>
-                        <p className="mt-0.5 text-xs text-gray-500">
-                          Last verified{" "}
-                          <time dateTime={effectiveUpdatedAt}>
-                            {formatPublishedDate(effectiveUpdatedAt, post.resolvedLocale)}
-                          </time>
-                        </p>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
-              <div className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-                <span
-                  className="h-2 w-2 rounded-full bg-red-600"
-                  aria-hidden="true"
-                />
-                {viewCount.toLocaleString()} {contentUi.viewsLabel}
-              </div>
-              <div className="ml-auto flex items-center gap-2">
-                <span className="text-xs font-semibold uppercase text-gray-500">
-                  {contentUi.shareLabel}:
-                </span>
-                <button
-                  type="button"
-                  className="rounded-sm bg-gray-100 p-2 transition-colors md:hover:bg-gray-200"
-                  aria-label={contentUi.facebookShareLabel}
-                >
-                  <svg
-                    className="h-4 w-4 text-gray-700"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  className="rounded-sm bg-gray-100 p-2 transition-colors md:hover:bg-gray-200"
-                  aria-label={contentUi.twitterShareLabel}
-                >
-                  <svg
-                    className="h-4 w-4 text-gray-700"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <div className="blogContent prose prose-lg prose-neutral mt-8 max-w-none prose-headings:font-black prose-headings:tracking-tight prose-p:text-gray-800 prose-p:leading-relaxed prose-a:rounded-sm prose-a:px-0.5 prose-a:font-semibold prose-a:text-red-600 prose-a:underline prose-a:decoration-2 prose-a:decoration-red-200 prose-a:underline-offset-4 prose-a:transition-colors prose-strong:font-bold prose-strong:text-gray-900 md:hover:prose-a:bg-red-50 md:hover:prose-a:text-red-700 md:hover:prose-a:decoration-red-500">
-              {articleBodyContent}
-            </div>
-
-
-              {faqItems.length ? (
+            {faqItems.length ? (
               <>
-                <AdBlock
-                  className="mt-12 mb-0"
-                  instanceId={`${post._id}-before-faq`}
-                />
-                <section className="mt-12 rounded-sm border border-gray-200 bg-gray-50 p-6">
-                  <h2 className="mb-6 text-2xl font-black text-gray-900">
-                    {contentUi.faqHeading}
-                  </h2>
-                  <div className="space-y-4">
-                    {faqItems.map((item, idx) => (
-                      <details
-                        key={`${item.question}-${idx}`}
-                        className="group rounded-sm border border-gray-200 bg-white p-5"
-                      >
-                        <summary className="flex cursor-pointer items-start justify-between text-base font-bold text-gray-900">
-                          <span className="pr-4">{item.question}</span>
-                          <svg
-                            className="h-5 w-5 shrink-0 text-red-600 transition-transform group-open:rotate-180"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
+                <AdBlock className="mb-0 mt-12" instanceId={`${post._id}-before-faq`} />
+                <section className="article-reference-panel" aria-labelledby="article-faq-heading">
+                  <p className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#f20d0d]">FAQ</p>
+                  <h2 id="article-faq-heading" className="text-2xl font-black tracking-tight text-white sm:text-3xl">{contentUi.faqHeading}</h2>
+                  <div className="mt-6 divide-y divide-white/10 border-y border-white/10">
+                    {faqItems.map((item, index) => (
+                      <details key={`${item.question}-${index}`} className="group py-1">
+                        <summary className="flex cursor-pointer list-none items-start justify-between gap-5 py-5 text-base font-bold leading-snug text-white marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ccff00]">
+                          <span>{item.question}</span><ChevronDown className="mt-0.5 size-4 shrink-0 text-[#f20d0d] transition-transform group-open:rotate-180" aria-hidden="true" />
                         </summary>
-                        <p className="mt-4 leading-relaxed text-gray-700">
-                          {item.answer}
-                        </p>
+                        <p className="max-w-[65ch] pb-5 text-base leading-relaxed text-white/65">{item.answer}</p>
                       </details>
                     ))}
                   </div>
                 </section>
               </>
             ) : null}
+
             {sourceItems.length ? (
-              <section className="mt-12 border-t border-gray-200 pt-6" aria-labelledby="article-sources-heading">
-                <h2
-                  id="article-sources-heading"
-                  className="mb-4 text-2xl font-black text-gray-900"
-                >
-                  Official sources
-                </h2>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  {sourceItems.map((source, index) => {
-                    const domain = source.url
-                      ? new URL(source.url).hostname.replace(/^www\./, "")
-                      : undefined;
-                    return (
-                      <li
-                        key={`${source.url || source.name}-${index}`}
-                        className="flex items-start gap-3"
-                      >
-                        <div className="flex-shrink-0">
-                          {source.url ? (
-                            <a
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 rounded-sm border border-red-600 bg-red-600 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-white transition-colors hover:bg-red-700 hover:text-white"
-                            >
-                              {source.name}
-                            </a>
-                          ) : (
-                            <span className="text-gray-400">{source.name}</span>
-                          )}
-                        </div>
-                        {domain ? (
-                          <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-gray-500">
-                            {domain}
-                          </span>
-                        ) : null}
+              <section className="mt-10 border-y border-white/12 py-4" aria-labelledby="article-sources-heading">
+                <details className="group">
+                  <summary className="flex cursor-pointer list-none items-center gap-3 marker:hidden [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#ccff00]">
+                    <h2 id="article-sources-heading" className="min-w-0 flex-1 text-sm font-semibold text-white/85 sm:text-base">{contentUi.sourcesHeading}</h2>
+                    <span className="shrink-0 text-xs text-white/45">{contentUi.sourcesCount(sourceItems.length)}</span>
+                    <ChevronDown className="size-4 shrink-0 text-white/45 transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+                  </summary>
+                  <ol className="mt-4 border-t border-white/8 pt-2">
+                    {sourceItems.map((source, index) => (
+                      <li key={`${source.url || source.name}-${index}`} className="flex items-baseline gap-3 py-2 text-sm">
+                        <span className="w-5 shrink-0 font-mono text-[11px] tabular-nums text-white/35" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                         {source.url ? (
-                          <span
-                            className="ml-2 text-[10px] font-medium uppercase tracking-[0.1em] text-gray-400"
-                            aria-hidden="true"
-                          >
-                            •
-                          </span>
-                        ) : null}
+                          <a href={source.url} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-1 items-baseline justify-between gap-3 leading-relaxed text-white/70 transition-colors hover:text-[#ccff00] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#ccff00]">
+                            <span className="min-w-0 [overflow-wrap:anywhere]">{source.name || getSourceDomain(source.url)}</span>
+                            <ArrowUpRight className="size-3.5 shrink-0 self-center" aria-hidden="true" />
+                          </a>
+                        ) : <span className="min-w-0 leading-relaxed text-white/60 [overflow-wrap:anywhere]">{source.name}</span>}
                       </li>
-                    );
-                  })}
-                </ul>
+                    ))}
+                  </ol>
+                </details>
               </section>
             ) : null}
 
             {updateHistoryItems.length ? (
-              <section
-                className="mt-8 border-t border-gray-200 pt-6"
-                aria-labelledby="article-update-history-heading"
-              >
-                {updateHistoryItems.length === 1 ? (
-                  <div className="text-sm text-gray-700">
-                    <time
-                      dateTime={updateHistoryItems[0].date}
-                      className="block text-xs font-black uppercase tracking-wider"
-                    >
-                      {formatPublishedDate(updateHistoryItems[0].date!, post.resolvedLocale)}
-                    </time>
-                    <p className="mt-1 leading-relaxed">{updateHistoryItems[0].summary}</p>
-                  </div>
-                ) : (
-                  <div>
-                    <h2
-                      id="article-update-history-heading"
-                      className="mb-4 text-2xl font-black text-gray-900"
-                    >
-                      {contentUi.updateHistoryHeading}
-                    </h2>
-                    <ol className="space-y-3 text-sm text-gray-700">
-                      {updateHistoryItems.map((item, index) => (
-                        <li
-                          key={`${item.date}-${item.summary}-${index}`}
-                          className="border-l-2 border-red-200 pl-4"
-                        >
-                          <time
-                            dateTime={item.date}
-                            className="block text-xs font-black uppercase tracking-wider text-gray-500"
-                          >
-                            {formatPublishedDate(item.date!, post.resolvedLocale)}
-                          </time>
-                          <p className="mt-1 leading-relaxed">{item.summary}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-              </section>
-            ) : null}
-
-            {post.animeName && franchiseBlogs.length >= 2 ? (
-              <section
-                id="article-franchise-cluster"
-                className="mt-8 border-t border-gray-200 pt-6"
-                aria-labelledby="article-franchise-cluster-heading"
-              >
-                <h2
-                  id="article-franchise-cluster-heading"
-                  className="mb-4 text-xl font-black text-gray-900"
-                >
-                  More from {post.animeName}
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                  {franchiseBlogs.map((item, index) => (
-                    <Link
-                      key={item._id}
-                      href={getBlogPath(post.resolvedLocale, item.slug)}
-                      className="group block border border-gray-200 bg-white rounded-md p-3 transition-colors hover:border-red-600"
-                    >
-                      {item.mainImage?.asset?.url ? (
-                        <div className="relative h-24 w-full overflow-hidden rounded-md mb-3">
-                          <Image
-                            src={sanityImageUrl(item.mainImage, {
-                              width: 360,
-                              quality: 60,
-                            })}
-                            alt={item.mainImage.alt || item.title}
-                            fill
-                            className="object-cover transition-transform duration-300 hover:scale-105"
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="relative h-24 w-full overflow-hidden rounded-md mb-3 bg-gray-200 flex items-center justify-center text-xs text-gray-400"
-                        >
-                          No image
-                        </div>
-                      )}
-
-                      <div className="flex flex-col flex-1 pr-1">
-                        <p className="line-clamp-2 m-0 text-sm font-black leading-snug text-gray-900 transition-colors hover:text-red-600">
-                          {item.title}
-                        </p>
-                        {item.publishedAt ? (
-                          <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-gray-500">
-                            {formatPublishedDate(item.publishedAt, post.resolvedLocale)}
-                          </p>
-                        ) : null}
-                      </div>
-                    </Link>
+              <section className="mt-8 border-t border-white/10 pt-6" aria-labelledby="article-update-history-heading">
+                <h2 id="article-update-history-heading" className="text-sm font-black uppercase tracking-[0.16em] text-white/55">{contentUi.updateHistoryHeading}</h2>
+                <ol className="mt-4 space-y-4">
+                  {updateHistoryItems.map((item, index) => (
+                    <li key={`${item.date}-${index}`} className="grid gap-1 border-l border-[#f20d0d]/50 pl-4 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4">
+                      <time dateTime={item.date} className="font-mono text-xs text-white/35">{formatPublishedDate(item.date!, post.resolvedLocale)}</time>
+                      <p className="leading-relaxed text-white/60">{item.summary}</p>
+                    </li>
                   ))}
-                </div>
+                </ol>
               </section>
             ) : null}
 
-            {relatedHighlight.length ? (
-              <aside
-                className="mt-14 border border-gray-200 bg-gray-50 p-4 sm:p-5"
-                aria-label={contentUi.relatedHeading}
-              >
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                  <p className="m-0 text-base font-black uppercase tracking-tight text-gray-900 sm:text-lg">
-                    {contentUi.relatedHeading}
-                  </p>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-                    {contentUi.relatedEyebrow}
-                  </span>
+            <section className="article-author-panel" aria-labelledby="article-author-heading">
+              <p className="mb-5 text-[11px] font-black uppercase tracking-[0.2em] text-white/35">{contentUi.authorHeading}</p>
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/8 sm:size-16">
+                  {post.author?.image?.asset?.url ? <Image src={post.author.image.asset.url} alt={authorName} fill sizes="64px" className="object-cover" /> : <span className="flex h-full items-center justify-center text-lg font-black text-white/65">{authorName.charAt(0).toUpperCase()}</span>}
                 </div>
-
-                <div className="grid gap-3">
-                  {relatedHighlight.map((item) => (
-                    <Link
-                      key={item._id}
-                      href={getBlogPath(post.resolvedLocale, item.slug)}
-                      className="group block max-w-xl border border-gray-200 bg-white p-2.5 no-underline transition-colors sm:p-3 md:hover:border-red-600"
-                    >
-                      <div className="flex items-start gap-3">
-                        {item.mainImage?.asset?.url ? (
-                          <div className="relative h-18 w-28 shrink-0 overflow-hidden rounded-sm bg-gray-200 sm:h-20 sm:w-32">
-                            <Image
-                              src={sanityImageUrl(item.mainImage, {
-                                width: 420,
-                                quality: 65,
-                              })}
-                              alt={item.mainImage.alt || item.title}
-                              fill
-                              sizes="(max-width: 768px) 120px, 140px"
-                              className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-                            />
-                          </div>
-                        ) : null}
-
-                        <div className="min-w-0">
-                          <p className="m-0 line-clamp-2 text-sm font-black leading-snug text-gray-900 transition-colors sm:text-base md:group-hover:text-red-600">
-                            {item.title}
-                          </p>
-                          {item.publishedAt ? (
-                            <p className="mt-1.5 mb-0 text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                              {formatPublishedDate(item.publishedAt, post.resolvedLocale)}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="min-w-0">
+                  <h2 id="article-author-heading" className="text-lg font-black text-white">{authorName}</h2>
+                  <p className="mt-0.5 text-xs font-bold uppercase tracking-[0.14em] text-[#f20d0d]">{contentUi.authorRole}</p>
+                  {authorBio ? <p className="mt-3 max-w-[62ch] whitespace-pre-line text-sm leading-relaxed text-white/55">{authorBio}</p> : null}
                 </div>
-              </aside>
-            ) : null}
+              </div>
+            </section>
 
-            {nextBlog ? (
-              <section className="mt-14">
-                <div className="mt-5 overflow-hidden rounded-sm border border-anime-muted bg-black text-white shadow-[12px_12px_0px_0px_#f20d0d]">
-                  <div className="grid gap-0 md:grid-cols-5">
-                    <div className="relative h-52 md:col-span-2 md:h-full">
-                      {nextBlog.mainImage?.asset?.url ? (
-                        <Image
-                          src={sanityImageUrl(nextBlog.mainImage, {
-                            width: 1200,
-                            quality: 70,
-                          })}
-                          alt={nextBlog.mainImage.alt || nextBlog.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 720px"
-                          className="object-cover opacity-80"
-                          priority={false}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a]" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-                      <div className="absolute bottom-4 left-4">
-                        <span className="inline-flex items-center gap-2 rounded-sm bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white">
-                          {contentUi.nextInLabel(post.categories?.[0]?.title)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
-                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f20d0d]">
-                        {contentUi.nextUpLabel}
-                      </p>
-
-                      <p className="line-clamp-3 text-2xl font-black leading-tight text-white md:text-3xl">
-                        {nextBlog.title}
-                      </p>
-
-                      {nextBlog.excerpt ? (
-                        <p className="line-clamp-3 text-sm leading-relaxed text-gray-300">
-                          {nextBlog.excerpt}
-                        </p>
-                      ) : null}
-
-                      <div className="flex items-center gap-3 pt-1 text-xs text-gray-400">
-                        {nextBlog.publishedAt ? (
-                          <span>
-                            {contentUi.filedLabel}{" "}
-                            {formatPublishedDate(
-                              nextBlog.publishedAt,
-                              post.resolvedLocale,
-                            )}
-                          </span>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-2">
-                        <Link
-                          href={getBlogPath(post.resolvedLocale, nextBlog.slug)}
-                          className="group inline-flex items-center justify-between gap-3 rounded-sm border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-black uppercase tracking-wide text-white transition-colors md:hover:border-[#f20d0d] md:hover:bg-[#f20d0d]/10"
-                        >
-                          <span>{contentUi.readNextLabel}</span>
-                          <span
-                            aria-hidden="true"
-                            className="text-[#f20d0d] transition-transform group-hover:translate-x-0.5"
-                          >
-                            {"->"}
-                          </span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            ) : null}
           </article>
 
-          <aside className="md:col-span-4 lg:col-span-4">
-            <div className="sticky top-8 space-y-8">
+          <aside className="article-aside">
+            <section className="article-sidebar-author">
+              <p className="editorial-kicker">{contentUi.authorHeading}</p>
+              <div className="article-sidebar-author-name">
+                <div className="article-avatar">
+                  {post.author?.image?.asset?.url ? <Image src={post.author.image.asset.url} alt={authorName} fill sizes="42px" className="object-cover" /> : <span>{authorName.charAt(0).toUpperCase()}</span>}
+                </div>
+                <div><a href="#article-author-heading">{authorName}</a><p>{contentUi.authorRole}</p></div>
+              </div>
+            </section>
+            <div className="article-sidebar-sticky">
+              <ArticleToc items={tocItems} heading={contentUi.tocHeading} />
               {sidebarRelated.length ? (
-                <section className="rounded-sm border border-gray-200 bg-white p-5">
-                  <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-gray-900">
-                    {contentUi.sidebarHeading}
-                  </h3>
+                <section className="article-sidebar-related" aria-labelledby="sidebar-related-heading">
+                  <h2 id="sidebar-related-heading" className="mb-4 text-xs font-black uppercase tracking-[0.18em] text-white/45">{contentUi.relatedHeading}</h2>
                   <div className="space-y-4">
-                    {sidebarRelated.map((relatedPost) => (
-                      <Link
-                        key={relatedPost._id || relatedPost.slug}
-                        href={getBlogPath(post.resolvedLocale, relatedPost.slug)}
-                        className="group block border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-                      >
-                        <div className="flex gap-3">
-                          {relatedPost.mainImage?.asset?.url ? (
-                            <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-sm bg-gray-200">
-                              <Image
-                                src={sanityImageUrl(relatedPost.mainImage, {
-                                  width: 400,
-                                  quality: 60,
-                                })}
-                                alt={relatedPost.mainImage.alt || relatedPost.title}
-                                fill
-                                sizes="(max-width: 768px) 40vw, 160px"
-                                className="object-cover transition-transform duration-300 md:group-hover:scale-110"
-                              />
-                            </div>
-                          ) : null}
-                          <div className="min-w-0 flex-1">
-                            <h4 className="line-clamp-3 text-sm font-bold leading-tight text-gray-900 transition-colors md:group-hover:text-red-600">
-                              {relatedPost.title}
-                            </h4>
-                            {relatedPost.publishedAt ? (
-                              <p className="mt-1 text-xs text-gray-500">
-                                {formatPublishedDate(
-                                  relatedPost.publishedAt,
-                                  post.resolvedLocale,
-                                )}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
+                    {sidebarRelated.map((item) => (
+                      <Link key={item._id} href={getBlogPath(post.resolvedLocale, item.slug)} className="group block border-b border-white/8 pb-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ccff00]">
+                        <p className="text-sm font-bold leading-snug text-white/72 transition-colors group-hover:text-[#ccff00]">{item.title}</p>
+                        {item.publishedAt ? <p className="mt-2 text-[11px] text-white/30">{formatPublishedDate(item.publishedAt, post.resolvedLocale)}</p> : null}
                       </Link>
                     ))}
                   </div>
                 </section>
               ) : null}
-
-              <div className="rounded-sm border-2 border-red-600 bg-white p-6">
-                <h3 className="text-lg font-black text-gray-900">
-                  {contentUi.newsletterHeading}
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  {contentUi.newsletterCopy}
-                </p>
-                <form className="mt-4 space-y-3">
-                  <input
-                    type="email"
-                    placeholder={contentUi.newsletterPlaceholder}
-                    className="w-full rounded-sm border border-gray-300 px-4 py-2 text-sm focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full rounded-sm bg-red-600 px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors md:hover:bg-red-700"
-                  >
-                    {contentUi.newsletterCta}
-                  </button>
-                </form>
-              </div>
             </div>
           </aside>
         </div>
+        {continueReading.length > 0 && (
+          <section className="article-next-stories" aria-labelledby="continue-reading-heading">
+            <div className="editorial-section-heading">
+              <div><p className="editorial-kicker">{post.animeName || contentUi.relatedHeading}</p><h2 id="continue-reading-heading">{contentUi.continueHeading}<span className="text-anime-red">.</span></h2></div>
+              <Link href={getBlogArchivePath(post.resolvedLocale)}>{contentUi.blogsLabel}<ArrowUpRight size={16} /></Link>
+            </div>
+            <div className="editorial-grid">{continueReading.map((item) => <EditorialCard key={item._id} post={item} locale={post.resolvedLocale} />)}</div>
+          </section>
+        )}
       </div>
     </main>
   );

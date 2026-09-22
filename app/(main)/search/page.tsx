@@ -1,3 +1,5 @@
+import { Pagination } from "@/components/pagination";
+import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/pagination";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { groq } from "next-sanity";
@@ -10,7 +12,7 @@ import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
 
 export const dynamic = "force-dynamic";
 
-type SearchParamsInput = Promise<{ q?: string | string[] }>;
+type SearchParamsInput = Promise<ListingSearchParams>;
 
 type RawSearchDoc = {
   _id: string;
@@ -93,7 +95,7 @@ export async function generateMetadata({
   const canonical = `${baseUrl}/search${query ? `?q=${encodeURIComponent(query)}` : ""}`;
   const ogImage = new URL(defaultOgImage, baseUrl).toString();
 
-  return {
+  return withListingMetadata({
     title,
     description,
     alternates: {
@@ -121,7 +123,7 @@ export async function generateMetadata({
       description,
       images: [ogImage],
     },
-  };
+  }, "/search", params);
 }
 
 export default async function SearchPage({
@@ -135,6 +137,7 @@ export default async function SearchPage({
   const hasQuery = query.length >= 2;
 
   const results = hasQuery ? await getResults(query) : [];
+  const { items, pagination } = paginate(results, params.page);
 
   return (
     <main className="min-h-screen bg-[#050505] text-[#f0f0f0]">
@@ -174,7 +177,7 @@ export default async function SearchPage({
           {hasQuery ? (
             results.length ? (
               <div className="space-y-3">
-                {results.map((result) => (
+                {items.map((result) => (
                   <Link
                     key={result.id}
                     prefetch={false}
@@ -230,6 +233,7 @@ export default async function SearchPage({
             </div>
           )}
         </div>
+        <Pagination pagination={pagination} path="/search" query={{ q: query }} />
       </section>
     </main>
   );

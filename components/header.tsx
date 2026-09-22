@@ -62,7 +62,6 @@ export default function Header() {
   const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const blurTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -70,6 +69,7 @@ export default function Header() {
   const isActive = (href: string) => {
     if (href === "/") return currentPath === "/" || currentPath === "/home";
     return (
+      (href === "/blogs" && (currentPath.startsWith("/blog/") || currentPath.startsWith("/es/blog/"))) ||
       currentPath === href ||
       currentPath.startsWith(`${href}?`) ||
       currentPath.startsWith(`${href}/`)
@@ -88,12 +88,6 @@ export default function Header() {
       isFocused && q.length >= 2 && (isLoading || dropdownItems.length >= 0)
     );
   }, [isFocused, q.length, isLoading, dropdownItems.length]);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     setHasMounted(true);
@@ -184,9 +178,6 @@ export default function Header() {
       )}
       aria-label="Blog language archive"
     >
-      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-white/45">
-        Blog
-      </span>
       <div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/[0.03] p-1">
         <Link
           href="/blogs"
@@ -197,7 +188,7 @@ export default function Header() {
             "rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors",
             blogArchiveLocale === "en"
               ? "bg-white text-black"
-              : "text-white/65 md:hover:bg-white/10 md:hover:text-white"
+              : "text-white/65 lg:hover:bg-white/10 lg:hover:text-white"
           )}
           aria-current={blogArchiveLocale === "en" ? "page" : undefined}
         >
@@ -212,7 +203,7 @@ export default function Header() {
             "rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] transition-colors",
             blogArchiveLocale === "es"
               ? "bg-[#f20d0d] text-white"
-              : "text-white/65 md:hover:bg-white/10 md:hover:text-white"
+              : "text-white/65 lg:hover:bg-white/10 lg:hover:text-white"
           )}
           aria-current={blogArchiveLocale === "es" ? "page" : undefined}
         >
@@ -225,10 +216,11 @@ export default function Header() {
   const mobileMenu = (
     <div
       className={clsx(
-        "fixed inset-0 md:hidden z-[900]",
+        "fixed inset-0 lg:hidden z-[900]",
         isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
       )}
       aria-hidden={!isMobileMenuOpen}
+      inert={!isMobileMenuOpen}
     >
       <div
         onClick={() => setIsMobileMenuOpen(false)}
@@ -246,10 +238,11 @@ export default function Header() {
         )}
         role="dialog"
         aria-modal="true"
+        aria-label="Navigation menu"
       >
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-6 bg-white/[0.02]">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
+            <div className="editorial-logo">
               <Zap className="h-4 w-4" />
             </div>
             <span className="text-base font-bold text-white">AnimeSparks</span>
@@ -257,7 +250,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="rounded-lg p-2 text-white/70 md:hover:text-white md:hover:bg-white/10 transition-colors"
+            className="rounded-lg p-2 text-white/70 lg:hover:text-white lg:hover:bg-white/10 transition-colors"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -276,7 +269,7 @@ export default function Header() {
                   "group flex items-center justify-between rounded-xl px-5 py-4 text-sm font-semibold uppercase tracking-widest no-underline transition-all duration-200",
                   active
                     ? "text-[#ccff00] bg-[#ccff00]/10 border border-[#ccff00]/20 shadow-lg shadow-[#ccff00]/5"
-                    : "text-white/75 md:hover:bg-white/5 md:hover:text-white border border-transparent"
+                    : "text-white/75 lg:hover:bg-white/5 lg:hover:text-white border border-transparent"
                 )}
                 aria-current={active ? "page" : undefined}
               >
@@ -286,7 +279,7 @@ export default function Header() {
                     "transition-transform duration-200",
                     active
                       ? "text-[#ccff00]"
-                      : "text-white/40 md:group-hover:translate-x-1"
+                      : "text-white/40 lg:group-hover:translate-x-1"
                   )}
                 >
                   →
@@ -301,30 +294,23 @@ export default function Header() {
   );
 
   return (
-    <header
-      className={clsx(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled
-          ? "bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5 shadow-lg shadow-black/20"
-          : "bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm"
-      )}
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#080808]/95 text-white backdrop-blur-md">
+      <div className="editorial-shell">
+        <div className="flex h-[76px] items-center justify-between gap-3 lg:gap-6">
           <Link
             href="/"
-            className="group flex items-center gap-2 text-lg font-bold tracking-tight text-white no-underline transition-transform md:hover:scale-105"
+            className="editorial-wordmark"
             aria-label="AnimeSparks Home"
           >
-            <div className="size-8 rounded-full bg-[#f20d0d] flex items-center justify-center border-2 border-white shadow-[3px_3px_0px_0px_#ccff00]">
+            <div className="editorial-logo">
               <Zap className="h-4 w-4" />
             </div>
-            <span className="hidden sm:inline bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+            <span className="text-white">
               AnimeSparks
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6" aria-label="Main">
+          <nav className="hidden lg:flex shrink-0 items-center gap-6" aria-label="Main">
             {navLinks.map(({ href, label }) => {
               const active = isActive(href);
               return (
@@ -333,7 +319,7 @@ export default function Header() {
                   href={href}
                   className={clsx(
                     "text-sm font-semibold no-underline transition-colors",
-                    active ? "text-white" : "text-white/70 md:hover:text-white"
+                    active ? "text-white" : "text-white/70 lg:hover:text-white"
                   )}
                   aria-current={active ? "page" : undefined}
                 >
@@ -349,13 +335,13 @@ export default function Header() {
           </nav>
 
           {/* Desktop Search (unchanged) */}
-          <div className="relative flex-1 max-w-md hidden md:block">
+          <div className="relative min-w-0 flex-1 max-w-[260px] hidden lg:block">
             <div
               className={clsx(
-                "relative flex items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200",
+                "relative flex items-center gap-2 rounded-sm border px-3 py-2 transition-all duration-200",
                 isFocused
                   ? "border-[#ccff00]/50 bg-white/5 shadow-lg shadow-[#ccff00]/10"
-                  : "border-white/10 bg-white/[0.03] md:hover:border-white/20 md:hover:bg-white/5"
+                  : "border-white/10 bg-white/[0.03] lg:hover:border-white/20 lg:hover:bg-white/5"
               )}
             >
               <Search className="h-4 w-4 text-white/40 flex-shrink-0" />
@@ -366,8 +352,8 @@ export default function Header() {
                 onFocus={() => setIsFocused(true)}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
-                placeholder="Search anime or kdrama"
-                className="bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none w-full"
+                placeholder="Search anime, characters…"
+                className="bg-transparent text-sm text-white placeholder:text-white/40 focus:outline-none min-w-0 w-full"
                 aria-label="Search articles"
                 autoComplete="off"
                 suppressHydrationWarning
@@ -379,7 +365,7 @@ export default function Header() {
                     setSearchTerm("");
                     setResults([]);
                   }}
-                  className="rounded-full p-1 text-white/50 md:hover:text-white md:hover:bg-white/10 transition-colors flex-shrink-0"
+                  className="rounded-full p-1 text-white/50 lg:hover:text-white lg:hover:bg-white/10 transition-colors flex-shrink-0"
                   aria-label="Clear search"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -407,11 +393,11 @@ export default function Header() {
                         key={idx}
                         href={`/blog/${item.slug}`}
                         onClick={() => closeDropdown()}
-                        className="group block border-b border-white/5 px-4 py-3 transition-colors md:hover:bg-white/5 last:border-b-0"
+                        className="group block border-b border-white/5 px-4 py-3 transition-colors lg:hover:bg-white/5 last:border-b-0"
                       >
                         <div className="flex items-start gap-3">
                           <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-semibold text-white md:group-hover:text-[#ccff00] transition-colors line-clamp-1">
+                            <h4 className="text-sm font-semibold text-white lg:group-hover:text-[#ccff00] transition-colors line-clamp-1">
                               <Highlight text={item.title} query={q} />
                             </h4>
                             {item.metaDescription && (
@@ -440,7 +426,7 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => goToSearch(q)}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#ccff00] md:hover:bg-[#ccff00]/5 transition-colors border-t border-white/10 bg-white/[0.02]"
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#ccff00] lg:hover:bg-[#ccff00]/5 transition-colors border-t border-white/10 bg-white/[0.02]"
                   >
                     <span>View all results for &quot;{q}&quot;</span>
                     <span className="text-white/40">→</span>
@@ -450,16 +436,16 @@ export default function Header() {
             )}
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden lg:flex items-center">
             {renderBlogLocaleToggle()}
           </div>
 
           {/* Mobile: only search icon (goes to /search) + menu */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <button
               type="button"
               onClick={() => router.push("/search")}
-              className="inline-flex items-center justify-center rounded-lg p-2.5 text-white transition-colors md:hover:bg-white/10 border border-white/10"
+              className="inline-flex items-center justify-center rounded-lg p-2.5 text-white transition-colors lg:hover:bg-white/10 border border-white/10"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -468,7 +454,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
-              className="inline-flex items-center rounded-lg p-2.5 text-white transition-colors md:hover:bg-white/10 border border-white/10"
+              className="inline-flex items-center rounded-lg p-2.5 text-white transition-colors lg:hover:bg-white/10 border border-white/10"
               aria-label="Open menu"
               aria-expanded={isMobileMenuOpen}
             >
@@ -480,7 +466,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
-            className="hidden md:hidden"
+            className="hidden lg:hidden"
             aria-hidden="true"
           />
         </div>

@@ -396,6 +396,30 @@ export const latestBlogsQuery = groq`
 `;
 
 /* ----------------------------------------
+   HOMEPAGE ANIME CLUSTERS
+   Only returns franchises with a matching tag, so every cluster link resolves
+   to an existing tag archive rather than an inferred or broken URL.
+---------------------------------------- */
+export const homepageAnimeClustersQuery = groq`
+*[
+  _type == "post" &&
+  publishedAt <= now() &&
+  defined(slug.current) &&
+  defined(animeName) &&
+  animeName in tags
+]
+| order(publishedAt desc)[0...300] {
+  _id,
+  animeName,
+  "slug": slug.current,
+  mainImage {
+    asset->{ url },
+    alt
+  }
+}
+`;
+
+/* ----------------------------------------
    BLOGS BY SLUGS (Order preserved by input)
 ---------------------------------------- */
 export const blogsBySlugsQuery = groq`
@@ -432,22 +456,6 @@ export const blogsBySlugsQuery = groq`
 export const homepageSettingsQuery = groq`
 *[_type == "homepageSettings"][0] {
   editorsPicks[]->{
-    _id,
-    title,
-    "slug": slug.current,
-    publishedAt,
-    "excerpt": ${englishDescriptionExpr},
-    mainImage {
-      asset->{ url },
-      alt
-    },
-    categories[]->{
-      _id,
-      title,
-      "slug": slug.current
-    }
-  },
-  moreBlogs[]->{
     _id,
     title,
     "slug": slug.current,
