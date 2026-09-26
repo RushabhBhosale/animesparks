@@ -90,8 +90,8 @@ export async function generateMetadata({
   const baseUrl = getBaseUrl();
   const title = query ? `Search results for "${query}"` : "Search the archive";
   const description = query
-    ? `Live results for "${query}" across AnimeSparks analyses, dossiers, and breakdowns.`
-    : "Search the AnimeSparks archive of analyses, lore breakdowns, and character studies.";
+    ? `Live results for "${query}" across AnimeSparks anime blogs, reviews, and breakdowns.`
+    : "Search the AnimeSparks collection of anime blogs, reviews, and character studies.";
   const canonical = `${baseUrl}/search${query ? `?q=${encodeURIComponent(query)}` : ""}`;
   const ogImage = new URL(defaultOgImage, baseUrl).toString();
 
@@ -150,8 +150,8 @@ export default async function SearchPage({
             Scan the AnimeSparks archive
           </h1>
           <p className="text-sm text-white/60 max-w-3xl">
-            Built for on-the-go readers: search dossiers, lore breakdowns, and
-            character studies without opening the full navigation.
+            Search our latest anime blogs, reviews, lore breakdowns, and
+            character studies.
           </p>
         </div>
 

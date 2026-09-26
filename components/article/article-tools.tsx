@@ -47,21 +47,21 @@ export function ArticleToc({ items, heading }: ArticleTocProps) {
         <li key={item.id}>
           <a
             href={`#${item.id}`}
-            className={`group grid grid-cols-[2rem_1fr] gap-2 py-1.5 text-sm leading-snug transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ccff00] ${
+            className={`group flex items-start gap-2.5 py-1.5 text-xs leading-relaxed transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ccff00] ${
               activeId === item.id
-                ? "text-white"
+                ? "text-white font-semibold"
                 : "text-white/55 hover:text-white"
             }`}
             aria-current={activeId === item.id ? "location" : undefined}
           >
             <span
-              className={`font-mono text-[11px] tabular-nums ${
+              className={`shrink-0 font-mono text-[11px] tabular-nums mt-0.5 ${
                 activeId === item.id ? "text-[#ccff00]" : "text-white/30"
               }`}
             >
               {String(item.index).padStart(2, "0")}
             </span>
-            <span>{item.label}</span>
+            <span className="min-w-0 break-words">{item.label}</span>
           </a>
         </li>
       ))}

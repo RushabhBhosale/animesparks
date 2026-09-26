@@ -12,6 +12,7 @@ import {
   type ArticleTocItem,
 } from "@/components/article/article-tools";
 import { QuickAnswer, SpoilerNotice } from "@/components/article/editorial-components";
+import { InlineRelatedBlog } from "@/components/article/inline-related";
 import { EditorialCard } from "@/components/editorial-card";
 import { AdBlock } from "@/components/ads/ad-block";
 import { ArticleJsonLd } from "@/components/seo/article-jsonld";
@@ -90,7 +91,7 @@ type RelatedPost = {
 type BlogSlug = { slug: string };
 type RenderedBodyMarker = {
   index: number;
-  type: "opening-ad" | "mid-content";
+  type: "opening-ad" | "mid-content" | "inline-related";
 };
 
 type LocaleCopy = {
@@ -116,6 +117,9 @@ type LocaleCopy = {
   readTimeLabel: (minutes: number) => string;
   spoilerLabel: string;
   quickAnswerLabel: string;
+  inlineRelatedHeading: string;
+  inlineRelatedKicker: string;
+  readArticleLabel: string;
 };
 
 const localeCopy: Record<BlogLocale, LocaleCopy> = {
@@ -142,6 +146,9 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     readTimeLabel: (minutes) => `${minutes} min read`,
     spoilerLabel: "Spoiler level",
     quickAnswerLabel: "Quick answer",
+    inlineRelatedHeading: "More blogs like this",
+    inlineRelatedKicker: "Related post",
+    readArticleLabel: "Read article",
   },
   es: {
     dateLocale: "es-ES",
@@ -166,6 +173,9 @@ const localeCopy: Record<BlogLocale, LocaleCopy> = {
     readTimeLabel: (minutes) => `${minutes} min de lectura`,
     spoilerLabel: "Nivel de spoilers",
     quickAnswerLabel: "Respuesta rapida",
+    inlineRelatedHeading: "Más artículos como este",
+    inlineRelatedKicker: "Artículo relacionado",
+    readArticleLabel: "Leer artículo",
   },
 };
 
@@ -308,6 +318,31 @@ const getMidContentInsertIndex = (body: PortableTextBlock[]) => {
   return getParagraphInsertIndex(body, 9, 10);
 };
 
+const getInlineRelatedInsertIndex = (
+  body: PortableTextBlock[],
+  openingAdIndex: number | null,
+  midContentInsertIndex: number | null,
+) => {
+  const candidates = [
+    getParagraphInsertIndex(body, 5, 6),
+    getParagraphInsertIndex(body, 4, 5),
+    getParagraphInsertIndex(body, 6, 7),
+    getParagraphInsertIndex(body, 3, 3),
+  ];
+
+  for (const candidate of candidates) {
+    if (
+      candidate !== null &&
+      candidate !== openingAdIndex &&
+      candidate !== midContentInsertIndex
+    ) {
+      return candidate;
+    }
+  }
+
+  return null;
+};
+
 const getReadingTime = (body: PortableTextBlock[]) => {
   const words = getPlainText(body).split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 220));
@@ -412,15 +447,19 @@ export async function BlogPostPage({ slug, locale }: { slug: string; locale: Blo
       : Promise.resolve([]),
   ]);
 
-  const relatedIds = new Set<string>();
-  const continueReading = [...franchiseBlogs, ...related]
-    .filter((item) => {
-      if (!item?._id || relatedIds.has(item._id)) return false;
-      relatedIds.add(item._id);
-      return true;
-    })
-    .slice(0, 3);
-  const sidebarRelated = continueReading.slice(0, 2);
+  const allRelatedMap = new Map<string, RelatedPost>();
+  for (const item of [...franchiseBlogs, ...related]) {
+    if (item?._id && item._id !== post._id && !allRelatedMap.has(item._id)) {
+      allRelatedMap.set(item._id, item);
+    }
+  }
+  const allRelated = Array.from(allRelatedMap.values());
+
+  const inlineRelated = allRelated.slice(0, 1);
+  const inlineRelatedIds = new Set(inlineRelated.map((item) => item._id));
+  const remainingRelated = allRelated.filter((item) => !inlineRelatedIds.has(item._id));
+  const sidebarRelated = remainingRelated.slice(0, 2);
+  const continueReading = (remainingRelated.length >= 3 ? remainingRelated : allRelated).slice(0, 3);
 
   const bodyBlocks = Array.isArray(post.body) ? post.body : [];
   const { items: tocItems, idByKey: headingIdByKey } = getTocData(bodyBlocks);
@@ -516,9 +555,19 @@ export async function BlogPostPage({ slug, locale }: { slug: string; locale: Blo
     },
   };
 
+  const inlineRelatedIndex =
+    inlineRelated.length > 0
+      ? getInlineRelatedInsertIndex(bodyBlocks, openingAdIndex, midContentInsertIndex)
+      : null;
+
   const markers: RenderedBodyMarker[] = [
-    openingAdIndex !== null ? { index: openingAdIndex, type: "opening-ad" } : null,
-    midContentInsertIndex !== null && midContentInsertIndex !== openingAdIndex ? { index: midContentInsertIndex, type: "mid-content" } : null,
+    openingAdIndex !== null ? { index: openingAdIndex, type: "opening-ad" as const } : null,
+    inlineRelatedIndex !== null ? { index: inlineRelatedIndex, type: "inline-related" as const } : null,
+    midContentInsertIndex !== null &&
+    midContentInsertIndex !== openingAdIndex &&
+    midContentInsertIndex !== inlineRelatedIndex
+      ? { index: midContentInsertIndex, type: "mid-content" as const }
+      : null,
   ].filter((marker): marker is RenderedBodyMarker => marker !== null).sort((left, right) => left.index - right.index);
 
   const articleBodyContent: ReactNode[] = [];
@@ -528,7 +577,20 @@ export async function BlogPostPage({ slug, locale }: { slug: string; locale: Blo
     if (segment.length) {
       articleBodyContent.push(<PortableText key={`body-${currentBodyIndex}-${marker.index}`} value={segment} components={portableTextComponents} />);
     }
-    articleBodyContent.push(<AdBlock key={`ad-${marker.type}`} className="my-12" instanceId={`${post._id}-${marker.type}`} />);
+    if (marker.type === "inline-related") {
+      articleBodyContent.push(
+        <InlineRelatedBlog
+          key="inline-related-blog"
+          posts={inlineRelated}
+          locale={post.resolvedLocale}
+          heading={contentUi.inlineRelatedHeading}
+          kicker={contentUi.inlineRelatedKicker}
+          readLabel={contentUi.readArticleLabel}
+        />
+      );
+    } else {
+      articleBodyContent.push(<AdBlock key={`ad-${marker.type}`} className="my-12" instanceId={`${post._id}-${marker.type}`} />);
+    }
     currentBodyIndex = marker.index;
   }
   if (currentBodyIndex < bodyBlocks.length) {

@@ -6,7 +6,7 @@ import { siteName } from "@/utils/seo";
 export const metadata: Metadata = {
   title: `Page Not Found | ${siteName}`,
   description:
-    "This dossier is missing. Jump back to AnimeSparks to keep reading the intel that exists.",
+    "This page could not be found. Explore AnimeSparks for the latest anime reviews, news, and analysis.",
 };
 
 export default function NotFound() {

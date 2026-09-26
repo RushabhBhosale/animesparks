@@ -219,7 +219,7 @@ export default async function Home() {
               {featured.mainImage?.asset?.url && (
                 <Link href={`/blog/${featured.slug}`} className="cover-image" aria-label={`Read ${featured.title}`}>
                   <Image src={sanityHeroImageUrl(featured.mainImage)} alt={featured.mainImage.alt || featured.title} fill priority fetchPriority="high" sizes="(max-width: 900px) 94vw, 720px" className="object-cover" />
-                  <span className="cover-image-label">AnimeSparks <span>Featured file</span></span>
+                  <span className="cover-image-label">AnimeSparks <span>Featured Story</span></span>
                 </Link>
               )}
             </section>
@@ -252,7 +252,7 @@ export default async function Home() {
 
           {animeClusters.length > 0 && (
             <section className="editorial-section" aria-labelledby="explore-anime-heading">
-              <div className="editorial-section-heading"><div><p className="editorial-kicker">Series dossiers</p><h2 id="explore-anime-heading">One series. Many angles<span className="text-anime-red">.</span></h2></div></div>
+              <div className="editorial-section-heading"><div><p className="editorial-kicker">Anime Series</p><h2 id="explore-anime-heading">Explore by Anime<span className="text-anime-red">.</span></h2></div></div>
               <div className="series-grid">{animeClusters.map((cluster, index) => (
                 <Link key={cluster.name} href={`/tags/${encodeURIComponent(cluster.name)}`} className="series-card">
                   {cluster.cover?.asset?.url && <Image src={sanityImageUrl(cluster.cover, { width: 720, quality: 68 })} alt={cluster.cover.alt || ""} fill sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px" className="object-cover" />}

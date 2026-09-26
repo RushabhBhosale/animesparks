@@ -183,7 +183,7 @@ export default async function TrendingPage({
         <div className="pt-10 md:pt-32 pb-20">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h1 className="text-4xl font-black uppercase tracking-tight text-white">
-              Trending intel will appear soon.
+              Trending articles will appear soon.
             </h1>
             <p className="mt-4 text-gray-400">
               We are curating the top articles now. Check again shortly for the

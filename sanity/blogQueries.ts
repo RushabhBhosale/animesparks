@@ -5,7 +5,7 @@ const englishDescriptionExpr = `coalesce(metaDescription, ${englishExcerptExpr})
 
 const spanishPublishedAtExpr = "coalesce(publishedAt, originalPost->publishedAt)";
 const spanishTagsExpr = "coalesce(tags, originalPost->tags)";
-const spanishExcerptExpr = "pt::text(body)";
+const spanishExcerptExpr = "coalesce(excerpt, pt::text(body))";
 const spanishDescriptionExpr = `coalesce(metaDescription, ${spanishExcerptExpr})`;
 const spanishAlternateSlugExpr = `*[
   _type == "spanishPost" &&

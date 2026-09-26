@@ -29,6 +29,15 @@ export const spanishPostType = defineType({
       },
     }),
     defineField({
+      name: "excerpt",
+      title: "Excerpt",
+      type: "text",
+      rows: 3,
+      description: "Short Spanish editorial summary used by indexes and integrations.",
+      validation: (Rule) =>
+        Rule.required().min(1).max(500).warning("Required for new articles."),
+    }),
+    defineField({
       name: "metaTitle",
       title: "Meta title",
       type: "string",
