@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { PageHero } from "@/components/page-hero";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { animeListQuery } from "@/sanity/blogQueries";
 import { defaultOgImage, siteName } from "@/utils/seo";
 

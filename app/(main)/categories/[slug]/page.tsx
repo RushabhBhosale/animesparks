@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import {
   blogsByCategoryQuery,
   categoryBySlugQuery,

@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { blogsQuery } from "@/sanity/blogQueries";
 import { fetchGaPageViews } from "@/lib/analytics";
 

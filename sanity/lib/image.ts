@@ -25,6 +25,8 @@ const withDefaults = (imageBuilder: ImageBuilder) =>
 export const urlFor = (source: SanityImageSource) => withDefaults(builder.image(source));
 
 export const sanityImageUrl = (source: SanityImageSource, options: ImageOptions = {}) => {
+  const mappedUrl = (source as { asset?: { url?: string } } | null)?.asset?.url;
+  if (mappedUrl?.startsWith("https://images.animesparks.blog/")) return mappedUrl;
   const { width, height, quality = 70, fit = "max", crop, auto = "format" } = options;
 
   let imageBuilder = builder.image(source).quality(quality).auto(auto).fit(fit);

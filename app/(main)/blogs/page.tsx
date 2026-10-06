@@ -2,7 +2,7 @@ import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/p
 import { ArticleArchive } from "@/components/article-archive";
 import type { Metadata } from "next";
 
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { blogsQuery, categoriesQuery } from "@/sanity/blogQueries";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { canonicalizeSearchValue } from "@/utils/search-index";

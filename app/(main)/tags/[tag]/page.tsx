@@ -3,7 +3,7 @@ import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/p
 import { EditorialCard } from "@/components/editorial-card";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { blogsByTagQuery } from "@/sanity/blogQueries";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";

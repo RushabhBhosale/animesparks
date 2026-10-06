@@ -9,10 +9,15 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "migrate:sanity": "node scripts/migrate-sanity.mjs",
+    "copy:production-db": "node scripts/copy-production-db.mjs",
+    "preview:mongodb": "node scripts/run-mongodb-preview.mjs",
+    "parity:content": "node scripts/check-content-parity.mjs",
     "import:anime-list": "node scripts/import-anime-list.cjs",
     "fetch:anilist": "node scripts/fetch-anilist-bulk.cjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
     "@next/third-parties": "^16.1.1",
     "@portabletext/react": "^6.0.0",
     "@sanity/icons": "^3.7.4",
@@ -24,6 +29,7 @@
     "fuse": "^0.12.1",
     "fuse.js": "^6.6.2",
     "lucide-react": "^0.562.0",
+    "mongodb": "^7.7.0",
     "next": "16.1.6",
     "next-sanity": "^12.0.5",
     "react": "19.2.4",

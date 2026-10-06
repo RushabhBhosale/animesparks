@@ -1,6 +1,7 @@
 import "server-only";
 
 import crypto from "crypto";
+import { unstable_cache } from "next/cache";
 
 type GaConfig = {
   propertyId: string;
@@ -13,6 +14,7 @@ const ANALYTICS_SCOPE = "https://www.googleapis.com/auth/analytics.readonly";
 const DEFAULT_RANGE = { startDate: "30daysAgo", endDate: "yesterday" };
 const TOKEN_EXPIRY_BUFFER = 60; // seconds
 const VIEW_CACHE_SECONDS = 60 * 5;
+const GA_FETCH_TIMEOUT_MS = 5_000;
 
 type AnalyticsLocale = "en" | "es";
 
@@ -79,10 +81,11 @@ const getAccessToken = async (config: GaConfig) => {
     },
     body,
     cache: "no-store",
+    signal: AbortSignal.timeout(GA_FETCH_TIMEOUT_MS),
   });
 
   if (!res.ok) {
-    console.error("[ga] Failed to fetch access token", await res.text());
+    console.error("[ga] Failed to fetch access token", { status: res.status });
     throw new Error("GA token fetch failed");
   }
 
@@ -107,6 +110,8 @@ export async function fetchGaPageViews(
   slugs: string[],
   locale: AnalyticsLocale = "en",
 ): Promise<Record<string, number>> {
+  // Do not make static generation wait on an uncached external service.
+  if (process.env.NEXT_PHASE === "phase-production-build") return {};
   const config = getConfig();
   if (!config) return {};
 
@@ -115,6 +120,24 @@ export async function fetchGaPageViews(
   );
   if (!unique.length) return {};
 
+  return getCachedGaPageViews(config.propertyId, unique, locale);
+}
+
+const getCachedGaPageViews = unstable_cache(
+  async (propertyId: string, slugs: string[], locale: AnalyticsLocale) => {
+    const config = getConfig();
+    if (!config || config.propertyId !== propertyId) return {};
+    return loadGaPageViews(config, slugs, locale);
+  },
+  ["animesparks-ga-page-views-v1"],
+  { revalidate: VIEW_CACHE_SECONDS, tags: ["ga-page-views"] },
+);
+
+async function loadGaPageViews(
+  config: GaConfig,
+  unique: string[],
+  locale: AnalyticsLocale,
+): Promise<Record<string, number>> {
   const now = Math.floor(Date.now() / 1000);
   const cached: Record<string, number> = {};
   const toFetch: string[] = [];
@@ -144,6 +167,7 @@ export async function fetchGaPageViews(
           "Content-Type": "application/json",
         },
         cache: "no-store",
+        signal: AbortSignal.timeout(GA_FETCH_TIMEOUT_MS),
         body: JSON.stringify({
           dateRanges: [DEFAULT_RANGE],
           metrics: [{ name: "screenPageViews" }],
@@ -160,7 +184,7 @@ export async function fetchGaPageViews(
     );
 
     if (!res.ok) {
-      console.error("[ga] runReport failed", await res.text());
+      console.error("[ga] runReport failed", { status: res.status });
       return cached;
     }
 
@@ -191,7 +215,9 @@ export async function fetchGaPageViews(
 
     return result;
   } catch (error) {
-    console.error("[ga] Unable to load page views", error);
+    console.error("[ga] Unable to load page views", {
+      error: error instanceof Error ? error.name : "unknown",
+    });
     return cached;
   }
 }

@@ -3,13 +3,14 @@ import type { Metadata } from "next";
 import {
   BlogPostPage,
   generateBlogMetadata,
-  generateBlogStaticParams,
 } from "../_lib/blog-post-page";
+import { getInitialBlogStaticParams } from "@/lib/content/blog-static-params";
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return generateBlogStaticParams("en");
+  return getInitialBlogStaticParams();
 }
 
 export async function generateMetadata({

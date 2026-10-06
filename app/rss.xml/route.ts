@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { rssBlogsQuery } from "@/sanity/blogQueries";
 import { getBaseUrl } from "@/utils/seo";
 

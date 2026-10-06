@@ -5,7 +5,7 @@ import Link from "next/link";
 import { groq } from "next-sanity";
 
 import { SearchPageForm } from "@/components/search-page-form";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { formatDate } from "@/utils/date";
 import { runFuzzySearch, type SearchDoc } from "@/utils/search-index";
 import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";

@@ -1,7 +1,7 @@
 import { paginate, withListingMetadata, type ListingSearchParams } from "@/lib/pagination";
 import type { Metadata } from "next";
 
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { blogsQuery } from "@/sanity/blogQueries";
 import { sanityHeroImageUrl } from "@/sanity/lib/image";
 import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";

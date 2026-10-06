@@ -3,7 +3,7 @@ import { ArticleArchive } from "@/components/article-archive";
 import type { Metadata } from "next";
 
 import type { BlogCategory, BlogPost } from "../types";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { categoriesQuery, spanishBlogsQuery } from "@/sanity/blogQueries";
 import { canonicalizeSearchValue } from "@/utils/search-index";
 import { defaultOgImage, siteName } from "@/utils/seo";

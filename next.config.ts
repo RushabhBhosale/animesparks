@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.animesparks.blog",
+      },
+      {
+        protocol: "https",
         hostname: "s4.anilist.co",
       },
     ],

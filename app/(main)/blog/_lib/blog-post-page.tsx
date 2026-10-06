@@ -20,15 +20,14 @@ import { BreadcrumbsJsonLd } from "@/components/seo/breadcrumbs-jsonld";
 import { FaqJsonLd } from "@/components/seo/faq-jsonld";
 import {
   englishBlogBySlugQuery,
-  englishBlogSlugsQuery,
   englishFranchiseBlogsQuery,
   englishRelatedBlogsQuery,
   spanishBlogBySlugQuery,
-  spanishBlogSlugsQuery,
   spanishFranchiseBlogsQuery,
   spanishRelatedBlogsQuery,
 } from "@/sanity/blogQueries";
-import { client } from "@/sanity/lib/client";
+import { client, fetchArticleRelated } from "@/lib/content/client";
+import { noteStaticArticleDiagnostic, timeStaticArticleStage, withStaticArticleDiagnostic } from "@/lib/content/static-article-diagnostic";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import {
   defaultOgImage,
@@ -88,7 +87,6 @@ type RelatedPost = {
   mainImage?: { asset?: { url?: string }; alt?: string };
 };
 
-type BlogSlug = { slug: string };
 type RenderedBodyMarker = {
   index: number;
   type: "opening-ad" | "mid-content" | "inline-related";
@@ -358,30 +356,16 @@ const getSourceDomain = (url?: string) => {
 };
 
 const getPost = cache(async (slug: string, locale: BlogLocale) =>
-  client.fetch<Post | null>(
+  timeStaticArticleStage("content-provider.primary-article", () => client.fetch<Post | null>(
     locale === "es" ? spanishBlogBySlugQuery : englishBlogBySlugQuery,
     { slug },
-  ),
+  )),
 );
-const getAllPostSlugs = cache(async (locale: BlogLocale) =>
-  client.fetch<BlogSlug[]>(
-    locale === "es" ? spanishBlogSlugsQuery : englishBlogSlugsQuery,
-  ),
-);
-const getFranchiseBlogs = cache(
-  async (animeName: string, locale: BlogLocale, currentId: string) =>
-    client.fetch<RelatedPost[]>(
-      locale === "es" ? spanishFranchiseBlogsQuery : englishFranchiseBlogsQuery,
-      { animeName, currentId },
-    ),
-);
-
-export async function generateBlogStaticParams(locale: BlogLocale) {
-  const posts = await getAllPostSlugs(locale);
-  return (posts ?? []).map((post) => post.slug).filter(Boolean).map((slug) => ({ slug }));
+export async function generateBlogMetadata({ slug, locale }: { slug: string; locale: BlogLocale }): Promise<Metadata> {
+  return withStaticArticleDiagnostic(slug, () => timeStaticArticleStage("generateMetadata", () => buildBlogMetadata({ slug, locale })));
 }
 
-export async function generateBlogMetadata({ slug, locale }: { slug: string; locale: BlogLocale }): Promise<Metadata> {
+async function buildBlogMetadata({ slug, locale }: { slug: string; locale: BlogLocale }): Promise<Metadata> {
   if (!slug) return {};
   const post = await getPost(slug, locale);
   if (!post?._id) return { title: "Post Not Found" };
@@ -419,6 +403,15 @@ export async function generateBlogMetadata({ slug, locale }: { slug: string; loc
 }
 
 export async function BlogPostPage({ slug, locale }: { slug: string; locale: BlogLocale }) {
+  return withStaticArticleDiagnostic(slug, async () => {
+    noteStaticArticleDiagnostic("analytics.view-count", { status: "not-called-by-article-page" });
+    noteStaticArticleDiagnostic("external-api-fetch", { status: "none-in-article-server-render-path" });
+    noteStaticArticleDiagnostic("image-metadata-probe", { status: "none; Next Image URLs are serialized without probing" });
+    return timeStaticArticleStage("page-component", () => renderBlogPostPage({ slug, locale }));
+  });
+}
+
+async function renderBlogPostPage({ slug, locale }: { slug: string; locale: BlogLocale }) {
   const post = await getPost(slug, locale);
   if (!post?._id) return notFound();
 
@@ -437,15 +430,15 @@ export async function BlogPostPage({ slug, locale }: { slug: string; locale: Blo
     (post._updatedAt && post.publishedAt && post._updatedAt > post.publishedAt ? post._updatedAt : undefined);
   const showUpdatedDate = Boolean(effectiveUpdatedAt) && !isSameDay(effectiveUpdatedAt, post.publishedAt);
 
-  const [franchiseBlogs, related] = await Promise.all([
-    post.animeName ? getFranchiseBlogs(post.animeName, post.resolvedLocale, post._id) : Promise.resolve([]),
-    categoryIds.length > 0 || postTags.length > 0
-      ? client.fetch<RelatedPost[]>(
-          post.resolvedLocale === "es" ? spanishRelatedBlogsQuery : englishRelatedBlogsQuery,
-          { currentId: post._id, categoryIds, tags: postTags },
-        )
-      : Promise.resolve([]),
-  ]);
+  const { franchise: franchiseBlogs, related } = await timeStaticArticleStage("related.content-provider-query", () => fetchArticleRelated<RelatedPost>({
+    locale: post.resolvedLocale,
+    animeName: post.animeName,
+    currentId: post._id,
+    categoryIds,
+    tags: postTags,
+    franchiseQuery: post.resolvedLocale === "es" ? spanishFranchiseBlogsQuery : englishFranchiseBlogsQuery,
+    topicalQuery: post.resolvedLocale === "es" ? spanishRelatedBlogsQuery : englishRelatedBlogsQuery,
+  }));
 
   const allRelatedMap = new Map<string, RelatedPost>();
   for (const item of [...franchiseBlogs, ...related]) {

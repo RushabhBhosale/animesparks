@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { groq } from "next-sanity";
 
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { runFuzzySearch, type SearchDoc } from "@/utils/search-index";
 
 const searchQuery = groq`

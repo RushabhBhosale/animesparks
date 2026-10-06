@@ -9,7 +9,7 @@ import {
   homepageSettingsQuery,
   latestBlogsQuery,
 } from "@/sanity/blogQueries";
-import { client } from "@/sanity/lib/client";
+import { client } from "@/lib/content/client";
 import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
 import { formatPostDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
