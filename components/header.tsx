@@ -114,7 +114,7 @@ export default function Header() {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
+        const data = (await res.json()) as { results?: SearchResult[] };
         setResults(Array.isArray(data.results) ? data.results : []);
       } catch (error) {
         if ((error as Error).name !== "AbortError") setResults([]);

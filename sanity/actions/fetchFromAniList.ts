@@ -49,7 +49,17 @@ export const fetchFromAniListAction: DocumentActionComponent = (props) => {
         throw new Error(`AniList request failed (${response.status})`);
       }
 
-      const payload = await response.json();
+      const payload = (await response.json()) as {
+        data?: {
+          Media?: {
+            coverImage?: { large?: string };
+            bannerImage?: string | null;
+            genres?: string[];
+            seasonYear?: number | null;
+            startDate?: { year?: number | null } | null;
+          } | null;
+        };
+      };
       const media = payload?.data?.Media;
 
       if (!media) {
@@ -68,9 +78,8 @@ export const fetchFromAniListAction: DocumentActionComponent = (props) => {
       if (media.coverImage?.large) update.coverImage = media.coverImage.large;
       if (media.bannerImage) update.bannerImage = media.bannerImage;
       if (Array.isArray(media.genres)) update.genres = media.genres;
-      if (media.seasonYear || media.startDate?.year) {
-        update.year = media.seasonYear || media.startDate.year;
-      }
+      const year = media.seasonYear ?? media.startDate?.year;
+      if (typeof year === "number") update.year = year;
 
       if (!Object.keys(update).length) {
         toast.push({ status: "warning", title: "No fields to update." });

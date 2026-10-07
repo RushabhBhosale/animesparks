@@ -14,7 +14,17 @@
     "preview:mongodb": "node scripts/run-mongodb-preview.mjs",
     "parity:content": "node scripts/check-content-parity.mjs",
     "import:anime-list": "node scripts/import-anime-list.cjs",
-    "fetch:anilist": "node scripts/fetch-anilist-bulk.cjs"
+    "fetch:anilist": "node scripts/fetch-anilist-bulk.cjs",
+    "dev:vinext": "vite dev --port 3001",
+    "build:vinext": "vite build",
+    "start:vinext": "vite preview",
+    "deploy:vinext": "vinext-cloudflare deploy",
+    "deploy:response-store": "cf deploy --prebuilt --mode production --worker animesparks-response-store",
+    "cf:dev": "vite dev --port 3001",
+    "cf:build": "vite build",
+    "cf:preview": "vite preview",
+    "cf:deploy": "vinext-cloudflare deploy",
+    "cf:deploy:response-store": "cf deploy --prebuilt --mode production --worker animesparks-response-store"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1146.0",
@@ -32,13 +42,17 @@
     "mongodb": "^7.7.0",
     "next": "16.1.6",
     "next-sanity": "^12.0.5",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "sanity": "^5.1.0",
     "sharp": "^0.34.5",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "vinext": "1.0.1",
+    "react-server-dom-webpack": "19.2.6",
+    "@vinext/cloudflare": "1.0.1",
+    "@cloudflare/workers-response-store": "1.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -49,7 +63,12 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "vite": "8.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "@vitejs/plugin-rsc": "0.5.36",
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-52b0dc0e9",
+    "cf": "1.0.0-beta.12"
   },
   "browserslist": {
     "production": [
@@ -63,5 +82,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "type": "module"
 }

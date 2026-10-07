@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -77,9 +76,24 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1425611919231559"
           crossOrigin="anonymous"
         />
-        <GoogleAnalytics gaId="G-KDR02DTGWC" />
+        <Script
+          id="_next-ga-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window['dataLayer'] = window['dataLayer'] || [];
+              function gtag(){window['dataLayer'].push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-KDR02DTGWC');
+            `,
+          }}
+        />
+        <Script
+          id="_next-ga"
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-KDR02DTGWC"
+        />
       </head>
-
       <body
         suppressHydrationWarning
         className={[
