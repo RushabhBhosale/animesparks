@@ -10,7 +10,7 @@ import {
   latestBlogsQuery,
 } from "@/sanity/blogQueries";
 import { client } from "@/lib/content/client";
-import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
+import { contentHeroImageUrl, contentImageUrl } from "@/lib/content/image";
 import { formatPostDate } from "@/utils/date";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import { splineSans } from "@/lib/font";
@@ -135,6 +135,7 @@ export default async function Home() {
 
   const featured =
     editorsWithViews[0] ?? trendingWithViews[0] ?? latestWithViews[0] ?? null;
+  const featuredImageUrl = featured?.mainImage ? contentHeroImageUrl(featured.mainImage) : undefined;
 
   const baseUsed = new Set<string>();
   if (featured?._id) baseUsed.add(featured._id);
@@ -216,9 +217,9 @@ export default async function Home() {
                 </div>
                 <Link href={`/blog/${featured.slug}`} className="editorial-button">Read the story <ArrowUpRight size={18} /></Link>
               </div>
-              {featured.mainImage?.asset?.url && (
+              {featuredImageUrl && (
                 <Link href={`/blog/${featured.slug}`} className="cover-image" aria-label={`Read ${featured.title}`}>
-                  <Image src={sanityHeroImageUrl(featured.mainImage)} alt={featured.mainImage.alt || featured.title} fill priority fetchPriority="high" sizes="(max-width: 900px) 94vw, 720px" className="object-cover" />
+                  <Image src={featuredImageUrl} alt={featured.mainImage?.alt || featured.title} fill priority fetchPriority="high" sizes="(max-width: 900px) 94vw, 720px" className="object-cover" />
                   <span className="cover-image-label">AnimeSparks <span>Featured Story</span></span>
                 </Link>
               )}
@@ -253,13 +254,16 @@ export default async function Home() {
           {animeClusters.length > 0 && (
             <section className="editorial-section" aria-labelledby="explore-anime-heading">
               <div className="editorial-section-heading"><div><p className="editorial-kicker">Anime Series</p><h2 id="explore-anime-heading">Explore by Anime<span className="text-anime-red">.</span></h2></div></div>
-              <div className="series-grid">{animeClusters.map((cluster, index) => (
-                <Link key={cluster.name} href={`/tags/${encodeURIComponent(cluster.name)}`} className="series-card">
-                  {cluster.cover?.asset?.url && <Image src={sanityImageUrl(cluster.cover, { width: 720, quality: 68 })} alt={cluster.cover.alt || ""} fill sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px" className="object-cover" />}
-                  <span className="series-number">{String(index + 1).padStart(2, "0")}</span>
-                  <div><h3>{cluster.name}</h3><p>{cluster.count} articles <ArrowUpRight size={16} /></p></div>
-                </Link>
-              ))}</div>
+              <div className="series-grid">{animeClusters.map((cluster, index) => {
+                const imageUrl = cluster.cover ? contentImageUrl(cluster.cover, { width: 720, quality: 68 }) : undefined;
+                return (
+                  <Link key={cluster.name} href={`/tags/${encodeURIComponent(cluster.name)}`} className="series-card">
+                    {imageUrl && <Image src={imageUrl} alt={cluster.cover?.alt || ""} fill sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px" className="object-cover" />}
+                    <span className="series-number">{String(index + 1).padStart(2, "0")}</span>
+                    <div><h3>{cluster.name}</h3><p>{cluster.count} articles <ArrowUpRight size={16} /></p></div>
+                  </Link>
+                );
+              })}</div>
             </section>
           )}
           {trendingCollage.length > 0 && <div className="editorial-section"><TrendingRail posts={trendingCollage} /></div>}

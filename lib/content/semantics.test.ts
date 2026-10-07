@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getContentSource } from "./provider";
-import { resolveR2AssetUrl, resolveSpanishFallback, selectPublishedArticles } from "./semantics";
+import { resolveMongoImageUrl, resolveR2AssetUrl, resolveSpanishFallback, selectPublishedArticles } from "./semantics";
 
 describe("content repository semantics", () => {
   it("defaults to Sanity and only accepts explicit server providers", () => {
@@ -31,5 +31,19 @@ describe("content repository semantics", () => {
     expect(resolveR2AssetUrl({ r2Key: "sanity/hash/image.webp" }, "https://images.animesparks.blog/"))
       .toBe("https://images.animesparks.blog/sanity/hash/image.webp");
     expect(resolveR2AssetUrl(null, "https://images.animesparks.blog")).toBeNull();
+    expect(resolveR2AssetUrl({ r2Key: "sanity/hash/an image.webp" }, "https://images.animesparks.blog"))
+      .toBe("https://images.animesparks.blog/sanity/hash/an%20image.webp");
+  });
+
+  it("always resolves Mongo images through R2 and never falls back to Sanity CDN", () => {
+    expect(resolveMongoImageUrl({ asset: {
+      r2Key: "sanity/abc123/image.webp",
+      url: "https://cdn.sanity.io/images/project/dataset/image-abc123-1200x675.webp",
+    } }, "https://images.animesparks.blog"))
+      .toBe("https://images.animesparks.blog/sanity/abc123/image.webp");
+
+    expect(resolveMongoImageUrl({ asset: {
+      url: "https://cdn.sanity.io/images/project/dataset/image-abc123-1200x675.webp",
+    } }, "https://images.animesparks.blog")).toBeNull();
   });
 });

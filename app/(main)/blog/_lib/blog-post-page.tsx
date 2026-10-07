@@ -28,7 +28,7 @@ import {
 } from "@/sanity/blogQueries";
 import { client, fetchArticleRelated } from "@/lib/content/client";
 import { noteStaticArticleDiagnostic, timeStaticArticleStage, withStaticArticleDiagnostic } from "@/lib/content/static-article-diagnostic";
-import { sanityHeroImageUrl, sanityImageUrl } from "@/sanity/lib/image";
+import { contentHeroImageUrl, contentImageUrl } from "@/lib/content/image";
 import {
   defaultOgImage,
   getBaseUrl,
@@ -374,7 +374,7 @@ async function buildBlogMetadata({ slug, locale }: { slug: string; locale: BlogL
   const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonical = getBlogUrl(baseUrl, post.resolvedLocale, post.slug);
   const description = getDescription(post.metaDescription, post.excerpt) || `Read ${post.title} on ${siteName}.`;
-  const mainImageUrl = post.mainImage?.asset ? sanityHeroImageUrl(post.mainImage) : undefined;
+  const mainImageUrl = post.mainImage?.asset ? contentHeroImageUrl(post.mainImage) : undefined;
   const ogImage = mainImageUrl || new URL(defaultOgImage, baseUrl).toString();
   const englishUrl = post.resolvedLocale === "en" ? canonical : post.alternateSlug ? getBlogUrl(baseUrl, "en", post.alternateSlug) : undefined;
   const spanishUrl = post.resolvedLocale === "es" ? canonical : post.alternateSlug ? getBlogUrl(baseUrl, "es", post.alternateSlug) : undefined;
@@ -420,7 +420,7 @@ async function renderBlogPostPage({ slug, locale }: { slug: string; locale: Blog
   const seoTitle = (post.metaTitle || "").trim() || post.title;
   const canonicalUrl = getBlogUrl(baseUrl, post.resolvedLocale, post.slug);
   const description = getDescription(post.metaDescription, post.excerpt) || `Read ${post.title} on ${siteName}.`;
-  const mainImageUrl = post.mainImage?.asset ? sanityHeroImageUrl(post.mainImage) : undefined;
+  const mainImageUrl = post.mainImage?.asset ? contentHeroImageUrl(post.mainImage) : undefined;
   const faqItems = post.faq
     ?.map((item) => ({ question: item.question?.trim() || "", answer: item.answer?.trim() || "" }))
     .filter((item) => item.question && item.answer) || [];
@@ -493,7 +493,8 @@ async function renderBlogPostPage({ slug, locale }: { slug: string; locale: Blog
     types: {
       image: ({ value }) => {
         if (!value?.asset) return null;
-        const src = sanityImageUrl(value, { width: 1200 });
+        const src = contentImageUrl(value, { width: 1200 });
+        if (!src) return null;
         return (
           <figure className="my-9">
             <div className="relative aspect-video w-full overflow-hidden border border-white/10 bg-[#0b0b0b]">

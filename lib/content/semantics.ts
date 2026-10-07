@@ -28,5 +28,29 @@ export function resolveSpanishFallback<T extends Record<string, any>>(overrides:
 }
 
 export function resolveR2AssetUrl(asset: { r2Key?: string } | null | undefined, baseUrl: string): string | null {
-  return asset?.r2Key ? `${baseUrl.replace(/\/$/, "")}/${asset.r2Key}` : null;
+  if (!asset?.r2Key) return null;
+  const key = asset.r2Key.replace(/^\/+/, "");
+  if (!key || key.split("/").some((part) => !part || part === "." || part === "..")) return null;
+  const encodedKey = key.split("/").map(encodeURIComponent).join("/");
+  return `${baseUrl.replace(/\/+$/, "")}/${encodedKey}`;
+}
+
+export function resolveMongoImageUrl(
+  image: { asset?: { r2Key?: string; url?: string; publicUrl?: string } } | null | undefined,
+  baseUrl: string,
+): string | null {
+  const asset = image?.asset;
+  if (!asset) return null;
+
+  const mappedUrl = resolveR2AssetUrl(asset, baseUrl);
+  if (mappedUrl) return mappedUrl;
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  for (const candidate of [asset.url, asset.publicUrl]) {
+    if (candidate?.startsWith(`${normalizedBase}/`)) return candidate;
+  }
+
+  // A Mongo-backed page must never send an unmapped Sanity reference to the
+  // Sanity image builder. Missing R2 mappings render without the image.
+  return null;
 }

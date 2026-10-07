@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { contentImageUrl } from "@/lib/content/image";
 import { formatPostDate } from "@/utils/date";
 
 export type InlineRelatedPost = {
@@ -10,7 +10,7 @@ export type InlineRelatedPost = {
   slug: string;
   excerpt?: string;
   publishedAt?: string;
-  mainImage?: { asset?: { url?: string }; alt?: string };
+  mainImage?: { asset?: { r2Key?: string; url?: string; publicUrl?: string }; alt?: string };
 };
 
 interface InlineRelatedBlogProps {
@@ -50,6 +50,7 @@ export function InlineRelatedBlog({
       <div className="grid gap-3.5">
         {posts.map((post) => {
           const href = locale === "es" ? `/es/blog/${post.slug}` : `/blog/${post.slug}`;
+          const imageUrl = post.mainImage ? contentImageUrl(post.mainImage, { width: 600, quality: 70 }) : undefined;
 
           return (
             <Link
@@ -58,11 +59,11 @@ export function InlineRelatedBlog({
               className="group block border border-[#222] bg-[#121212] p-3 sm:p-4 no-underline md:hover:border-[#ccff00] md:hover:bg-[#151515] transition-all"
             >
               <div className="flex flex-col sm:flex-row items-start gap-4">
-                {post.mainImage?.asset?.url && (
+                {imageUrl && (
                   <div className="relative aspect-video sm:aspect-[16/10] w-full sm:w-44 md:w-52 shrink-0 overflow-hidden bg-[#080808] border border-white/10">
                     <Image
-                      src={sanityImageUrl(post.mainImage, { width: 600, quality: 70 })}
-                      alt={post.mainImage.alt || post.title}
+                      src={imageUrl}
+                      alt={post.mainImage?.alt || post.title}
                       fill
                       sizes="(max-width: 640px) 100vw, 220px"
                       className="object-cover grayscale md:group-hover:grayscale-0 transition-all duration-500 md:group-hover:scale-105"

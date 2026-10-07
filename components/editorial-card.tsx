@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { contentImageUrl } from "@/lib/content/image";
 import { formatPostDate } from "@/utils/date";
 
 export type EditorialPost = {
@@ -10,7 +10,7 @@ export type EditorialPost = {
   slug: string;
   excerpt?: string;
   publishedAt?: string;
-  mainImage?: { asset?: { url?: string }; alt?: string };
+  mainImage?: { asset?: { r2Key?: string; url?: string; publicUrl?: string }; alt?: string };
   categories?: { title?: string; slug?: string }[];
   author?: { name?: string };
 };
@@ -22,11 +22,12 @@ export function EditorialCard({ post, layout = "grid", locale = "en", priority =
   priority?: boolean;
 }) {
   const href = locale === "es" ? `/es/blog/${post.slug}` : `/blog/${post.slug}`;
+  const imageUrl = post.mainImage ? contentImageUrl(post.mainImage, { width: 900 }) : undefined;
   return (
     <article className={`editorial-card editorial-card--${layout}`}>
-      {post.mainImage?.asset?.url && (
+      {imageUrl && (
         <Link href={href} prefetch={false} className="editorial-card-image" aria-label={post.title} tabIndex={-1}>
-          <Image src={sanityImageUrl(post.mainImage, { width: 900 })} alt={post.mainImage.alt || post.title} fill priority={priority} sizes={layout === "row" ? "(max-width: 640px) 90vw, 300px" : "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px"} className="object-cover" />
+          <Image src={imageUrl} alt={post.mainImage?.alt || post.title} fill priority={priority} sizes={layout === "row" ? "(max-width: 640px) 90vw, 300px" : "(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 400px"} className="object-cover" />
         </Link>
       )}
       <div className="editorial-card-copy">

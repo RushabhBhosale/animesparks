@@ -4,7 +4,7 @@ import {
   categoriesWithCountsQuery,
   categoriesWithCoversQuery,
 } from "@/sanity/blogQueries";
-import { sanityImageUrl } from "@/sanity/lib/image";
+import { contentImageUrl } from "@/lib/content/image";
 import type { Metadata } from "next";
 import { defaultOgImage, siteName } from "@/utils/seo";
 import Image from "next/image";
@@ -73,13 +73,16 @@ export default async function CategoriesPage() {
       <PageHero eyebrow="Find your next read" title="Editorial sections" description="Explore anime through its stories, characters, and ideas." />
       <div className="editorial-shell editorial-archive">
         <div className="series-grid">
-          {categories.map((category, index) => (
-            <Link key={category._id} href={`/categories/${category.slug}`} className="series-card">
-              {category.cover?.mainImage?.asset && <Image src={sanityImageUrl(category.cover.mainImage, { width: 900, quality: 75 })} alt={category.cover.title || category.title} fill sizes="(max-width: 540px) 90vw, (max-width: 768px) 45vw, 400px" className="object-cover" />}
-              <span className="series-number">{String(index + 1).padStart(2, "0")}</span>
-              <div><h2 className="text-2xl font-bold tracking-tight">{category.title}</h2><p>{formatCount(category.postCount)}<ArrowUpRight size={17} /></p></div>
-            </Link>
-          ))}
+          {categories.map((category, index) => {
+            const imageUrl = category.cover?.mainImage ? contentImageUrl(category.cover.mainImage, { width: 900, quality: 75 }) : undefined;
+            return (
+              <Link key={category._id} href={`/categories/${category.slug}`} className="series-card">
+                {imageUrl && <Image src={imageUrl} alt={category.cover?.title || category.title} fill sizes="(max-width: 540px) 90vw, (max-width: 768px) 45vw, 400px" className="object-cover" />}
+                <span className="series-number">{String(index + 1).padStart(2, "0")}</span>
+                <div><h2 className="text-2xl font-bold tracking-tight">{category.title}</h2><p>{formatCount(category.postCount)}<ArrowUpRight size={17} /></p></div>
+              </Link>
+            );
+          })}
         </div>
         <Link href="/blogs" className="editorial-archive-link">Browse all articles <ArrowUpRight size={18} /></Link>
       </div>

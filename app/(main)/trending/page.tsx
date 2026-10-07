@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 import { client } from "@/lib/content/client";
 import { blogsQuery } from "@/sanity/blogQueries";
-import { sanityHeroImageUrl } from "@/sanity/lib/image";
+import { contentHeroImageUrl } from "@/lib/content/image";
 import { defaultOgImage, getBaseUrl, siteName } from "@/utils/seo";
 import { TrendingContent } from "./trending-content";
 import type { BlogPost, TrendingRange } from "./types";
@@ -229,7 +229,7 @@ export default async function TrendingPage({
         datePublished: post.publishedAt ?? post._createdAt,
         url: `${baseUrl}/blog/${post.slug}`,
         description: post.excerpt,
-        image: post.mainImage ? sanityHeroImageUrl(post.mainImage) : undefined,
+        image: post.mainImage ? contentHeroImageUrl(post.mainImage) : undefined,
         author: {
           "@type": "Person",
           name: post.author?.name ?? siteName,
